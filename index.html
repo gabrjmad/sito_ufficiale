@@ -1,1 +1,82 @@
-lala
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <title>Scroll Image Sequence Test</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 200vh; /* pagina più alta per permettere lo scroll */
+      background: #000;
+    }
+    canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+
+<canvas id="sequence"></canvas>
+
+<script>
+  // numero totale di frame (cambia se hai meno/ più immagini)
+  const frameCount = 120;
+
+  // prefisso del nome file (tutto il pezzo prima del numero)
+  const baseName = "Ultra_realistic_4K_drone_camera_movement_in_a_narrow_spring_canyon__At_the_start_there_is_a_shirtles_seed2953974458__1___1___1___1__";
+
+  // genera il percorso di ogni immagine usando il nome reale
+  const currentFrame = index =>
+    `img-sequence/${baseName}${index.toString().padStart(3, '0')}.jpg`;
+
+  const canvas = document.getElementById('sequence');
+  const context = canvas.getContext('2d');
+
+  const img = new Image();
+  img.src = currentFrame(1);
+
+  img.onload = function () {
+    // imposta il canvas alla dimensione dell'immagine
+    canvas.width  = img.width;
+    canvas.height = img.height;
+    context.drawImage(img, 0, 0);
+  };
+
+  // pre-carica tutte le immagini per maggiore fluidità
+  const preloadImages = () => {
+    for (let i = 1; i <= frameCount; i++) {
+      const image = new Image();
+      image.src = currentFrame(i);
+    }
+  };
+  preloadImages();
+
+  const updateImage = index => {
+    img.src = currentFrame(index);
+    img.onload = () => {
+      context.drawImage(img, 0, 0);
+    };
+  };
+
+  window.addEventListener('scroll', () => {
+    const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+    const maxScrollTop = (document.documentElement.scrollHeight || document.body.scrollHeight) - window.innerHeight;
+    const scrollFraction = scrollTop / maxScrollTop;
+
+    const frameIndex = Math.min(
+      frameCount,
+      Math.max(1, Math.floor(scrollFraction * frameCount))
+    );
+
+    requestAnimationFrame(() => updateImage(frameIndex));
+  });
+</script>
+
+</body>
+</html>
