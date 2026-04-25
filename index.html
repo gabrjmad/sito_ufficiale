@@ -3,36 +3,31 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Scroll Image Sequence</title>
+  <title>Scroll Sequence</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@900&display=swap" rel="stylesheet">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #000; }
 
-    /* body deve poter scorrere */
-    body {
-      background: #000;
-    }
-
-    /* questo div crea lo spazio di scroll — non è visibile */
-    #scroll-space {
-      /* altezza impostata via JS */
-    }
-
-    /* tutto il visual è fixed */
+    /* ── STAGE FISSO ─────────────────────────────── */
     #stage {
       position: fixed;
-      top: 0;
-      left: 0;
+      inset: 0;
       width: 100vw;
       height: 100vh;
       background: #000;
       overflow: hidden;
     }
 
-    canvas {
+    /* ── CANVAS SEQUENZA ─────────────────────────── */
+    #sequence {
       position: absolute;
       display: block;
     }
 
+    /* ── OVERLAY NERO ────────────────────────────── */
     #fade-overlay {
       position: absolute;
       inset: 0;
@@ -40,135 +35,343 @@
       opacity: 0;
       pointer-events: none;
     }
+
+    /* ── SCENA PORTA + TUNNEL ────────────────────── */
+    #door-scene {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    /* wrapper che scala la porta da piccola a grande */
+    #door-wrapper {
+      position: relative;
+      width: 340px;
+      height: 500px;
+      transform-origin: center center;
+      transform: scale(0.05);
+    }
+
+    /* ── SVG PORTA ───────────────────────────────── */
+    #door-svg {
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+    }
+
+    /* ── TUNNEL PAROLE ───────────────────────────── */
+    #tunnel-scene {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      perspective: 600px;
+    }
+
+    #tunnel-inner {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      transform-style: preserve-3d;
+      /* ruota da 0 a -90deg (verso lo spettatore) */
+      transform: rotateX(0deg);
+    }
+
+    .tunnel-word {
+      position: absolute;
+      font-family: 'Playfair Display', Georgia, serif;
+      font-weight: 900;
+      color: #e8e4dc;
+      white-space: nowrap;
+      line-height: 1;
+      user-select: none;
+      transform-origin: center center;
+    }
   </style>
 </head>
 <body>
 
-  <!-- questo div crea lo spazio scrollabile -->
-  <div id="scroll-space"></div>
+<!-- spazio scroll generato via JS -->
+<div id="scroll-space"></div>
 
-  <!-- visual fisso -->
-  <div id="stage">
-    <canvas id="sequence"></canvas>
-    <div id="fade-overlay"></div>
+<div id="stage">
+  <canvas id="sequence"></canvas>
+  <div id="fade-overlay"></div>
+
+  <!-- PORTA -->
+  <div id="door-scene">
+    <div id="door-wrapper">
+      <svg id="door-svg" viewBox="0 0 340 500" fill="none" xmlns="http://www.w3.org/2000/svg">
+
+        <!-- TELAIO ESTERNO -->
+        <rect x="5" y="5" width="330" height="490" rx="4" ry="4"
+              fill="#d0cec8" stroke="#b0ada6" stroke-width="2"/>
+
+        <!-- CORNICE ESTERNA SPESSA -->
+        <rect x="5" y="5" width="330" height="490" rx="4" ry="4"
+              fill="none" stroke="#f0ede8" stroke-width="18"/>
+
+        <!-- SOGLIA / PAVIMENTO -->
+        <rect x="5" y="480" width="330" height="20" rx="2"
+              fill="#c8c5be" stroke="#b0ada6" stroke-width="1.5"/>
+
+        <!-- PROFONDITA' CORNICE SINISTRA (3D) -->
+        <polygon points="5,5 30,25 30,475 5,495"
+                 fill="#b8b5ae" stroke="#a0a09a" stroke-width="1"/>
+        <!-- PROFONDITA' CORNICE DESTRA -->
+        <polygon points="335,5 310,25 310,475 335,495"
+                 fill="#b8b5ae" stroke="#a0a09a" stroke-width="1"/>
+        <!-- PROFONDITA' CORNICE TOP -->
+        <polygon points="5,5 335,5 310,25 30,25"
+                 fill="#c8c5be" stroke="#a0a09a" stroke-width="1"/>
+
+        <!-- ANTA SINISTRA -->
+        <g id="door-left" transform-origin="30 250">
+          <!-- pannello anta -->
+          <rect x="30" y="25" width="137" height="450" fill="#e8e4dc" stroke="#c8c4bc" stroke-width="1.5"/>
+          <!-- modanatura superiore sx -->
+          <rect x="42" y="38" width="113" height="195" rx="3"
+                fill="#f0ede8" stroke="#d0cdc6" stroke-width="1.5"/>
+          <!-- modanatura inferiore sx -->
+          <rect x="42" y="248" width="113" height="212" rx="3"
+                fill="#f0ede8" stroke="#d0cdc6" stroke-width="1.5"/>
+          <!-- ombra interna modanatura sup -->
+          <rect x="44" y="40" width="109" height="191" rx="2"
+                fill="none" stroke="#c0bdb6" stroke-width="1"/>
+          <!-- ombra interna modanatura inf -->
+          <rect x="44" y="250" width="109" height="208" rx="2"
+                fill="none" stroke="#c0bdb6" stroke-width="1"/>
+          <!-- maniglia sinistra -->
+          <rect x="152" y="238" width="8" height="24" rx="4"
+                fill="#b0ada6" stroke="#909088" stroke-width="1"/>
+          <circle cx="156" cy="235" r="5" fill="#b8b5ae" stroke="#909088" stroke-width="1"/>
+        </g>
+
+        <!-- ANTA DESTRA -->
+        <g id="door-right" transform-origin="310 250">
+          <!-- pannello anta -->
+          <rect x="173" y="25" width="137" height="450" fill="#e8e4dc" stroke="#c8c4bc" stroke-width="1.5"/>
+          <!-- modanatura superiore dx -->
+          <rect x="185" y="38" width="113" height="195" rx="3"
+                fill="#f0ede8" stroke="#d0cdc6" stroke-width="1.5"/>
+          <!-- modanatura inferiore dx -->
+          <rect x="185" y="248" width="113" height="212" rx="3"
+                fill="#f0ede8" stroke="#d0cdc6" stroke-width="1.5"/>
+          <!-- ombra interna modanatura sup -->
+          <rect x="187" y="40" width="109" height="191" rx="2"
+                fill="none" stroke="#c0bdb6" stroke-width="1"/>
+          <!-- ombra interna modanatura inf -->
+          <rect x="187" y="250" width="109" height="208" rx="2"
+                fill="none" stroke="#c0bdb6" stroke-width="1"/>
+          <!-- maniglia destra -->
+          <rect x="180" y="238" width="8" height="24" rx="4"
+                fill="#b0ada6" stroke="#909088" stroke-width="1"/>
+          <circle cx="184" cy="235" r="5" fill="#b8b5ae" stroke="#909088" stroke-width="1"/>
+        </g>
+
+        <!-- LINEA DI DIVISIONE CENTRALE -->
+        <line x1="170" y1="25" x2="170" y2="475"
+              stroke="#c0bdb6" stroke-width="2"/>
+
+      </svg>
+    </div>
   </div>
 
+  <!-- TUNNEL PAROLE -->
+  <div id="tunnel-scene">
+    <div id="tunnel-inner"></div>
+  </div>
+</div>
+
 <script>
-  /* ─── CONFIG ───────────────────────────────────────────────────
-     Modifica questi valori per calibrare la velocità e il fade
-  ──────────────────────────────────────────────────────────────── */
-  const FRAME_COUNT    = 144;          // frame totali (000 → 143)
-  const PX_PER_FRAME   = 18;           // pixel di scroll per ogni frame
-  const FADE_PX        = 300;          // pixel di scroll dedicati al fade nero DOPO l'ultimo frame
-  /* ─────────────────────────────────────────────────────────────── */
+/* ═══════════════════════════════════════════════════════════════
+   CONFIG
+═══════════════════════════════════════════════════════════════ */
+const FRAME_COUNT  = 144;
+const PX_PER_FRAME = 18;
+const FADE_PX      = 250;   // nero dopo le immagini
+const DOOR_PX      = 900;   // porta cresce
+const OPEN_PX      = 400;   // ante si aprono
+const TUNNEL_PX    = 700;   // tunnel ruota
 
-  const frameSrc = i =>
-    `img-sequence/video1__2__${i.toString().padStart(3, '0')}.jpg`;
+const TOTAL_PX = (FRAME_COUNT * PX_PER_FRAME) + FADE_PX + DOOR_PX + OPEN_PX + TUNNEL_PX;
 
-  // Totale pixel di scroll = sequenza + fade
-  const SEQUENCE_PX = FRAME_COUNT * PX_PER_FRAME;
-  const TOTAL_PX    = SEQUENCE_PX + FADE_PX;
+const frameSrc = i =>
+  `img-sequence/video1__2__${i.toString().padStart(3, '0')}.jpg`;
 
-  // Imposta altezza della pagina
-  const scrollSpace = document.getElementById('scroll-space');
+/* ── checkpoint scroll ── */
+const S_SEQ_END   = FRAME_COUNT * PX_PER_FRAME;
+const S_FADE_END  = S_SEQ_END + FADE_PX;
+const S_DOOR_END  = S_FADE_END + DOOR_PX;
+const S_OPEN_END  = S_DOOR_END + OPEN_PX;
+const S_TUNN_END  = S_OPEN_END + TUNNEL_PX;
+
+/* ═══════════════════════════════════════════════════════════════
+   SCROLL SPACE
+═══════════════════════════════════════════════════════════════ */
+const scrollSpace = document.getElementById('scroll-space');
+function setScrollHeight() {
   scrollSpace.style.height = (TOTAL_PX + window.innerHeight) + 'px';
+}
+setScrollHeight();
+window.addEventListener('resize', () => { setScrollHeight(); applyCanvasCover(); redraw(); });
 
-  // Aggiorna se finestra cambia dimensione
-  window.addEventListener('resize', () => {
-    scrollSpace.style.height = (TOTAL_PX + window.innerHeight) + 'px';
-    applyCanvasCover();
-    redraw();
-  });
+/* ═══════════════════════════════════════════════════════════════
+   CANVAS
+═══════════════════════════════════════════════════════════════ */
+const canvas  = document.getElementById('sequence');
+const ctx     = canvas.getContext('2d');
+let natW = 1920, natH = 1080;
 
-  /* ─── CANVAS + COVER ─────────────────────────────────────────── */
-  const canvas  = document.getElementById('sequence');
-  const ctx     = canvas.getContext('2d');
-  const overlay = document.getElementById('fade-overlay');
+function applyCanvasCover() {
+  const vw = window.innerWidth, vh = window.innerHeight;
+  const ir = natW / natH, vr = vw / vh;
+  let dw, dh;
+  if (vr > ir) { dw = vw; dh = vw / ir; }
+  else          { dh = vh; dw = vh * ir; }
+  dw = Math.round(dw); dh = Math.round(dh);
+  canvas.width = dw; canvas.height = dh;
+  canvas.style.left   = Math.round((vw - dw) / 2) + 'px';
+  canvas.style.top    = Math.round((vh - dh) / 2) + 'px';
+  canvas.style.width  = dw + 'px';
+  canvas.style.height = dh + 'px';
+}
 
-  let naturalW = 1920, naturalH = 1080;
-
-  function applyCanvasCover() {
-    const vw = window.innerWidth;
-    const vh = window.innerHeight;
-    const imgRatio  = naturalW / naturalH;
-    const viewRatio = vw / vh;
-
-    let drawW, drawH;
-    if (viewRatio > imgRatio) {
-      drawW = vw;
-      drawH = vw / imgRatio;
-    } else {
-      drawH = vh;
-      drawW = vh * imgRatio;
+/* ═══════════════════════════════════════════════════════════════
+   PRELOAD
+═══════════════════════════════════════════════════════════════ */
+const images = [];
+let firstLoaded = false;
+for (let i = 0; i < FRAME_COUNT; i++) {
+  const img = new Image();
+  img.src = frameSrc(i);
+  img.onload = function() {
+    if (!firstLoaded) {
+      firstLoaded = true;
+      natW = img.naturalWidth || natW;
+      natH = img.naturalHeight || natH;
+      applyCanvasCover();
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
     }
+  };
+  images.push(img);
+}
 
-    drawW = Math.round(drawW);
-    drawH = Math.round(drawH);
+/* ═══════════════════════════════════════════════════════════════
+   TUNNEL — genera parole
+═══════════════════════════════════════════════════════════════ */
+const WORDS = [
+  { text: 'GABRJMAD',  size: 120, x: 50,  y: 8,   rot: 0   },
+  { text: 'DESIGNER',  size: 72,  x: -10, y: 30,  rot: -8  },
+  { text: 'INVESTOR',  size: 88,  x: 55,  y: 52,  rot: 5   },
+  { text: 'BUISNESS',  size: 100, x: 5,   y: 68,  rot: -3  },
+  { text: 'MODEL',     size: 130, x: 45,  y: 80,  rot: 8   },
+  { text: 'ROUND',     size: 76,  x: -5,  y: 90,  rot: -6  },
+  { text: 'FRONT',     size: 110, x: 30,  y: 15,  rot: 12  },
+  { text: 'BELLO',     size: 95,  x: 60,  y: 42,  rot: -10 },
+  { text: 'GABRJMAD',  size: 58,  x: 10,  y: 60,  rot: 3   },
+  { text: 'DESIGNER',  size: 140, x: 20,  y: 75,  rot: -5  },
+];
 
-    canvas.width         = drawW;
-    canvas.height        = drawH;
-    canvas.style.left    = Math.round((vw - drawW) / 2) + 'px';
-    canvas.style.top     = Math.round((vh - drawH) / 2) + 'px';
-    canvas.style.width   = drawW + 'px';
-    canvas.style.height  = drawH + 'px';
+const tunnelInner = document.getElementById('tunnel-inner');
+WORDS.forEach(w => {
+  const el = document.createElement('div');
+  el.className = 'tunnel-word';
+  el.textContent = w.text;
+  el.style.fontSize = w.size + 'px';
+  el.style.left = w.x + '%';
+  el.style.top  = w.y + '%';
+  el.style.transform = `rotate(${w.rot}deg)`;
+  tunnelInner.appendChild(el);
+});
+
+/* ═══════════════════════════════════════════════════════════════
+   ELEMENTI DOM
+═══════════════════════════════════════════════════════════════ */
+const overlay     = document.getElementById('fade-overlay');
+const doorScene   = document.getElementById('door-scene');
+const doorWrapper = document.getElementById('door-wrapper');
+const doorLeft    = document.getElementById('door-left');
+const doorRight   = document.getElementById('door-right');
+const tunnelScene = document.getElementById('tunnel-scene');
+
+/* ═══════════════════════════════════════════════════════════════
+   HELPERS
+═══════════════════════════════════════════════════════════════ */
+function clamp(v, min, max) { return Math.min(max, Math.max(min, v)); }
+function norm(v, a, b)      { return clamp((v - a) / (b - a), 0, 1); }
+function ease(t)            { return t < 0.5 ? 2*t*t : -1+(4-2*t)*t; } // easeInOut
+
+/* ═══════════════════════════════════════════════════════════════
+   SCROLL
+═══════════════════════════════════════════════════════════════ */
+let lastFrameIdx = -1;
+
+function redraw() {
+  const sy = window.scrollY;
+
+  /* ── 1. SEQUENZA IMMAGINI ── */
+  const frameIdx = clamp(Math.floor(sy / PX_PER_FRAME), 0, FRAME_COUNT - 1);
+  if (frameIdx !== lastFrameIdx) {
+    lastFrameIdx = frameIdx;
+    const img = images[frameIdx];
+    if (img && img.complete) ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
   }
 
-  /* ─── PRELOAD ────────────────────────────────────────────────── */
-  const images = [];
-  let loadedFirst = false;
+  /* ── 2. FADE NERO ── */
+  const fadeT = norm(sy, S_SEQ_END, S_FADE_END);
+  overlay.style.opacity = fadeT.toFixed(4);
 
-  for (let i = 0; i < FRAME_COUNT; i++) {
-    const img = new Image();
-    img.src = frameSrc(i);
-    img.onload = function () {
-      if (!loadedFirst) {
-        loadedFirst = true;
-        naturalW = img.naturalWidth  || naturalW;
-        naturalH = img.naturalHeight || naturalH;
-        applyCanvasCover();
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-      }
-    };
-    images.push(img);
+  /* ── 3. PORTA – VISIBILITÀ ── */
+  if (sy < S_FADE_END) {
+    doorScene.style.opacity = '0';
+    return;
+  }
+  doorScene.style.opacity = '1';
+
+  /* ── 4. PORTA – SCALA (piccola → grande) ── */
+  const doorGrowT = ease(norm(sy, S_FADE_END, S_DOOR_END));
+  // da 0.04 a 1.0
+  const scaleVal  = 0.04 + doorGrowT * 0.96;
+  doorWrapper.style.transform = `scale(${scaleVal.toFixed(4)})`;
+
+  /* ── 5. ANTE – APERTURA ── */
+  if (sy > S_DOOR_END) {
+    const openT = ease(norm(sy, S_DOOR_END, S_OPEN_END));
+    // anta sinistra ruota attorno al bordo sinistro (0°→ -75°)
+    const leftDeg  = -75 * openT;
+    // anta destra ruota attorno al bordo destro (0°→ 75°)
+    const rightDeg = 75 * openT;
+
+    doorLeft.style.transform  = `perspective(800px) rotateY(${leftDeg}deg)`;
+    doorRight.style.transform = `perspective(800px) rotateY(${rightDeg}deg)`;
+  } else {
+    doorLeft.style.transform  = '';
+    doorRight.style.transform = '';
   }
 
-  /* ─── SCROLL ─────────────────────────────────────────────────── */
-  let lastFrameIdx = -1;
-
-  function redraw() {
-    const scrollY = window.scrollY;
-
-    // ── Quale frame mostrare ──
-    const frameIdx = Math.min(
-      FRAME_COUNT - 1,
-      Math.max(0, Math.floor(scrollY / PX_PER_FRAME))
-    );
-
-    if (frameIdx !== lastFrameIdx) {
-      lastFrameIdx = frameIdx;
-      const img = images[frameIdx];
-      if (img && img.complete) {
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-      }
-    }
-
-    // ── Fade nero: parte SOLO dopo l'ultimo frame ──
-    const fadeStart = SEQUENCE_PX;          // pixel in cui inizia il fade
-    const fadeEnd   = SEQUENCE_PX + FADE_PX; // pixel in cui il nero è completo
-
-    if (scrollY <= fadeStart) {
-      overlay.style.opacity = 0;
-    } else {
-      const fadeFrac = (scrollY - fadeStart) / FADE_PX;
-      overlay.style.opacity = Math.min(1, fadeFrac).toFixed(4);
-    }
+  /* ── 6. TUNNEL – VISIBILITÀ E ROTAZIONE ── */
+  if (sy > S_OPEN_END) {
+    const tunnT = ease(norm(sy, S_OPEN_END, S_TUNN_END));
+    tunnelScene.style.opacity = Math.min(1, tunnT * 3).toFixed(4); // appare subito
+    // ruota da 0° a -90° (verso lo spettatore)
+    const rotX = -90 * tunnT;
+    tunnelInner.style.transform = `rotateX(${rotX.toFixed(2)}deg)`;
+  } else {
+    tunnelScene.style.opacity = '0';
   }
+}
 
-  window.addEventListener('scroll', () => requestAnimationFrame(redraw), { passive: true });
-
-  // Render iniziale
-  applyCanvasCover();
-  redraw();
+window.addEventListener('scroll', () => requestAnimationFrame(redraw), { passive: true });
+applyCanvasCover();
+redraw();
 </script>
 
 </body>
