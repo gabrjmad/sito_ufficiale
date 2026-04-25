@@ -2,80 +2,156 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8" />
-  <title>Scroll Image Sequence Test</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Scroll Image Sequence</title>
   <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      height: 200vh; /* pagina più alta per permettere lo scroll */
-      background: #000;
-    }
-    canvas {
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; background: #000; overflow-x: hidden; }
+
+    #scroll-driver { /* altezza definita via JS */ }
+
+    #stage {
       position: fixed;
-      top: 0;
-      left: 0;
+      inset: 0;
       width: 100vw;
       height: 100vh;
+      background: #000;
+      overflow: hidden;
+    }
+
+    canvas {
+      position: absolute;
       display: block;
+    }
+
+    #fade-overlay {
+      position: absolute;
+      inset: 0;
+      background: #000;
+      opacity: 0;
+      pointer-events: none;
     }
   </style>
 </head>
 <body>
 
-<canvas id="sequence"></canvas>
+<div id="scroll-driver"></div>
+
+<div id="stage">
+  <canvas id="sequence"></canvas>
+  <div id="fade-overlay"></div>
+</div>
 
 <script>
-  // numero totale di frame (cambia se hai meno/ più immagini)
-  const frameCount = 120;
+  // ── CONFIGURAZIONE ──────────────────────────────────────────────
+  const FRAME_START     = 0;
+  const FRAME_END       = 143;
+  const FRAME_COUNT     = FRAME_END - FRAME_START + 1; // 144
 
-  // prefisso del nome file (tutto il pezzo prima del numero)
-  const baseName = "Ultra_realistic_4K_drone_camera_movement_in_a_narrow_spring_canyon__At_the_start_there_is_a_shirtles_seed2953974458__1___1___1___1__";
+  // Quanto scroll è dedicato alle immagini vs al fade finale
+  // 0.85 = 85% per la sequenza, 15% per la dissolvenza in nero
+  const SEQUENCE_RATIO  = 0.85;
 
-  // genera il percorso di ogni immagine usando il nome reale
-  const currentFrame = index =>
-    `img-sequence/${baseName}${index.toString().padStart(3, '0')}.jpg`;
+  // Altezza totale dello scroll in vh (più alto = più lento)
+  const TOTAL_VH        = 500;
 
-  const canvas = document.getElementById('sequence');
-  const context = canvas.getContext('2d');
+  const frameSrc = i =>
+    `img-sequence/video1__2__${i.toString().padStart(3, '0')}.jpg`;
 
-  const img = new Image();
-  img.src = currentFrame(1);
+  // ── ELEMENTI DOM ────────────────────────────────────────────────
+  const canvas  = document.getElementById('sequence');
+  const ctx     = canvas.getContext('2d');
+  const overlay = document.getElementById('fade-overlay');
+  const driver  = document.getElementById('scroll-driver');
 
-  img.onload = function () {
-    // imposta il canvas alla dimensione dell'immagine
-    canvas.width  = img.width;
-    canvas.height = img.height;
-    context.drawImage(img, 0, 0);
-  };
+  driver.style.height = TOTAL_VH + 'vh';
 
-  // pre-carica tutte le immagini per maggiore fluidità
-  const preloadImages = () => {
-    for (let i = 1; i <= frameCount; i++) {
-      const image = new Image();
-      image.src = currentFrame(i);
+  // ── DIMENSIONI NATURALI (aggiornate al primo frame) ─────────────
+  let naturalW = 1920, naturalH = 1080;
+
+  function applyCanvasCover() {
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    const imgRatio  = naturalW / naturalH;
+    const viewRatio = vw / vh;
+
+    let drawW, drawH;
+    if (viewRatio > imgRatio) {
+      drawW = vw;
+      drawH = vw / imgRatio;
+    } else {
+      drawH = vh;
+      drawW = vh * imgRatio;
     }
-  };
-  preloadImages();
 
-  const updateImage = index => {
-    img.src = currentFrame(index);
-    img.onload = () => {
-      context.drawImage(img, 0, 0);
+    drawW = Math.round(drawW);
+    drawH = Math.round(drawH);
+
+    canvas.width  = drawW;
+    canvas.height = drawH;
+    canvas.style.left   = Math.round((vw - drawW) / 2) + 'px';
+    canvas.style.top    = Math.round((vh - drawH) / 2) + 'px';
+    canvas.style.width  = drawW + 'px';
+    canvas.style.height = drawH + 'px';
+  }
+
+  // ── PRELOAD ─────────────────────────────────────────────────────
+  const images = new Array(FRAME_COUNT);
+  let firstLoaded = false;
+
+  for (let i = 0; i < FRAME_COUNT; i++) {
+    const img = new Image();
+    img.src = frameSrc(FRAME_START + i);
+    img.onload = function() {
+      if (!firstLoaded) {
+        firstLoaded = true;
+        naturalW = img.naturalWidth  || naturalW;
+        naturalH = img.naturalHeight || naturalH;
+        applyCanvasCover();
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      }
     };
-  };
+    images[i] = img;
+  }
 
-  window.addEventListener('scroll', () => {
-    const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
-    const maxScrollTop = (document.documentElement.scrollHeight || document.body.scrollHeight) - window.innerHeight;
-    const scrollFraction = scrollTop / maxScrollTop;
-
-    const frameIndex = Math.min(
-      frameCount,
-      Math.max(1, Math.floor(scrollFraction * frameCount))
-    );
-
-    requestAnimationFrame(() => updateImage(frameIndex));
+  window.addEventListener('resize', () => {
+    applyCanvasCover();
+    const img = images[lastFrame];
+    if (img && img.complete) ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
   });
+
+  // ── SCROLL ──────────────────────────────────────────────────────
+  let lastFrame = 0;
+
+  function tick() {
+    const scrollTop  = window.scrollY;
+    const maxScroll  = document.documentElement.scrollHeight - window.innerHeight;
+    const frac       = maxScroll > 0 ? scrollTop / maxScroll : 0;
+
+    // Frame
+    const seqFrac    = Math.min(1, frac / SEQUENCE_RATIO);
+    const frameIdx   = Math.min(FRAME_COUNT - 1, Math.max(0, Math.floor(seqFrac * FRAME_COUNT)));
+
+    if (frameIdx !== lastFrame) {
+      lastFrame = frameIdx;
+      const img = images[frameIdx];
+      if (img && img.complete) {
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      }
+    }
+
+    // Fade nero
+    if (frac <= SEQUENCE_RATIO) {
+      overlay.style.opacity = 0;
+    } else {
+      const fadeFrac = (frac - SEQUENCE_RATIO) / (1 - SEQUENCE_RATIO);
+      overlay.style.opacity = Math.min(1, fadeFrac).toFixed(4);
+    }
+  }
+
+  window.addEventListener('scroll', () => requestAnimationFrame(tick), { passive: true });
+
+  applyCanvasCover();
 </script>
 
 </body>
