@@ -5,14 +5,23 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Scroll Image Sequence</title>
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body { height: 100%; background: #000; overflow-x: hidden; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
 
-    #scroll-driver { /* altezza definita via JS */ }
+    /* body deve poter scorrere */
+    body {
+      background: #000;
+    }
 
+    /* questo div crea lo spazio di scroll — non è visibile */
+    #scroll-space {
+      /* altezza impostata via JS */
+    }
+
+    /* tutto il visual è fixed */
     #stage {
       position: fixed;
-      inset: 0;
+      top: 0;
+      left: 0;
       width: 100vw;
       height: 100vh;
       background: #000;
@@ -35,38 +44,47 @@
 </head>
 <body>
 
-<div id="scroll-driver"></div>
+  <!-- questo div crea lo spazio scrollabile -->
+  <div id="scroll-space"></div>
 
-<div id="stage">
-  <canvas id="sequence"></canvas>
-  <div id="fade-overlay"></div>
-</div>
+  <!-- visual fisso -->
+  <div id="stage">
+    <canvas id="sequence"></canvas>
+    <div id="fade-overlay"></div>
+  </div>
 
 <script>
-  // ── CONFIGURAZIONE ──────────────────────────────────────────────
-  const FRAME_START     = 0;
-  const FRAME_END       = 143;
-  const FRAME_COUNT     = FRAME_END - FRAME_START + 1; // 144
-
-  // Quanto scroll è dedicato alle immagini vs al fade finale
-  // 0.85 = 85% per la sequenza, 15% per la dissolvenza in nero
-  const SEQUENCE_RATIO  = 0.85;
-
-  // Altezza totale dello scroll in vh (più alto = più lento)
-  const TOTAL_VH        = 500;
+  /* ─── CONFIG ───────────────────────────────────────────────────
+     Modifica questi valori per calibrare la velocità e il fade
+  ──────────────────────────────────────────────────────────────── */
+  const FRAME_COUNT    = 144;          // frame totali (000 → 143)
+  const PX_PER_FRAME   = 18;           // pixel di scroll per ogni frame
+  const FADE_PX        = 300;          // pixel di scroll dedicati al fade nero DOPO l'ultimo frame
+  /* ─────────────────────────────────────────────────────────────── */
 
   const frameSrc = i =>
     `img-sequence/video1__2__${i.toString().padStart(3, '0')}.jpg`;
 
-  // ── ELEMENTI DOM ────────────────────────────────────────────────
+  // Totale pixel di scroll = sequenza + fade
+  const SEQUENCE_PX = FRAME_COUNT * PX_PER_FRAME;
+  const TOTAL_PX    = SEQUENCE_PX + FADE_PX;
+
+  // Imposta altezza della pagina
+  const scrollSpace = document.getElementById('scroll-space');
+  scrollSpace.style.height = (TOTAL_PX + window.innerHeight) + 'px';
+
+  // Aggiorna se finestra cambia dimensione
+  window.addEventListener('resize', () => {
+    scrollSpace.style.height = (TOTAL_PX + window.innerHeight) + 'px';
+    applyCanvasCover();
+    redraw();
+  });
+
+  /* ─── CANVAS + COVER ─────────────────────────────────────────── */
   const canvas  = document.getElementById('sequence');
   const ctx     = canvas.getContext('2d');
   const overlay = document.getElementById('fade-overlay');
-  const driver  = document.getElementById('scroll-driver');
 
-  driver.style.height = TOTAL_VH + 'vh';
-
-  // ── DIMENSIONI NATURALI (aggiornate al primo frame) ─────────────
   let naturalW = 1920, naturalH = 1080;
 
   function applyCanvasCover() {
@@ -87,71 +105,70 @@
     drawW = Math.round(drawW);
     drawH = Math.round(drawH);
 
-    canvas.width  = drawW;
-    canvas.height = drawH;
-    canvas.style.left   = Math.round((vw - drawW) / 2) + 'px';
-    canvas.style.top    = Math.round((vh - drawH) / 2) + 'px';
-    canvas.style.width  = drawW + 'px';
-    canvas.style.height = drawH + 'px';
+    canvas.width         = drawW;
+    canvas.height        = drawH;
+    canvas.style.left    = Math.round((vw - drawW) / 2) + 'px';
+    canvas.style.top     = Math.round((vh - drawH) / 2) + 'px';
+    canvas.style.width   = drawW + 'px';
+    canvas.style.height  = drawH + 'px';
   }
 
-  // ── PRELOAD ─────────────────────────────────────────────────────
-  const images = new Array(FRAME_COUNT);
-  let firstLoaded = false;
+  /* ─── PRELOAD ────────────────────────────────────────────────── */
+  const images = [];
+  let loadedFirst = false;
 
   for (let i = 0; i < FRAME_COUNT; i++) {
     const img = new Image();
-    img.src = frameSrc(FRAME_START + i);
-    img.onload = function() {
-      if (!firstLoaded) {
-        firstLoaded = true;
+    img.src = frameSrc(i);
+    img.onload = function () {
+      if (!loadedFirst) {
+        loadedFirst = true;
         naturalW = img.naturalWidth  || naturalW;
         naturalH = img.naturalHeight || naturalH;
         applyCanvasCover();
         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
       }
     };
-    images[i] = img;
+    images.push(img);
   }
 
-  window.addEventListener('resize', () => {
-    applyCanvasCover();
-    const img = images[lastFrame];
-    if (img && img.complete) ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-  });
+  /* ─── SCROLL ─────────────────────────────────────────────────── */
+  let lastFrameIdx = -1;
 
-  // ── SCROLL ──────────────────────────────────────────────────────
-  let lastFrame = 0;
+  function redraw() {
+    const scrollY = window.scrollY;
 
-  function tick() {
-    const scrollTop  = window.scrollY;
-    const maxScroll  = document.documentElement.scrollHeight - window.innerHeight;
-    const frac       = maxScroll > 0 ? scrollTop / maxScroll : 0;
+    // ── Quale frame mostrare ──
+    const frameIdx = Math.min(
+      FRAME_COUNT - 1,
+      Math.max(0, Math.floor(scrollY / PX_PER_FRAME))
+    );
 
-    // Frame
-    const seqFrac    = Math.min(1, frac / SEQUENCE_RATIO);
-    const frameIdx   = Math.min(FRAME_COUNT - 1, Math.max(0, Math.floor(seqFrac * FRAME_COUNT)));
-
-    if (frameIdx !== lastFrame) {
-      lastFrame = frameIdx;
+    if (frameIdx !== lastFrameIdx) {
+      lastFrameIdx = frameIdx;
       const img = images[frameIdx];
       if (img && img.complete) {
         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
       }
     }
 
-    // Fade nero
-    if (frac <= SEQUENCE_RATIO) {
+    // ── Fade nero: parte SOLO dopo l'ultimo frame ──
+    const fadeStart = SEQUENCE_PX;          // pixel in cui inizia il fade
+    const fadeEnd   = SEQUENCE_PX + FADE_PX; // pixel in cui il nero è completo
+
+    if (scrollY <= fadeStart) {
       overlay.style.opacity = 0;
     } else {
-      const fadeFrac = (frac - SEQUENCE_RATIO) / (1 - SEQUENCE_RATIO);
+      const fadeFrac = (scrollY - fadeStart) / FADE_PX;
       overlay.style.opacity = Math.min(1, fadeFrac).toFixed(4);
     }
   }
 
-  window.addEventListener('scroll', () => requestAnimationFrame(tick), { passive: true });
+  window.addEventListener('scroll', () => requestAnimationFrame(redraw), { passive: true });
 
+  // Render iniziale
   applyCanvasCover();
+  redraw();
 </script>
 
 </body>
