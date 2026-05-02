@@ -146,8 +146,8 @@
 <script>
 /* ───────────────── CONFIG GENERALE ───────────────── */
 
-// ✅ FIX 1: FRAME_COUNT corretto — i frame vanno da 001 a 123
-const FRAME_COUNT  = 123;
+// ✅ FIX 1: FRAME_COUNT corretto — i frame vanno da 002 a 128
+const FRAME_COUNT  = 127;
 const PX_PER_FRAME = 18;
 const FADE_PX      = 250;
 const DOOR_ZOOM_PX = 1200;
@@ -156,9 +156,8 @@ const TUNNEL_PX    = 900;
 
 const TOTAL_PX = (FRAME_COUNT * PX_PER_FRAME) + FADE_PX + DOOR_ZOOM_PX + DOOR_OPEN_PX + TUNNEL_PX;
 
-// ✅ FIX 2: padStart usa '0' come fill character (non '1')
-// ✅ FIX 3: il padding è 3 cifre (frame_001 → frame_123)
-const frameSrc = i => `img-sequence/frame_${String(i + 1).padStart(3, '0')}.jpg`;
+// ✅ FIX 2: i file si chiamano 002.png → 128.png
+const frameSrc = i => `img-sequence/${String(i + 2).padStart(3, '0')}.png`;
 
 const S_SEQ_END   = FRAME_COUNT * PX_PER_FRAME;
 const S_FADE_END  = S_SEQ_END + FADE_PX;
@@ -215,7 +214,7 @@ function loadFrame(i) {
     }
   };
   img.onerror = function() {
-    console.warn(`Frame ${i + 1} non trovato: ${frameSrc(i)}`);
+    console.warn(`Frame ${i + 2} non trovato: ${frameSrc(i)}`);
   };
   images[i] = img;
 }
