@@ -165,7 +165,7 @@ const TUNNEL_PX    = 900;      // quanto dura la rotazione del tunnel
 
 const TOTAL_PX = (FRAME_COUNT * PX_PER_FRAME) + FADE_PX + DOOR_ZOOM_PX + DOOR_OPEN_PX + TUNNEL_PX;
 
-const frameSrc = i => `img-sequence/frame_${i.toString().padStart(3, '0')}.jpg`;
+const frameSrc = i => `img-sequence/frame_00${i.toString().padStart(3, '1')}.jpg`;
 
 const S_SEQ_END   = FRAME_COUNT * PX_PER_FRAME;
 const S_FADE_END  = S_SEQ_END + FADE_PX;
