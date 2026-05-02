@@ -70,7 +70,7 @@
       left: 23%;
       width: 54%;
       height: 64%;
-      background: #6fb0e6; /* azzurro interno come riferimento */
+      background: #6fb0e6;
       overflow: hidden;
       perspective: 900px;
       z-index: 1;
@@ -78,7 +78,7 @@
 
     #tunnel-inner {
       position: absolute;
-      inset: -60% -60%; /* più grande dell'apertura per effetto tunnel */
+      inset: -60% -60%;
       transform-style: preserve-3d;
       transform-origin: center center;
     }
@@ -114,26 +114,16 @@
 
       <!-- Porta flat / design -->
       <svg id="door-svg" viewBox="0 0 360 520" xmlns="http://www.w3.org/2000/svg">
-        <!-- sfondo interno nero per non creare ombre sul sito -->
         <rect x="0" y="0" width="360" height="520" fill="#000" />
-
-        <!-- telaio esterno bianco -->
         <rect x="20" y="20" width="320" height="480" fill="#f5f5f5" />
-
-        <!-- bordo interno grigio chiaro per suggerire profondità -->
         <rect x="36" y="36" width="288" height="448" fill="#e9e9e9" />
-
-        <!-- linea interna che separa le due ante -->
         <rect x="180" y="36" width="2" height="448" fill="#d0d0d0" />
 
         <!-- anta sinistra -->
         <g id="door-left" style="transform-origin: 36px 260px; transform-box: fill-box;">
-          <!-- pannello anta -->
           <rect x="36" y="36" width="144" height="448" fill="#fdfdfd" />
-          <!-- cornice interna anta -->
           <rect x="48" y="52" width="120" height="416" fill="#f2f2f2" />
           <rect x="56" y="60" width="104" height="400" fill="#fdfdfd" />
-          <!-- maniglia -->
           <rect x="160" y="246" width="8" height="32" rx="4" fill="#d0d0d0" />
         </g>
 
@@ -145,7 +135,6 @@
           <rect x="196" y="246" width="8" height="32" rx="4" fill="#d0d0d0" />
         </g>
 
-        <!-- bordo sottilissimo per definire il frame -->
         <rect x="20" y="20" width="320" height="480" fill="none" stroke="#d0d0d0" stroke-width="2" />
       </svg>
 
@@ -156,16 +145,20 @@
 
 <script>
 /* ───────────────── CONFIG GENERALE ───────────────── */
-const FRAME_COUNT  = 144;      // 000 → 143
-const PX_PER_FRAME = 18;       // scroll per frame
-const FADE_PX      = 250;      // fade al nero
-const DOOR_ZOOM_PX = 1200;     // quanto dura lo zoom sulla porta
-const DOOR_OPEN_PX = 600;      // quanto dura l'apertura delle ante
-const TUNNEL_PX    = 900;      // quanto dura la rotazione del tunnel
+
+// ✅ FIX 1: FRAME_COUNT corretto — i frame vanno da 001 a 123
+const FRAME_COUNT  = 123;
+const PX_PER_FRAME = 18;
+const FADE_PX      = 250;
+const DOOR_ZOOM_PX = 1200;
+const DOOR_OPEN_PX = 600;
+const TUNNEL_PX    = 900;
 
 const TOTAL_PX = (FRAME_COUNT * PX_PER_FRAME) + FADE_PX + DOOR_ZOOM_PX + DOOR_OPEN_PX + TUNNEL_PX;
 
-const frameSrc = i => `img-sequence/frame_00${i.toString().padStart(3, '0')}.jpg`;
+// ✅ FIX 2: padStart usa '0' come fill character (non '1')
+// ✅ FIX 3: il padding è 3 cifre (frame_001 → frame_123)
+const frameSrc = i => `img-sequence/frame_${String(i + 1).padStart(3, '0')}.jpg`;
 
 const S_SEQ_END   = FRAME_COUNT * PX_PER_FRAME;
 const S_FADE_END  = S_SEQ_END + FADE_PX;
@@ -201,12 +194,18 @@ function applyCanvasCover() {
   canvas.style.height = dh + 'px';
 }
 
-const images = [];
+// ✅ FIX 4: preload con Progress tracker — mostra il frame appena disponibile
+const images = new Array(FRAME_COUNT);
+let loadedCount = 0;
 let firstLoaded = false;
-for (let i = 0; i < FRAME_COUNT; i++) {
+
+function loadFrame(i) {
   const img = new Image();
+  // ✅ FIX 5: preload in ordine, con priorità ai primi frame
+  img.fetchPriority = i < 10 ? 'high' : 'auto';
   img.src = frameSrc(i);
   img.onload = function () {
+    loadedCount++;
     if (!firstLoaded) {
       firstLoaded = true;
       natW = img.naturalWidth || natW;
@@ -215,7 +214,14 @@ for (let i = 0; i < FRAME_COUNT; i++) {
       ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
     }
   };
-  images.push(img);
+  img.onerror = function() {
+    console.warn(`Frame ${i + 1} non trovato: ${frameSrc(i)}`);
+  };
+  images[i] = img;
+}
+
+for (let i = 0; i < FRAME_COUNT; i++) {
+  loadFrame(i);
 }
 
 /* ───────────────── TUNNEL PAROLE ────────────────── */
@@ -250,7 +256,6 @@ const doorScene   = document.getElementById('door-scene');
 const doorWrapper = document.getElementById('door-wrapper');
 const doorLeft    = document.getElementById('door-left');
 const doorRight   = document.getElementById('door-right');
-const doorTunnel  = document.getElementById('door-tunnel');
 
 /* ───────────────── HELPERS ─────────────────────── */
 function clamp(v, min, max) { return Math.min(max, Math.max(min, v)); }
@@ -264,11 +269,12 @@ function redraw() {
   const sy = window.scrollY || document.documentElement.scrollTop || 0;
 
   /* 1) Sequenza immagini */
+  // ✅ FIX 6: l'indice è 0-based, frame va da 0 a FRAME_COUNT-1
   const frameIdx = clamp(Math.floor(sy / PX_PER_FRAME), 0, FRAME_COUNT - 1);
   if (frameIdx !== lastFrameIdx) {
     lastFrameIdx = frameIdx;
     const img = images[frameIdx];
-    if (img && img.complete) {
+    if (img && img.complete && img.naturalWidth > 0) {
       ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
     }
   }
@@ -277,7 +283,6 @@ function redraw() {
   const fadeT = norm(sy, S_SEQ_END, S_FADE_END);
   overlay.style.opacity = fadeT.toFixed(4);
 
-  /* Da qui in poi tutto su sfondo nero */
   if (sy < S_FADE_END) {
     doorScene.style.opacity = '0';
     return;
@@ -285,22 +290,22 @@ function redraw() {
 
   doorScene.style.opacity = '1';
 
-  /* 3) Zoom-through porta (porta ferma al centro, scala verso di noi) */
+  /* 3) Zoom-through porta */
   const zoomT = ease(norm(sy, S_FADE_END, S_TUNN_END));
-  const scale = 0.08 + zoomT * 3.2; // da molto piccola a molto grande
+  const scale = 0.08 + zoomT * 3.2;
   doorWrapper.style.transform = `scale(${scale.toFixed(4)})`;
 
-  /* 4) Apertura delle ante (progressiva) */
+  /* 4) Apertura delle ante */
   const openT = ease(norm(sy, S_FADE_END, S_OPEN_END));
-  const leftDeg  = -85 * openT;  // verso l'esterno
+  const leftDeg  = -85 * openT;
   const rightDeg =  85 * openT;
   doorLeft.style.transform  = `perspective(900px) rotateY(${leftDeg.toFixed(2)}deg)`;
   doorRight.style.transform = `perspective(900px) rotateY(${rightDeg.toFixed(2)}deg)`;
 
-  /* 5) Tunnel parole in prospettiva (ruota verso di noi) */
+  /* 5) Tunnel parole in prospettiva */
   const tunnelT = ease(norm(sy, S_ZOOM_END, S_TUNN_END));
-  const rotX = -20 - 70 * tunnelT;       // da -20° a circa -90°
-  const translateZ = -400 + 400*tunnelT; // si avvicina
+  const rotX = -20 - 70 * tunnelT;
+  const translateZ = -400 + 400 * tunnelT;
   tunnelInner.style.transform = `translateZ(${translateZ}px) rotateX(${rotX}deg)`;
 }
 
