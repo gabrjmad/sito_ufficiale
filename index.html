@@ -65,7 +65,6 @@
     /* Area interna della porta che contiene il tunnel */
     #door-tunnel {
       position: absolute;
-      /* valori calibrati per stare dentro il telaio interno */
       top: 16%;
       left: 23%;
       width: 54%;
@@ -145,8 +144,6 @@
 
 <script>
 /* ───────────────── CONFIG GENERALE ───────────────── */
-
-// ✅ FIX 1: FRAME_COUNT corretto — i frame vanno da 002 a 128
 const FRAME_COUNT  = 127;
 const PX_PER_FRAME = 18;
 const FADE_PX      = 250;
@@ -156,8 +153,8 @@ const TUNNEL_PX    = 900;
 
 const TOTAL_PX = (FRAME_COUNT * PX_PER_FRAME) + FADE_PX + DOOR_ZOOM_PX + DOOR_OPEN_PX + TUNNEL_PX;
 
-// ✅ FIX 2: i file si chiamano 002.png → 128.png
-const frameSrc = i => `img-sequence/${String(i + 2).padStart(3, '0')}.png`;
+// compressed_002.jpg → compressed_128.jpg
+const frameSrc = i => `img-sequence/compressed_${String(i + 2).padStart(3, '0')}.jpg`;
 
 const S_SEQ_END   = FRAME_COUNT * PX_PER_FRAME;
 const S_FADE_END  = S_SEQ_END + FADE_PX;
@@ -173,55 +170,74 @@ function setScrollHeight() {
 setScrollHeight();
 
 /* ───────────────── CANVAS SEQUENZA ──────────────── */
-const canvas  = document.getElementById('sequence');
-const ctx     = canvas.getContext('2d');
-let natW = 1920, natH = 1080;
+const canvas = document.getElementById('sequence');
+const ctx    = canvas.getContext('2d', { alpha: false });
+
+const NATIVE_RATIO = 16 / 9;
+let drawW = 0;
+let drawH = 0;
 
 function applyCanvasCover() {
   const vw = window.innerWidth;
   const vh = window.innerHeight;
-  const ir = natW / natH;
-  const vr = vw / vh;
-  let dw, dh;
-  if (vr > ir) { dw = vw; dh = vw / ir; }
-  else { dh = vh; dw = vh * ir; }
-  dw = Math.round(dw); dh = Math.round(dh);
-  canvas.width = dw; canvas.height = dh;
-  canvas.style.left = Math.round((vw - dw) / 2) + 'px';
-  canvas.style.top  = Math.round((vh - dh) / 2) + 'px';
-  canvas.style.width  = dw + 'px';
-  canvas.style.height = dh + 'px';
+  const viewportRatio = vw / vh;
+
+  if (viewportRatio > NATIVE_RATIO) {
+    drawW = vw;
+    drawH = Math.round(vw / NATIVE_RATIO);
+  } else {
+    drawH = vh;
+    drawW = Math.round(vh * NATIVE_RATIO);
+  }
+
+  canvas.width = drawW;
+  canvas.height = drawH;
+  canvas.style.width = drawW + 'px';
+  canvas.style.height = drawH + 'px';
+  canvas.style.left = Math.round((vw - drawW) / 2) + 'px';
+  canvas.style.top = Math.round((vh - drawH) / 2) + 'px';
+
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = 'high';
 }
 
-// ✅ FIX 4: preload con Progress tracker — mostra il frame appena disponibile
 const images = new Array(FRAME_COUNT);
-let loadedCount = 0;
 let firstLoaded = false;
+let rafPending = false;
+let lastFrameIdx = -1;
+let lastSy = -1;
+
+function drawFrame(img) {
+  if (!img || !img.complete || !img.naturalWidth) return;
+  ctx.drawImage(img, 0, 0, drawW, drawH);
+}
 
 function loadFrame(i) {
   const img = new Image();
-  // ✅ FIX 5: preload in ordine, con priorità ai primi frame
-  img.fetchPriority = i < 10 ? 'high' : 'auto';
+  img.fetchPriority = i < 12 ? 'high' : 'auto';
+  img.decoding = 'async';
   img.src = frameSrc(i);
+
   img.onload = function () {
-    loadedCount++;
     if (!firstLoaded) {
       firstLoaded = true;
-      natW = img.naturalWidth || natW;
-      natH = img.naturalHeight || natH;
       applyCanvasCover();
-      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      drawFrame(img);
     }
   };
+
   img.onerror = function() {
-    console.warn(`Frame ${i + 2} non trovato: ${frameSrc(i)}`);
+    console.warn(`Frame non trovato: ${frameSrc(i)}`);
   };
+
   images[i] = img;
 }
 
-for (let i = 0; i < FRAME_COUNT; i++) {
-  loadFrame(i);
-}
+for (let i = 0; i < 12; i++) loadFrame(i);
+
+setTimeout(() => {
+  for (let i = 12; i < FRAME_COUNT; i++) loadFrame(i);
+}, 80);
 
 /* ───────────────── TUNNEL PAROLE ────────────────── */
 const WORDS = [
@@ -262,23 +278,22 @@ function norm(v, a, b)      { return clamp((v - a) / (b - a), 0, 1); }
 function ease(t)            { return t < 0.5 ? 2*t*t : -1 + (4 - 2*t)*t; }
 
 /* ───────────────── SCROLL LOGIC ─────────────────── */
-let lastFrameIdx = -1;
-
 function redraw() {
-  const sy = window.scrollY || document.documentElement.scrollTop || 0;
+  rafPending = false;
 
-  /* 1) Sequenza immagini */
-  // ✅ FIX 6: l'indice è 0-based, frame va da 0 a FRAME_COUNT-1
+  const sy = window.scrollY || document.documentElement.scrollTop || 0;
+  if (sy === lastSy) return;
+  lastSy = sy;
+
   const frameIdx = clamp(Math.floor(sy / PX_PER_FRAME), 0, FRAME_COUNT - 1);
   if (frameIdx !== lastFrameIdx) {
     lastFrameIdx = frameIdx;
     const img = images[frameIdx];
     if (img && img.complete && img.naturalWidth > 0) {
-      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      drawFrame(img);
     }
   }
 
-  /* 2) Fade nero */
   const fadeT = norm(sy, S_SEQ_END, S_FADE_END);
   overlay.style.opacity = fadeT.toFixed(4);
 
@@ -289,27 +304,35 @@ function redraw() {
 
   doorScene.style.opacity = '1';
 
-  /* 3) Zoom-through porta */
   const zoomT = ease(norm(sy, S_FADE_END, S_TUNN_END));
   const scale = 0.08 + zoomT * 3.2;
   doorWrapper.style.transform = `scale(${scale.toFixed(4)})`;
 
-  /* 4) Apertura delle ante */
   const openT = ease(norm(sy, S_FADE_END, S_OPEN_END));
   const leftDeg  = -85 * openT;
   const rightDeg =  85 * openT;
   doorLeft.style.transform  = `perspective(900px) rotateY(${leftDeg.toFixed(2)}deg)`;
   doorRight.style.transform = `perspective(900px) rotateY(${rightDeg.toFixed(2)}deg)`;
 
-  /* 5) Tunnel parole in prospettiva */
   const tunnelT = ease(norm(sy, S_ZOOM_END, S_TUNN_END));
   const rotX = -20 - 70 * tunnelT;
   const translateZ = -400 + 400 * tunnelT;
   tunnelInner.style.transform = `translateZ(${translateZ}px) rotateX(${rotX}deg)`;
 }
 
-window.addEventListener('scroll', () => requestAnimationFrame(redraw), { passive: true });
-window.addEventListener('resize', () => { setScrollHeight(); applyCanvasCover(); redraw(); });
+window.addEventListener('scroll', () => {
+  if (!rafPending) {
+    rafPending = true;
+    requestAnimationFrame(redraw);
+  }
+}, { passive: true });
+
+window.addEventListener('resize', () => {
+  setScrollHeight();
+  applyCanvasCover();
+  const current = images[lastFrameIdx >= 0 ? lastFrameIdx : 0];
+  drawFrame(current);
+});
 
 applyCanvasCover();
 redraw();
