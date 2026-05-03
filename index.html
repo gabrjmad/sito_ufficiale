@@ -1,222 +1,337 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
-  <title>Scroll Sequence</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Scroll Sequence + Porta</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@900&display=swap" rel="stylesheet">
   <style>
-    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
     html, body {
       background: #000;
       overscroll-behavior: none;
-      -webkit-overflow-scrolling: touch;
     }
+    body { min-height: 100vh; }
+
+    #scroll-space {}
+
     #stage {
-      position: fixed; inset: 0;
-      background: #000; overflow: hidden;
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      background: #000;
+      overflow: hidden;
     }
-    #seq {
-      position: absolute; inset: 0;
-      background-size: cover;
-      background-position: center center;
-      background-repeat: no-repeat;
-      will-change: background-image;
+
+    /* Due layer immagine per evitare flash neri */
+    .seq-layer {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center center;
+      background: #000;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 80ms linear;
+      will-change: opacity;
+      backface-visibility: hidden;
+      transform: translateZ(0);
     }
-    #fade {
-      position: absolute; inset: 0;
-      background: #000; opacity: 0;
-      pointer-events: none; will-change: opacity;
+
+    .seq-layer.active {
+      opacity: 1;
     }
+
+    #fade-overlay {
+      position: absolute;
+      inset: 0;
+      background: #000;
+      opacity: 0;
+      pointer-events: none;
+      will-change: opacity;
+    }
+
     #door-scene {
-      position: absolute; inset: 0;
-      display: flex; align-items: center; justify-content: center;
-      opacity: 0; pointer-events: none;
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
     }
+
     #door-wrapper {
-      position: relative; width: 360px; height: 520px;
+      position: relative;
+      width: 360px;
+      height: 520px;
+      transform-origin: center center;
+      transform: scale(0.1);
+      will-change: transform;
+    }
+
+    #door-svg {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+      z-index: 2;
+    }
+
+    #door-tunnel {
+      position: absolute;
+      top: 16%;
+      left: 23%;
+      width: 54%;
+      height: 64%;
+      background: #6fb0e6;
+      overflow: hidden;
+      perspective: 900px;
+      z-index: 1;
+    }
+
+    #tunnel-inner {
+      position: absolute;
+      inset: -60% -60%;
+      transform-style: preserve-3d;
       transform-origin: center center;
       will-change: transform;
     }
-    #door-svg { position: relative; width: 100%; height: 100%; overflow: visible; z-index: 2; }
-    #door-tunnel {
-      position: absolute; top: 16%; left: 23%; width: 54%; height: 64%;
-      background: #6fb0e6; overflow: hidden; perspective: 900px; z-index: 1;
-    }
-    #tunnel-inner {
-      position: absolute; inset: -60%;
-      transform-style: preserve-3d; transform-origin: center center;
-      will-change: transform;
-    }
-    .tw {
+
+    .tunnel-word {
       position: absolute;
       font-family: 'Playfair Display', Georgia, serif;
-      font-weight: 900; color: #f5f7ff;
-      white-space: nowrap; line-height: 1; user-select: none;
+      font-weight: 900;
+      color: #f5f7ff;
+      white-space: nowrap;
+      line-height: 1;
+      user-select: none;
+      transform-origin: center center;
     }
-    #door-left, #door-right { will-change: transform; }
+
+    #door-left,
+    #door-right {
+      will-change: transform;
+    }
   </style>
 </head>
 <body>
 
-<div id="ss"></div>
+<div id="scroll-space"></div>
 
 <div id="stage">
-  <div id="seq"></div>
-  <div id="fade"></div>
+  <img id="seq-a" class="seq-layer active" alt="" decoding="async" fetchpriority="high">
+  <img id="seq-b" class="seq-layer" alt="" decoding="async">
+  <div id="fade-overlay"></div>
 
   <div id="door-scene">
     <div id="door-wrapper">
       <div id="door-tunnel"><div id="tunnel-inner"></div></div>
       <svg id="door-svg" viewBox="0 0 360 520" xmlns="http://www.w3.org/2000/svg">
-        <rect width="360" height="520" fill="#000"/>
-        <rect x="20" y="20" width="320" height="480" fill="#f5f5f5"/>
-        <rect x="36" y="36" width="288" height="448" fill="#e9e9e9"/>
-        <rect x="180" y="36" width="2" height="448" fill="#d0d0d0"/>
-        <g id="door-left" style="transform-origin:36px 260px;transform-box:fill-box">
-          <rect x="36" y="36" width="144" height="448" fill="#fdfdfd"/>
-          <rect x="48" y="52" width="120" height="416" fill="#f2f2f2"/>
-          <rect x="56" y="60" width="104" height="400" fill="#fdfdfd"/>
-          <rect x="160" y="246" width="8" height="32" rx="4" fill="#d0d0d0"/>
+        <rect x="0" y="0" width="360" height="520" fill="#000" />
+        <rect x="20" y="20" width="320" height="480" fill="#f5f5f5" />
+        <rect x="36" y="36" width="288" height="448" fill="#e9e9e9" />
+        <rect x="180" y="36" width="2" height="448" fill="#d0d0d0" />
+
+        <g id="door-left" style="transform-origin: 36px 260px; transform-box: fill-box;">
+          <rect x="36" y="36" width="144" height="448" fill="#fdfdfd" />
+          <rect x="48" y="52" width="120" height="416" fill="#f2f2f2" />
+          <rect x="56" y="60" width="104" height="400" fill="#fdfdfd" />
+          <rect x="160" y="246" width="8" height="32" rx="4" fill="#d0d0d0" />
         </g>
-        <g id="door-right" style="transform-origin:324px 260px;transform-box:fill-box">
-          <rect x="196" y="36" width="144" height="448" fill="#fdfdfd"/>
-          <rect x="208" y="52" width="120" height="416" fill="#f2f2f2"/>
-          <rect x="216" y="60" width="104" height="400" fill="#fdfdfd"/>
-          <rect x="196" y="246" width="8" height="32" rx="4" fill="#d0d0d0"/>
+
+        <g id="door-right" style="transform-origin: 324px 260px; transform-box: fill-box;">
+          <rect x="196" y="36" width="144" height="448" fill="#fdfdfd" />
+          <rect x="208" y="52" width="120" height="416" fill="#f2f2f2" />
+          <rect x="216" y="60" width="104" height="400" fill="#fdfdfd" />
+          <rect x="196" y="246" width="8" height="32" rx="4" fill="#d0d0d0" />
         </g>
-        <rect x="20" y="20" width="320" height="480" fill="none" stroke="#d0d0d0" stroke-width="2"/>
+
+        <rect x="20" y="20" width="320" height="480" fill="none" stroke="#d0d0d0" stroke-width="2" />
       </svg>
     </div>
   </div>
 </div>
 
 <script>
-/* ══════════ CONFIG ══════════ */
-const TOTAL_FRAMES = 127;
-const PX_PER_FRAME = 24;
-const FADE_PX      = 400;
-const ZOOM_PX      = 1200;
-const OPEN_PX      = 600;
-const TUNN_PX      = 900;
+const FRAME_COUNT  = 127;
+const PX_PER_FRAME = 26;
+const FADE_PX      = 420;
+const DOOR_ZOOM_PX = 1200;
+const DOOR_OPEN_PX = 600;
+const TUNNEL_PX    = 900;
 
-const S_END  = TOTAL_FRAMES * PX_PER_FRAME;
-const S_FADE = S_END  + FADE_PX;
-const S_ZOOM = S_FADE + ZOOM_PX;
-const S_OPEN = S_ZOOM + OPEN_PX;
-const S_TUNN = S_OPEN + TUNN_PX;
+const S_SEQ_END   = FRAME_COUNT * PX_PER_FRAME;
+const S_FADE_END  = S_SEQ_END + FADE_PX;
+const S_ZOOM_END  = S_FADE_END + DOOR_ZOOM_PX;
+const S_OPEN_END  = S_ZOOM_END + DOOR_OPEN_PX;
+const S_TUNN_END  = S_OPEN_END + TUNNEL_PX;
+const TOTAL_PX    = S_TUNN_END;
 
-const src = i => `img-sequence/compressed_${String(i+2).padStart(3,'0')}.jpg`;
+const frameSrc = i => `img-sequence/compressed_${String(i + 2).padStart(3, '0')}.jpg`;
 
-/* ══════════ SCROLL SPACE ══════════ */
-document.getElementById('ss').style.height = (S_TUNN + window.innerHeight) + 'px';
+const scrollSpace = document.getElementById('scroll-space');
+scrollSpace.style.height = (TOTAL_PX + window.innerHeight) + 'px';
 
-/* ══════════ PRELOAD ══════════ */
-const urls   = new Array(TOTAL_FRAMES).fill(null);
-const loaded = new Array(TOTAL_FRAMES).fill(false);
-let readyCount = 0;
-
-function preload(i) {
-  const img = new Image();
-  img.decoding = 'async';
-  img.fetchPriority = i < 20 ? 'high' : 'auto';
-  img.onload = () => {
-    urls[i] = img.src;
-    loaded[i] = true;
-    readyCount++;
-    if (readyCount === 1) showFrame(i);
-  };
-  img.onerror = () => console.warn('Mancante:', src(i));
-  img.src = src(i);
-}
-
-for (let i = 0; i < 20; i++) preload(i);
-setTimeout(() => { for (let i = 20; i < TOTAL_FRAMES; i++) preload(i); }, 60);
-
-/* ══════════ DOM ══════════ */
-const seq       = document.getElementById('seq');
-const fade      = document.getElementById('fade');
+const layerA = document.getElementById('seq-a');
+const layerB = document.getElementById('seq-b');
+const overlay = document.getElementById('fade-overlay');
 const doorScene = document.getElementById('door-scene');
-const doorWrap  = document.getElementById('door-wrapper');
-const doorLeft  = document.getElementById('door-left');
+const doorWrapper = document.getElementById('door-wrapper');
+const doorLeft = document.getElementById('door-left');
 const doorRight = document.getElementById('door-right');
-const tunnelIn  = document.getElementById('tunnel-inner');
+const tunnelInner = document.getElementById('tunnel-inner');
 
-/* ══════════ TUNNEL PAROLE ══════════ */
-[
-  {t:'GABRJMAD',s:130,x:5,  y:10, r:-5 },
-  {t:'DESIGNER',s:90, x:55, y:18, r:8  },
-  {t:'INVESTOR',s:110,x:10, y:40, r:-8 },
-  {t:'BUISNESS',s:100,x:55, y:45, r:7  },
-  {t:'MODEL',   s:140,x:0,  y:60, r:-10},
-  {t:'ROUND',   s:95, x:60, y:68, r:6  },
-  {t:'FRONT',   s:120,x:8,  y:78, r:-7 },
-  {t:'BELLO',   s:105,x:58, y:82, r:9  },
-  {t:'GABRJMAD',s:70, x:-5, y:28, r:4  },
-  {t:'DESIGNER',s:150,x:25, y:52, r:-4 },
-].forEach(w => {
+const WORDS = [
+  { text: 'GABRJMAD', size: 130, x: 5,   y: 10,  rot: -5  },
+  { text: 'DESIGNER', size: 90,  x: 55,  y: 18,  rot: 8   },
+  { text: 'INVESTOR', size: 110, x: 10,  y: 40,  rot: -8  },
+  { text: 'BUISNESS', size: 100, x: 55,  y: 45,  rot: 7   },
+  { text: 'MODEL',    size: 140, x: 0,   y: 60,  rot: -10 },
+  { text: 'ROUND',    size: 95,  x: 60,  y: 68,  rot: 6   },
+  { text: 'FRONT',    size: 120, x: 8,   y: 78,  rot: -7  },
+  { text: 'BELLO',    size: 105, x: 58,  y: 82,  rot: 9   },
+  { text: 'GABRJMAD', size: 70,  x: -5,  y: 28,  rot: 4   },
+  { text: 'DESIGNER', size: 150, x: 25,  y: 52,  rot: -4  },
+];
+
+WORDS.forEach(w => {
   const el = document.createElement('div');
-  el.className = 'tw';
-  el.textContent = w.t;
-  el.style.cssText = `font-size:${w.s}px;left:${w.x}%;top:${w.y}%;transform:rotate(${w.r}deg)`;
-  tunnelIn.appendChild(el);
+  el.className = 'tunnel-word';
+  el.textContent = w.text;
+  el.style.fontSize = w.size + 'px';
+  el.style.left = w.x + '%';
+  el.style.top = w.y + '%';
+  el.style.transform = `rotate(${w.rot}deg)`;
+  tunnelInner.appendChild(el);
 });
 
-/* ══════════ HELPERS ══════════ */
-const clamp = (v,a,b) => v<a?a:v>b?b:v;
-const norm  = (v,a,b) => clamp((v-a)/(b-a),0,1);
-const ease  = t => t<0.5 ? 2*t*t : -1+(4-2*t)*t;
+const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
+const norm  = (v, a, b) => clamp((v - a) / (b - a), 0, 1);
+const ease  = t => t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
 
-/* ══════════ SHOW FRAME ══════════ */
-let lastShown = -1;
-function showFrame(i) {
-  if (i === lastShown || !loaded[i]) return;
-  lastShown = i;
-  seq.style.backgroundImage = `url("${urls[i]}")`;
+const loaded = new Array(FRAME_COUNT).fill(false);
+const inflight = new Array(FRAME_COUNT).fill(false);
+let activeLayer = layerA;
+let hiddenLayer = layerB;
+let shownFrame = -1;
+let queuedFrame = -1;
+let rafPending = false;
+let lastScrollY = -1;
+
+function swapLayers(nextSrc) {
+  if (hiddenLayer.src !== nextSrc) hiddenLayer.src = nextSrc;
+  hiddenLayer.classList.add('active');
+  activeLayer.classList.remove('active');
+  const tmp = activeLayer;
+  activeLayer = hiddenLayer;
+  hiddenLayer = tmp;
 }
 
-/* ══════════ SCROLL LOGIC ══════════ */
-let raf = false;
-let lastY = -1;
+function requestFrame(i, priority = 'auto') {
+  if (i < 0 || i >= FRAME_COUNT || loaded[i] || inflight[i]) return;
+  inflight[i] = true;
+
+  const img = new Image();
+  img.decoding = 'async';
+  img.fetchPriority = priority;
+
+  img.onload = async () => {
+    try {
+      if (img.decode) await img.decode();
+    } catch (e) {}
+
+    loaded[i] = true;
+    inflight[i] = false;
+
+    if (queuedFrame === i) {
+      showFrame(i);
+    }
+  };
+
+  img.onerror = () => {
+    inflight[i] = false;
+  };
+
+  img.src = frameSrc(i);
+}
+
+function warmAround(index) {
+  requestFrame(index, 'high');
+  requestFrame(index + 1, 'high');
+  requestFrame(index - 1, 'high');
+  requestFrame(index + 2, 'auto');
+  requestFrame(index - 2, 'auto');
+  requestFrame(index + 3, 'auto');
+  requestFrame(index - 3, 'auto');
+}
+
+function showFrame(index) {
+  index = clamp(index, 0, FRAME_COUNT - 1);
+  queuedFrame = index;
+  warmAround(index);
+
+  if (!loaded[index]) return;
+  if (shownFrame === index) return;
+
+  shownFrame = index;
+  swapLayers(frameSrc(index));
+}
+
+requestFrame(0, 'high');
+for (let i = 1; i < 10; i++) requestFrame(i, 'high');
+setTimeout(() => {
+  for (let i = 10; i < FRAME_COUNT; i++) requestFrame(i, 'auto');
+}, 120);
 
 function redraw() {
-  raf = false;
-  const sy = window.scrollY || 0;
-  if (sy === lastY) return;
-  lastY = sy;
+  rafPending = false;
 
-  /* Frame — bidirezionale */
-  showFrame(clamp(Math.floor(sy / PX_PER_FRAME), 0, TOTAL_FRAMES - 1));
+  const sy = window.scrollY || document.documentElement.scrollTop || 0;
+  if (sy === lastScrollY) return;
+  lastScrollY = sy;
 
-  /* Fade */
-  fade.style.opacity = norm(sy, S_END, S_FADE).toFixed(3);
+  const frameIdx = sy <= S_SEQ_END
+    ? clamp(Math.floor(sy / PX_PER_FRAME), 0, FRAME_COUNT - 1)
+    : FRAME_COUNT - 1;
 
-  if (sy < S_FADE) { doorScene.style.opacity = '0'; return; }
+  showFrame(frameIdx);
+
+  const fadeT = norm(sy, S_SEQ_END, S_FADE_END);
+  overlay.style.opacity = fadeT.toFixed(3);
+
+  if (sy < S_FADE_END) {
+    doorScene.style.opacity = '0';
+    return;
+  }
+
   doorScene.style.opacity = '1';
 
-  /* Zoom porta */
-  const zT = ease(norm(sy, S_FADE, S_TUNN));
-  doorWrap.style.transform = `scale(${(0.08 + zT * 3.2).toFixed(4)})`;
+  const zoomT = ease(norm(sy, S_FADE_END, S_TUNN_END));
+  doorWrapper.style.transform = `scale(${(0.08 + zoomT * 3.2).toFixed(4)})`;
 
-  /* Ante */
-  const oT = ease(norm(sy, S_FADE, S_OPEN));
-  doorLeft.style.transform  = `perspective(900px) rotateY(${(-85*oT).toFixed(2)}deg)`;
-  doorRight.style.transform = `perspective(900px) rotateY(${(85*oT).toFixed(2)}deg)`;
+  const openT = ease(norm(sy, S_FADE_END, S_OPEN_END));
+  doorLeft.style.transform  = `perspective(900px) rotateY(${(-85 * openT).toFixed(2)}deg)`;
+  doorRight.style.transform = `perspective(900px) rotateY(${( 85 * openT).toFixed(2)}deg)`;
 
-  /* Tunnel */
-  const tT = ease(norm(sy, S_ZOOM, S_TUNN));
-  tunnelIn.style.transform =
-    `translateZ(${(-400+400*tT).toFixed(1)}px) rotateX(${(-20-70*tT).toFixed(2)}deg)`;
+  const tunnelT = ease(norm(sy, S_ZOOM_END, S_TUNN_END));
+  tunnelInner.style.transform = `translateZ(${(-400 + 400 * tunnelT).toFixed(1)}px) rotateX(${(-20 - 70 * tunnelT).toFixed(2)}deg)`;
 }
 
 window.addEventListener('scroll', () => {
-  if (!raf) { raf = true; requestAnimationFrame(redraw); }
+  if (!rafPending) {
+    rafPending = true;
+    requestAnimationFrame(redraw);
+  }
 }, { passive: true });
 
 window.addEventListener('resize', () => {
-  document.getElementById('ss').style.height = (S_TUNN + window.innerHeight) + 'px';
+  scrollSpace.style.height = (TOTAL_PX + window.innerHeight) + 'px';
   redraw();
 }, { passive: true });
 
