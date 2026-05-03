@@ -9,99 +9,51 @@
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@900&display=swap" rel="stylesheet">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-
-    html, body {
-      background: #000;
-      overscroll-behavior: none;
-    }
-
+    html, body { background: #000; overscroll-behavior: none; }
     #scroll-space {}
-
     #stage {
-      position: fixed;
-      inset: 0;
-      width: 100vw;
-      height: 100vh;
-      background: #000;
-      overflow: hidden;
+      position: fixed; inset: 0;
+      width: 100vw; height: 100vh;
+      background: #000; overflow: hidden;
       will-change: transform;
     }
-
     #sequence {
-      position: absolute;
-      top: 0;
-      left: 0;
-      display: block;
+      position: absolute; top: 0; left: 0; display: block;
       will-change: contents;
       image-rendering: -webkit-optimize-contrast;
       image-rendering: crisp-edges;
     }
-
     #fade-overlay {
-      position: absolute;
-      inset: 0;
-      background: #000;
-      opacity: 0;
-      pointer-events: none;
-      will-change: opacity;
+      position: absolute; inset: 0;
+      background: #000; opacity: 0;
+      pointer-events: none; will-change: opacity;
     }
-
     #door-scene {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      opacity: 0;
-      pointer-events: none;
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none;
     }
-
     #door-wrapper {
-      position: relative;
-      width: 360px;
-      height: 520px;
-      transform-origin: center center;
-      transform: scale(0.1);
+      position: relative; width: 360px; height: 520px;
+      transform-origin: center center; transform: scale(0.1);
       will-change: transform;
     }
-
-    #door-svg {
-      position: relative;
-      width: 100%;
-      height: 100%;
-      overflow: visible;
-      z-index: 2;
-    }
-
+    #door-svg { position: relative; width: 100%; height: 100%; overflow: visible; z-index: 2; }
     #door-tunnel {
-      position: absolute;
-      top: 16%;
-      left: 23%;
-      width: 54%;
-      height: 64%;
-      background: #6fb0e6;
-      overflow: hidden;
-      perspective: 900px;
-      z-index: 1;
+      position: absolute; top: 16%; left: 23%; width: 54%; height: 64%;
+      background: #6fb0e6; overflow: hidden; perspective: 900px; z-index: 1;
     }
-
     #tunnel-inner {
-      position: absolute;
-      inset: -60% -60%;
-      transform-style: preserve-3d;
-      transform-origin: center center;
+      position: absolute; inset: -60% -60%;
+      transform-style: preserve-3d; transform-origin: center center;
       will-change: transform;
     }
-
     .tunnel-word {
       position: absolute;
       font-family: 'Playfair Display', Georgia, serif;
-      font-weight: 900;
-      color: #f5f7ff;
-      white-space: nowrap;
-      line-height: 1;
-      user-select: none;
-      transform-origin: center center;
+      font-weight: 900; color: #f5f7ff;
+      white-space: nowrap; line-height: 1;
+      user-select: none; transform-origin: center center;
     }
   </style>
 </head>
@@ -115,30 +67,24 @@
 
   <div id="door-scene">
     <div id="door-wrapper">
-      <div id="door-tunnel">
-        <div id="tunnel-inner"></div>
-      </div>
-
+      <div id="door-tunnel"><div id="tunnel-inner"></div></div>
       <svg id="door-svg" viewBox="0 0 360 520" xmlns="http://www.w3.org/2000/svg">
         <rect x="0" y="0" width="360" height="520" fill="#000" />
         <rect x="20" y="20" width="320" height="480" fill="#f5f5f5" />
         <rect x="36" y="36" width="288" height="448" fill="#e9e9e9" />
         <rect x="180" y="36" width="2" height="448" fill="#d0d0d0" />
-
         <g id="door-left" style="transform-origin: 36px 260px; transform-box: fill-box;">
           <rect x="36" y="36" width="144" height="448" fill="#fdfdfd" />
           <rect x="48" y="52" width="120" height="416" fill="#f2f2f2" />
           <rect x="56" y="60" width="104" height="400" fill="#fdfdfd" />
           <rect x="160" y="246" width="8" height="32" rx="4" fill="#d0d0d0" />
         </g>
-
         <g id="door-right" style="transform-origin: 324px 260px; transform-box: fill-box;">
           <rect x="196" y="36" width="144" height="448" fill="#fdfdfd" />
           <rect x="208" y="52" width="120" height="416" fill="#f2f2f2" />
           <rect x="216" y="60" width="104" height="400" fill="#fdfdfd" />
           <rect x="196" y="246" width="8" height="32" rx="4" fill="#d0d0d0" />
         </g>
-
         <rect x="20" y="20" width="320" height="480" fill="none" stroke="#d0d0d0" stroke-width="2" />
       </svg>
     </div>
@@ -146,7 +92,7 @@
 </div>
 
 <script>
-/* ═══════════════ CONFIG ═══════════════ */
+/* ═══════════ CONFIG ═══════════ */
 const FRAME_COUNT  = 127;
 const PX_PER_FRAME = 22;
 const FADE_PX      = 250;
@@ -161,17 +107,16 @@ const S_ZOOM_END = S_FADE_END + DOOR_ZOOM_PX;
 const S_OPEN_END = S_ZOOM_END + DOOR_OPEN_PX;
 const S_TUNN_END = S_OPEN_END + TUNNEL_PX;
 
-// compressed_002.jpg → compressed_128.jpg
 const frameSrc = i => `img-sequence/compressed_${String(i + 2).padStart(3, '0')}.jpg`;
 
-/* ═══════════════ SCROLL SPACE ═══════════════ */
+/* ═══════════ SCROLL SPACE ═══════════ */
 const scrollSpace = document.getElementById('scroll-space');
 function setScrollHeight() {
   scrollSpace.style.height = (TOTAL_PX + window.innerHeight) + 'px';
 }
 setScrollHeight();
 
-/* ═══════════════ CANVAS COVER ═══════════════ */
+/* ═══════════ CANVAS COVER ═══════════ */
 const canvas = document.getElementById('sequence');
 const ctx = canvas.getContext('2d', { alpha: false, desynchronized: true });
 
@@ -180,63 +125,49 @@ let vw = 0, vh = 0, cw = 0, ch = 0;
 let sx = 0, sy_crop = 0, sw = 0, sh = 0;
 
 function applyCanvasCover() {
-  vw = window.innerWidth;
-  vh = window.innerHeight;
+  vw = window.innerWidth; vh = window.innerHeight;
   const screenRatio = vw / vh;
-
-  cw = vw;
-  ch = vh;
-  canvas.width  = cw;
-  canvas.height = ch;
-  canvas.style.width  = cw + 'px';
-  canvas.style.height = ch + 'px';
-  canvas.style.left = '0';
-  canvas.style.top  = '0';
-
+  cw = vw; ch = vh;
+  canvas.width = cw; canvas.height = ch;
+  canvas.style.width = cw + 'px'; canvas.style.height = ch + 'px';
+  canvas.style.left = '0'; canvas.style.top = '0';
   ctx.imageSmoothingEnabled = true;
   ctx.imageSmoothingQuality = 'high';
-
   const natW = 3840, natH = 2160;
   if (screenRatio > IMG_RATIO) {
-    sw = natW;
-    sh = Math.round(natW / screenRatio);
-    sx = 0;
-    sy_crop = Math.round((natH - sh) / 2);
+    sw = natW; sh = Math.round(natW / screenRatio);
+    sx = 0; sy_crop = Math.round((natH - sh) / 2);
   } else {
-    sh = natH;
-    sw = Math.round(natH * screenRatio);
-    sy_crop = 0;
-    sx = Math.round((natW - sw) / 2);
+    sh = natH; sw = Math.round(natH * screenRatio);
+    sy_crop = 0; sx = Math.round((natW - sw) / 2);
   }
 }
 
-/* ═══════════════ PRELOAD + ImageBitmap ═══════════════ */
+/* ═══════════ PRELOAD + ImageBitmap ═══════════ */
 const bitmaps = new Array(FRAME_COUNT).fill(null);
-const images  = new Array(FRAME_COUNT).fill(null);
+const imgEls  = new Array(FRAME_COUNT).fill(null);
 let firstLoaded  = false;
 let rafPending   = false;
 let lastFrameIdx = -1;
 let lastScrollY  = -1;
+let sequenceDone = false; // ← FLAG DEFINITIVO, non si resetta mai
+
 const supportsImageBitmap = typeof createImageBitmap === 'function';
 
 function drawBitmap(index) {
   if (bitmaps[index]) {
     ctx.drawImage(bitmaps[index], sx, sy_crop, sw, sh, 0, 0, cw, ch);
-    return;
-  }
-  const img = images[index];
-  if (img && img.complete && img.naturalWidth > 0) {
-    ctx.drawImage(img, sx, sy_crop, sw, sh, 0, 0, cw, ch);
+  } else if (imgEls[index] && imgEls[index].complete && imgEls[index].naturalWidth > 0) {
+    ctx.drawImage(imgEls[index], sx, sy_crop, sw, sh, 0, 0, cw, ch);
   }
 }
 
 function loadFrame(i) {
   const img = new Image();
-  img.decoding      = 'async';
+  img.decoding = 'async';
   img.fetchPriority = i < 15 ? 'high' : 'auto';
   img.src = frameSrc(i);
-  images[i] = img;
-
+  imgEls[i] = img;
   img.onload = function () {
     if (supportsImageBitmap) {
       createImageBitmap(img, { premultiplyAlpha: 'none', colorSpaceConversion: 'none' })
@@ -251,14 +182,13 @@ function loadFrame(i) {
       if (!firstLoaded) { firstLoaded = true; applyCanvasCover(); drawBitmap(i); }
     }
   };
-
   img.onerror = () => console.warn(`Frame non trovato: ${frameSrc(i)}`);
 }
 
 for (let i = 0; i < 15; i++) loadFrame(i);
 setTimeout(() => { for (let i = 15; i < FRAME_COUNT; i++) loadFrame(i); }, 80);
 
-/* ═══════════════ TUNNEL PAROLE ═══════════════ */
+/* ═══════════ TUNNEL PAROLE ═══════════ */
 const WORDS = [
   { text: 'GABRJMAD', size: 130, x: 5,   y: 10,  rot: -5  },
   { text: 'DESIGNER', size: 90,  x: 55,  y: 18,  rot: 8   },
@@ -271,7 +201,6 @@ const WORDS = [
   { text: 'GABRJMAD', size: 70,  x: -5,  y: 28,  rot: 4   },
   { text: 'DESIGNER', size: 150, x: 25,  y: 52,  rot: -4  },
 ];
-
 const tunnelInner = document.getElementById('tunnel-inner');
 WORDS.forEach(w => {
   const el = document.createElement('div');
@@ -284,38 +213,38 @@ WORDS.forEach(w => {
   tunnelInner.appendChild(el);
 });
 
-/* ═══════════════ DOM ═══════════════ */
+/* ═══════════ DOM ═══════════ */
 const overlay     = document.getElementById('fade-overlay');
 const doorScene   = document.getElementById('door-scene');
 const doorWrapper = document.getElementById('door-wrapper');
 const doorLeft    = document.getElementById('door-left');
 const doorRight   = document.getElementById('door-right');
 
-/* ═══════════════ HELPERS ═══════════════ */
+/* ═══════════ HELPERS ═══════════ */
 function clamp(v, a, b) { return v < a ? a : v > b ? b : v; }
 function norm(v, a, b)  { return clamp((v - a) / (b - a), 0, 1); }
 function ease(t)        { return t < 0.5 ? 2*t*t : -1+(4-2*t)*t; }
 
-/* ═══════════════ SCROLL LOGIC ═══════════════ */
+/* ═══════════ SCROLL LOGIC ═══════════ */
 function redraw() {
   rafPending = false;
-
   const sy = window.scrollY || document.documentElement.scrollTop || 0;
   if (sy === lastScrollY) return;
   lastScrollY = sy;
 
-  /* 1) Sequenza — dopo S_SEQ_END il canvas va nero e non torna più */
-  if (sy < S_SEQ_END) {
-    const frameIdx = clamp(Math.floor(sy / PX_PER_FRAME), 0, FRAME_COUNT - 1);
-    if (frameIdx !== lastFrameIdx) {
-      lastFrameIdx = frameIdx;
-      drawBitmap(frameIdx);
+  /* 1) Sequenza foto — si blocca per sempre appena raggiunge S_SEQ_END */
+  if (!sequenceDone) {
+    if (sy < S_SEQ_END) {
+      const frameIdx = clamp(Math.floor(sy / PX_PER_FRAME), 0, FRAME_COUNT - 1);
+      if (frameIdx !== lastFrameIdx) {
+        lastFrameIdx = frameIdx;
+        drawBitmap(frameIdx);
+      }
+    } else {
+      sequenceDone = true; // ← NON si resetta mai, anche scrollando indietro
+      ctx.fillStyle = '#000';
+      ctx.fillRect(0, 0, cw, ch);
     }
-  } else if (lastFrameIdx !== -999) {
-    // Pulisce il canvas UNA SOLA VOLTA → schermo nero
-    lastFrameIdx = -999;
-    ctx.fillStyle = '#000';
-    ctx.fillRect(0, 0, cw, ch);
   }
 
   /* 2) Fade overlay */
@@ -350,7 +279,8 @@ window.addEventListener('scroll', () => {
 window.addEventListener('resize', () => {
   setScrollHeight();
   applyCanvasCover();
-  if (lastFrameIdx >= 0) drawBitmap(lastFrameIdx);
+  if (!sequenceDone && lastFrameIdx >= 0) drawBitmap(lastFrameIdx);
+  else if (sequenceDone) { ctx.fillStyle = '#000'; ctx.fillRect(0, 0, cw, ch); }
 }, { passive: true });
 
 applyCanvasCover();
