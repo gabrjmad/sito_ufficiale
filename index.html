@@ -9,11 +9,15 @@
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@900&display=swap" rel="stylesheet">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
+
     html, body {
       background: #000;
       overscroll-behavior: none;
     }
-    body { min-height: 100vh; }
+
+    body {
+      min-height: 100vh;
+    }
 
     #scroll-space {}
 
@@ -26,7 +30,6 @@
       overflow: hidden;
     }
 
-    /* Due layer immagine per evitare flash neri */
     .seq-layer {
       position: absolute;
       inset: 0;
@@ -37,7 +40,6 @@
       background: #000;
       pointer-events: none;
       opacity: 0;
-      transition: opacity 80ms linear;
       will-change: opacity;
       backface-visibility: hidden;
       transform: translateZ(0);
@@ -131,7 +133,10 @@
 
   <div id="door-scene">
     <div id="door-wrapper">
-      <div id="door-tunnel"><div id="tunnel-inner"></div></div>
+      <div id="door-tunnel">
+        <div id="tunnel-inner"></div>
+      </div>
+
       <svg id="door-svg" viewBox="0 0 360 520" xmlns="http://www.w3.org/2000/svg">
         <rect x="0" y="0" width="360" height="520" fill="#000" />
         <rect x="20" y="20" width="320" height="480" fill="#f5f5f5" />
@@ -159,183 +164,272 @@
 </div>
 
 <script>
-const FRAME_COUNT  = 127;
-const PX_PER_FRAME = 26;
-const FADE_PX      = 420;
-const DOOR_ZOOM_PX = 1200;
-const DOOR_OPEN_PX = 600;
-const TUNNEL_PX    = 900;
+  /* ───────────────── CONFIG ───────────────── */
+  const FRAME_COUNT = 127; // compressed_002.jpg → compressed_128.jpg
+  const PX_PER_FRAME = window.innerWidth <= 768 ? 30 : 24;
+  const FADE_PX = 420;
+  const DOOR_ZOOM_PX = 1200;
+  const DOOR_OPEN_PX = 600;
+  const TUNNEL_PX = 900;
 
-const S_SEQ_END   = FRAME_COUNT * PX_PER_FRAME;
-const S_FADE_END  = S_SEQ_END + FADE_PX;
-const S_ZOOM_END  = S_FADE_END + DOOR_ZOOM_PX;
-const S_OPEN_END  = S_ZOOM_END + DOOR_OPEN_PX;
-const S_TUNN_END  = S_OPEN_END + TUNNEL_PX;
-const TOTAL_PX    = S_TUNN_END;
+  const S_SEQ_END  = (FRAME_COUNT - 1) * PX_PER_FRAME; // ultimo frame = compressed_128.jpg
+  const S_FADE_END = S_SEQ_END + FADE_PX;
+  const S_ZOOM_END = S_FADE_END + DOOR_ZOOM_PX;
+  const S_OPEN_END = S_ZOOM_END + DOOR_OPEN_PX;
+  const S_TUNN_END = S_OPEN_END + TUNNEL_PX;
+  const TOTAL_PX   = S_TUNN_END;
 
-const frameSrc = i => `img-sequence/compressed_${String(i + 2).padStart(3, '0')}.jpg`;
+  const frameSrc = i => `img-sequence/compressed_${String(i + 2).padStart(3, '0')}.jpg`;
 
-const scrollSpace = document.getElementById('scroll-space');
-scrollSpace.style.height = (TOTAL_PX + window.innerHeight) + 'px';
+  /* ───────────────── DOM ───────────────── */
+  const scrollSpace = document.getElementById('scroll-space');
+  const layerA = document.getElementById('seq-a');
+  const layerB = document.getElementById('seq-b');
+  const overlay = document.getElementById('fade-overlay');
+  const doorScene = document.getElementById('door-scene');
+  const doorWrapper = document.getElementById('door-wrapper');
+  const doorLeft = document.getElementById('door-left');
+  const doorRight = document.getElementById('door-right');
+  const tunnelInner = document.getElementById('tunnel-inner');
 
-const layerA = document.getElementById('seq-a');
-const layerB = document.getElementById('seq-b');
-const overlay = document.getElementById('fade-overlay');
-const doorScene = document.getElementById('door-scene');
-const doorWrapper = document.getElementById('door-wrapper');
-const doorLeft = document.getElementById('door-left');
-const doorRight = document.getElementById('door-right');
-const tunnelInner = document.getElementById('tunnel-inner');
+  function setScrollHeight() {
+    scrollSpace.style.height = (TOTAL_PX + window.innerHeight) + 'px';
+  }
+  setScrollHeight();
 
-const WORDS = [
-  { text: 'GABRJMAD', size: 130, x: 5,   y: 10,  rot: -5  },
-  { text: 'DESIGNER', size: 90,  x: 55,  y: 18,  rot: 8   },
-  { text: 'INVESTOR', size: 110, x: 10,  y: 40,  rot: -8  },
-  { text: 'BUISNESS', size: 100, x: 55,  y: 45,  rot: 7   },
-  { text: 'MODEL',    size: 140, x: 0,   y: 60,  rot: -10 },
-  { text: 'ROUND',    size: 95,  x: 60,  y: 68,  rot: 6   },
-  { text: 'FRONT',    size: 120, x: 8,   y: 78,  rot: -7  },
-  { text: 'BELLO',    size: 105, x: 58,  y: 82,  rot: 9   },
-  { text: 'GABRJMAD', size: 70,  x: -5,  y: 28,  rot: 4   },
-  { text: 'DESIGNER', size: 150, x: 25,  y: 52,  rot: -4  },
-];
+  /* ───────────────── TUNNEL ───────────────── */
+  const WORDS = [
+    { text: 'GABRJMAD', size: 130, x: 5,   y: 10, rot: -5  },
+    { text: 'DESIGNER', size: 90,  x: 55,  y: 18, rot: 8   },
+    { text: 'INVESTOR', size: 110, x: 10,  y: 40, rot: -8  },
+    { text: 'BUISNESS', size: 100, x: 55,  y: 45, rot: 7   },
+    { text: 'MODEL',    size: 140, x: 0,   y: 60, rot: -10 },
+    { text: 'ROUND',    size: 95,  x: 60,  y: 68, rot: 6   },
+    { text: 'FRONT',    size: 120, x: 8,   y: 78, rot: -7  },
+    { text: 'BELLO',    size: 105, x: 58,  y: 82, rot: 9   },
+    { text: 'GABRJMAD', size: 70,  x: -5,  y: 28, rot: 4   },
+    { text: 'DESIGNER', size: 150, x: 25,  y: 52, rot: -4  },
+  ];
 
-WORDS.forEach(w => {
-  const el = document.createElement('div');
-  el.className = 'tunnel-word';
-  el.textContent = w.text;
-  el.style.fontSize = w.size + 'px';
-  el.style.left = w.x + '%';
-  el.style.top = w.y + '%';
-  el.style.transform = `rotate(${w.rot}deg)`;
-  tunnelInner.appendChild(el);
-});
+  WORDS.forEach(w => {
+    const el = document.createElement('div');
+    el.className = 'tunnel-word';
+    el.textContent = w.text;
+    el.style.fontSize = w.size + 'px';
+    el.style.left = w.x + '%';
+    el.style.top = w.y + '%';
+    el.style.transform = `rotate(${w.rot}deg)`;
+    tunnelInner.appendChild(el);
+  });
 
-const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
-const norm  = (v, a, b) => clamp((v - a) / (b - a), 0, 1);
-const ease  = t => t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+  /* ───────────────── HELPERS ───────────────── */
+  const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
+  const norm = (v, a, b) => clamp((v - a) / (b - a), 0, 1);
+  const ease = t => t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
 
-const loaded = new Array(FRAME_COUNT).fill(false);
-const inflight = new Array(FRAME_COUNT).fill(false);
-let activeLayer = layerA;
-let hiddenLayer = layerB;
-let shownFrame = -1;
-let queuedFrame = -1;
-let rafPending = false;
-let lastScrollY = -1;
+  function frameIndexFor(scrollY) {
+    if (scrollY >= S_SEQ_END) return FRAME_COUNT - 1;
+    const progress = clamp(scrollY / S_SEQ_END, 0, 1);
+    return Math.round(progress * (FRAME_COUNT - 1));
+  }
 
-function swapLayers(nextSrc) {
-  if (hiddenLayer.src !== nextSrc) hiddenLayer.src = nextSrc;
-  hiddenLayer.classList.add('active');
-  activeLayer.classList.remove('active');
-  const tmp = activeLayer;
-  activeLayer = hiddenLayer;
-  hiddenLayer = tmp;
-}
+  /* ───────────────── FRAME CACHE ───────────────── */
+  const frames = Array.from({ length: FRAME_COUNT }, () => ({
+    status: 0,   // 0 idle, 1 loading, 2 ready, 3 error
+    img: null,
+    promise: null
+  }));
 
-function requestFrame(i, priority = 'auto') {
-  if (i < 0 || i >= FRAME_COUNT || loaded[i] || inflight[i]) return;
-  inflight[i] = true;
+  let activeLayer = layerA;
+  let hiddenLayer = layerB;
+  let shownFrame = -1;
+  let wantedFrame = 0;
 
-  const img = new Image();
-  img.decoding = 'async';
-  img.fetchPriority = priority;
+  function swapTo(src) {
+    if (hiddenLayer.src !== src) hiddenLayer.src = src;
+    hiddenLayer.classList.add('active');
+    activeLayer.classList.remove('active');
 
-  img.onload = async () => {
-    try {
-      if (img.decode) await img.decode();
-    } catch (e) {}
+    const tmp = activeLayer;
+    activeLayer = hiddenLayer;
+    hiddenLayer = tmp;
+  }
 
-    loaded[i] = true;
-    inflight[i] = false;
+  function ensureFrame(index, priority = 'auto') {
+    if (index < 0 || index >= FRAME_COUNT) return Promise.resolve(null);
 
-    if (queuedFrame === i) {
-      showFrame(i);
+    const item = frames[index];
+    if (item.status === 2) return Promise.resolve(item.img);
+    if (item.promise) return item.promise;
+
+    item.status = 1;
+
+    const img = new Image();
+    img.decoding = 'async';
+    img.fetchPriority = priority;
+    img.src = frameSrc(index);
+
+    item.promise = new Promise((resolve, reject) => {
+      img.onload = async () => {
+        try {
+          if (img.decode) await img.decode();
+        } catch (e) {}
+        item.status = 2;
+        item.img = img;
+        resolve(img);
+      };
+
+      img.onerror = () => {
+        item.status = 3;
+        reject(new Error(`Frame non trovato: ${frameSrc(index)}`));
+      };
+    }).finally(() => {
+      item.promise = null;
+      if (wantedFrame === index && frames[index].status === 2) {
+        startLoop();
+      }
+    });
+
+    return item.promise;
+  }
+
+  function warmFrames(center) {
+    ensureFrame(center, 'high');
+    ensureFrame(center + 1, 'high');
+    ensureFrame(center - 1, 'high');
+    ensureFrame(center + 2, 'auto');
+    ensureFrame(center - 2, 'auto');
+    ensureFrame(center + 3, 'auto');
+    ensureFrame(center - 3, 'auto');
+    ensureFrame(center + 4, 'auto');
+    ensureFrame(center - 4, 'auto');
+  }
+
+  function showFrame(index) {
+    index = clamp(index, 0, FRAME_COUNT - 1);
+    wantedFrame = index;
+    warmFrames(index);
+
+    const item = frames[index];
+    if (item.status !== 2 || !item.img) return;
+    if (shownFrame === index) return;
+
+    shownFrame = index;
+    swapTo(item.img.currentSrc || item.img.src);
+  }
+
+  function preloadInitial() {
+    for (let i = 0; i < Math.min(18, FRAME_COUNT); i++) {
+      ensureFrame(i, 'high').catch(() => {});
     }
-  };
 
-  img.onerror = () => {
-    inflight[i] = false;
-  };
+    let cursor = 18;
+    function pump() {
+      let count = 0;
+      while (cursor < FRAME_COUNT && count < 4) {
+        ensureFrame(cursor, 'auto').catch(() => {});
+        cursor++;
+        count++;
+      }
 
-  img.src = frameSrc(i);
-}
+      if (cursor < FRAME_COUNT) {
+        if ('requestIdleCallback' in window) {
+          requestIdleCallback(pump, { timeout: 120 });
+        } else {
+          setTimeout(pump, 40);
+        }
+      }
+    }
 
-function warmAround(index) {
-  requestFrame(index, 'high');
-  requestFrame(index + 1, 'high');
-  requestFrame(index - 1, 'high');
-  requestFrame(index + 2, 'auto');
-  requestFrame(index - 2, 'auto');
-  requestFrame(index + 3, 'auto');
-  requestFrame(index - 3, 'auto');
-}
-
-function showFrame(index) {
-  index = clamp(index, 0, FRAME_COUNT - 1);
-  queuedFrame = index;
-  warmAround(index);
-
-  if (!loaded[index]) return;
-  if (shownFrame === index) return;
-
-  shownFrame = index;
-  swapLayers(frameSrc(index));
-}
-
-requestFrame(0, 'high');
-for (let i = 1; i < 10; i++) requestFrame(i, 'high');
-setTimeout(() => {
-  for (let i = 10; i < FRAME_COUNT; i++) requestFrame(i, 'auto');
-}, 120);
-
-function redraw() {
-  rafPending = false;
-
-  const sy = window.scrollY || document.documentElement.scrollTop || 0;
-  if (sy === lastScrollY) return;
-  lastScrollY = sy;
-
-  const frameIdx = sy <= S_SEQ_END
-    ? clamp(Math.floor(sy / PX_PER_FRAME), 0, FRAME_COUNT - 1)
-    : FRAME_COUNT - 1;
-
-  showFrame(frameIdx);
-
-  const fadeT = norm(sy, S_SEQ_END, S_FADE_END);
-  overlay.style.opacity = fadeT.toFixed(3);
-
-  if (sy < S_FADE_END) {
-    doorScene.style.opacity = '0';
-    return;
+    setTimeout(pump, 80);
   }
 
-  doorScene.style.opacity = '1';
+  /* ───────────────── SMOOTH RENDER LOOP ───────────────── */
+  let targetScrollY = window.scrollY || document.documentElement.scrollTop || 0;
+  let currentScrollY = targetScrollY;
+  let running = false;
 
-  const zoomT = ease(norm(sy, S_FADE_END, S_TUNN_END));
-  doorWrapper.style.transform = `scale(${(0.08 + zoomT * 3.2).toFixed(4)})`;
+  function render(scrollY) {
+    const frameIdx = frameIndexFor(scrollY);
+    showFrame(frameIdx);
 
-  const openT = ease(norm(sy, S_FADE_END, S_OPEN_END));
-  doorLeft.style.transform  = `perspective(900px) rotateY(${(-85 * openT).toFixed(2)}deg)`;
-  doorRight.style.transform = `perspective(900px) rotateY(${( 85 * openT).toFixed(2)}deg)`;
+    const fadeT = norm(scrollY, S_SEQ_END, S_FADE_END);
+    overlay.style.opacity = fadeT.toFixed(3);
 
-  const tunnelT = ease(norm(sy, S_ZOOM_END, S_TUNN_END));
-  tunnelInner.style.transform = `translateZ(${(-400 + 400 * tunnelT).toFixed(1)}px) rotateX(${(-20 - 70 * tunnelT).toFixed(2)}deg)`;
-}
+    if (scrollY < S_FADE_END) {
+      doorScene.style.opacity = '0';
+      return;
+    }
 
-window.addEventListener('scroll', () => {
-  if (!rafPending) {
-    rafPending = true;
-    requestAnimationFrame(redraw);
+    doorScene.style.opacity = '1';
+
+    const zoomT = ease(norm(scrollY, S_FADE_END, S_TUNN_END));
+    doorWrapper.style.transform = `scale(${(0.08 + zoomT * 3.2).toFixed(4)})`;
+
+    const openT = ease(norm(scrollY, S_FADE_END, S_OPEN_END));
+    doorLeft.style.transform  = `perspective(900px) rotateY(${(-85 * openT).toFixed(2)}deg)`;
+    doorRight.style.transform = `perspective(900px) rotateY(${( 85 * openT).toFixed(2)}deg)`;
+
+    const tunnelT = ease(norm(scrollY, S_ZOOM_END, S_TUNN_END));
+    tunnelInner.style.transform =
+      `translateZ(${(-400 + 400 * tunnelT).toFixed(1)}px) rotateX(${(-20 - 70 * tunnelT).toFixed(2)}deg)`;
   }
-}, { passive: true });
 
-window.addEventListener('resize', () => {
-  scrollSpace.style.height = (TOTAL_PX + window.innerHeight) + 'px';
-  redraw();
-}, { passive: true });
+  function loop() {
+    const delta = targetScrollY - currentScrollY;
 
-redraw();
+    if (Math.abs(delta) > 0.15) {
+      currentScrollY += delta * 0.22;
+    } else {
+      currentScrollY = targetScrollY;
+    }
+
+    render(currentScrollY);
+
+    const stillMoving = Math.abs(targetScrollY - currentScrollY) > 0.15;
+    const waitingForFrame = frames[wantedFrame]?.status !== 2;
+
+    if (stillMoving || waitingForFrame) {
+      requestAnimationFrame(loop);
+    } else {
+      running = false;
+      render(targetScrollY);
+    }
+  }
+
+  function startLoop() {
+    if (running) return;
+    running = true;
+    requestAnimationFrame(loop);
+  }
+
+  /* ───────────────── EVENTS ───────────────── */
+  window.addEventListener('scroll', () => {
+    targetScrollY = window.scrollY || document.documentElement.scrollTop || 0;
+    startLoop();
+  }, { passive: true });
+
+  window.addEventListener('resize', () => {
+    setScrollHeight();
+    targetScrollY = window.scrollY || document.documentElement.scrollTop || 0;
+    currentScrollY = targetScrollY;
+    startLoop();
+  }, { passive: true });
+
+  /* ───────────────── INIT ───────────────── */
+  preloadInitial();
+
+  ensureFrame(0, 'high')
+    .then(img => {
+      layerA.src = img.currentSrc || img.src;
+      shownFrame = 0;
+      wantedFrame = 0;
+      render(currentScrollY);
+    })
+    .catch(() => {
+      render(currentScrollY);
+    });
 </script>
+
 </body>
 </html>
