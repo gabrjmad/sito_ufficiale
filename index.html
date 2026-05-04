@@ -79,7 +79,7 @@
       z-index: 2;
     }
 
-    /* PORTA */
+    /* ───────────── PORTA ───────────── */
     #door-scene {
       position: absolute;
       inset: 0;
@@ -89,7 +89,7 @@
       opacity: 0;
       pointer-events: none;
       z-index: 5;
-      perspective: 1800px;
+      perspective: 1600px;
       transform-style: preserve-3d;
       isolation: isolate;
     }
@@ -99,8 +99,8 @@
       width: min(42vw, 520px);
       aspect-ratio: 820 / 1180;
       transform-origin: center center;
-      transform: translate3d(0, 40px, 0) scale(0.12);
       transform-style: preserve-3d;
+      transform: translate3d(0, 40px, 0) scale(0.10); /* scala iniziale, zoom fino ~4x */
       will-change: transform;
     }
 
@@ -112,66 +112,55 @@
       transform-style: preserve-3d;
     }
 
-    #door-portal-bg {
-      position: absolute;
-      inset: 10.2% 13.9% 9.7% 13.9%;
-      overflow: hidden;
-      z-index: 1;
-      background:
-        radial-gradient(circle at 50% 50%, rgba(170, 98, 255, 0.30) 0%, rgba(104, 37, 184, 0.22) 24%, rgba(20, 7, 34, 0.90) 62%, rgba(3, 2, 8, 1) 100%);
-    }
-
-    #purple-tunnel {
-      position: absolute;
-      inset: -25%;
-      background:
-        radial-gradient(circle at center,
-          rgba(231, 205, 255, 0.34) 0 7%,
-          transparent 8% 13%,
-          rgba(203, 147, 255, 0.24) 14% 18%,
-          transparent 19% 25%,
-          rgba(169, 97, 255, 0.19) 26% 32%,
-          transparent 33% 41%,
-          rgba(129, 56, 226, 0.16) 42% 50%,
-          transparent 51% 60%,
-          rgba(87, 27, 172, 0.15) 61% 71%,
-          rgba(10, 3, 21, 0.98) 72% 100%);
-      filter: blur(1.6px) saturate(1.12);
-      transform-origin: center center;
-      transform: translateZ(-40px) scale(1.05);
-      opacity: 0.92;
-      will-change: transform;
-    }
-
-    #purple-tunnel::before {
-      content: "";
-      position: absolute;
-      inset: 8%;
-      border-radius: 50%;
-      background:
-        radial-gradient(circle at 35% 35%, rgba(255,255,255,0.18), transparent 32%),
-        radial-gradient(circle at center, transparent 0 58%, rgba(255,255,255,0.05) 62%, transparent 68%);
-      mix-blend-mode: screen;
-      opacity: 0.55;
-    }
-
     #door-svg {
       position: relative;
       width: 100%;
       height: 100%;
       display: block;
       overflow: visible;
-      z-index: 3;
     }
 
     #door-left,
     #door-right {
       transform-style: preserve-3d;
-      will-change: transform;
       backface-visibility: hidden;
+      will-change: transform;
     }
 
-    /* PRELOADER */
+    @media (max-aspect-ratio: 9/16) {
+      #door-wrapper {
+        width: min(60vw, 430px);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .loader-wrap {
+        width: 64px;
+        height: 64px;
+      }
+
+      .loader-segment {
+        width: 12px;
+        transform-origin: -18px center;
+      }
+
+      .loader-center {
+        width: 8px;
+        height: 8px;
+      }
+
+      #door-wrapper {
+        width: min(62vw, 400px);
+      }
+    }
+
+    @media (max-width: 480px) {
+      #door-wrapper {
+        width: min(68vw, 360px);
+      }
+    }
+
+    /* ───────────── PRELOADER ───────────── */
     #preloader {
       position: fixed;
       inset: 0;
@@ -281,39 +270,6 @@
         transform: scale(0.88);
       }
     }
-
-    @media (max-aspect-ratio: 9/16) {
-      #door-wrapper {
-        width: min(60vw, 430px);
-      }
-    }
-
-    @media (max-width: 768px) {
-      .loader-wrap {
-        width: 64px;
-        height: 64px;
-      }
-
-      .loader-segment {
-        width: 12px;
-        transform-origin: -18px center;
-      }
-
-      .loader-center {
-        width: 8px;
-        height: 8px;
-      }
-
-      #door-wrapper {
-        width: min(62vw, 400px);
-      }
-    }
-
-    @media (max-width: 480px) {
-      #door-wrapper {
-        width: min(68vw, 360px);
-      }
-    }
   </style>
 </head>
 <body class="is-loading">
@@ -348,10 +304,6 @@
   <div id="door-scene">
     <div id="door-wrapper">
       <div id="door-frame">
-        <div id="door-portal-bg">
-          <div id="purple-tunnel"></div>
-        </div>
-
         <svg id="door-svg" viewBox="0 0 820 1180" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
           <defs>
             <linearGradient id="frameOuter" x1="0" y1="0" x2="1" y2="0">
@@ -374,11 +326,6 @@
               <stop offset="16%" stop-color="#e8e8e8"/>
               <stop offset="46%" stop-color="#ffffff"/>
               <stop offset="100%" stop-color="#d8d8d8"/>
-            </linearGradient>
-
-            <linearGradient id="bevelLight" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stop-color="#ffffff" stop-opacity="0.95"/>
-              <stop offset="100%" stop-color="#d9d9d9" stop-opacity="0.9"/>
             </linearGradient>
 
             <linearGradient id="glassFrame" x1="0" y1="0" x2="1" y2="0">
@@ -412,20 +359,14 @@
             <rect x="78" y="70" width="664" height="1040" rx="2" fill="url(#frameInner)" />
           </g>
 
-          <!-- vano interno -->
-          <rect x="124" y="118" width="572" height="944" fill="#0d0914" fill-opacity="0.18"/>
+          <!-- vano interno nero dietro i vetri -->
+          <rect x="124" y="118" width="572" height="944" fill="#000"/>
 
           <!-- anta sinistra -->
           <g id="door-left" style="transform-origin: 118px 590px; transform-box: fill-box;">
             <rect x="118" y="110" width="270" height="958" fill="url(#panelWhite)" />
             <rect x="130" y="122" width="246" height="934" fill="#f2f2f2" />
             <rect x="142" y="134" width="222" height="910" fill="url(#panelWhite)" />
-
-            <!-- bevel bordo -->
-            <rect x="142" y="134" width="222" height="12" fill="#ffffff" fill-opacity="0.72" />
-            <rect x="142" y="134" width="10" height="910" fill="#ffffff" fill-opacity="0.48" />
-            <rect x="354" y="134" width="10" height="910" fill="#8e8e8e" fill-opacity="0.16" />
-            <rect x="142" y="1032" width="222" height="12" fill="#8f8f8f" fill-opacity="0.14" />
 
             <!-- vetri -->
             <g>
@@ -435,25 +376,14 @@
               <rect x="262" y="394" width="92" height="228" fill="url(#glassFrame)" />
               <rect x="154" y="638" width="92" height="228" fill="url(#glassFrame)" />
               <rect x="262" y="638" width="92" height="228" fill="url(#glassFrame)" />
-
-              <rect x="166" y="162" width="68" height="204" fill="#ffffff" fill-opacity="0.05" />
-              <rect x="274" y="162" width="68" height="204" fill="#ffffff" fill-opacity="0.05" />
-              <rect x="166" y="406" width="68" height="204" fill="#ffffff" fill-opacity="0.05" />
-              <rect x="274" y="406" width="68" height="204" fill="#ffffff" fill-opacity="0.05" />
-              <rect x="166" y="650" width="68" height="204" fill="#ffffff" fill-opacity="0.05" />
-              <rect x="274" y="650" width="68" height="204" fill="#ffffff" fill-opacity="0.05" />
             </g>
 
             <!-- pannello basso -->
             <rect x="146" y="890" width="214" height="140" fill="#f7f7f7" />
             <rect x="160" y="904" width="186" height="112" fill="#ececec" />
-            <rect x="172" y="916" width="162" height="88" fill="url(#bevelLight)" />
+            <rect x="172" y="916" width="162" height="88" fill="#f9f9f9" />
 
-            <!-- riflessi -->
-            <rect x="148" y="136" width="10" height="880" fill="#ffffff" fill-opacity="0.38" />
-            <rect x="332" y="136" width="5" height="880" fill="#000000" fill-opacity="0.07" />
-
-            <!-- maniglia -->
+            <!-- maniglia sx -->
             <g transform="translate(334 530)">
               <rect x="-7" y="-38" width="16" height="98" rx="6" fill="url(#metal)" />
               <rect x="-30" y="6" width="60" height="10" rx="5" fill="url(#metal)" />
@@ -467,12 +397,6 @@
             <rect x="444" y="122" width="246" height="934" fill="#f2f2f2" />
             <rect x="456" y="134" width="222" height="910" fill="url(#panelWhite)" />
 
-            <!-- bevel bordo -->
-            <rect x="456" y="134" width="222" height="12" fill="#ffffff" fill-opacity="0.72" />
-            <rect x="456" y="134" width="10" height="910" fill="#ffffff" fill-opacity="0.48" />
-            <rect x="668" y="134" width="10" height="910" fill="#8e8e8e" fill-opacity="0.16" />
-            <rect x="456" y="1032" width="222" height="12" fill="#8f8f8f" fill-opacity="0.14" />
-
             <!-- vetri -->
             <g>
               <rect x="468" y="150" width="92" height="228" fill="url(#glassFrame)" />
@@ -481,25 +405,14 @@
               <rect x="576" y="394" width="92" height="228" fill="url(#glassFrame)" />
               <rect x="468" y="638" width="92" height="228" fill="url(#glassFrame)" />
               <rect x="576" y="638" width="92" height="228" fill="url(#glassFrame)" />
-
-              <rect x="480" y="162" width="68" height="204" fill="#ffffff" fill-opacity="0.05" />
-              <rect x="588" y="162" width="68" height="204" fill="#ffffff" fill-opacity="0.05" />
-              <rect x="480" y="406" width="68" height="204" fill="#ffffff" fill-opacity="0.05" />
-              <rect x="588" y="406" width="68" height="204" fill="#ffffff" fill-opacity="0.05" />
-              <rect x="480" y="650" width="68" height="204" fill="#ffffff" fill-opacity="0.05" />
-              <rect x="588" y="650" width="68" height="204" fill="#ffffff" fill-opacity="0.05" />
             </g>
 
             <!-- pannello basso -->
             <rect x="460" y="890" width="214" height="140" fill="#f7f7f7" />
             <rect x="474" y="904" width="186" height="112" fill="#ececec" />
-            <rect x="486" y="916" width="162" height="88" fill="url(#bevelLight)" />
+            <rect x="486" y="916" width="162" height="88" fill="#f9f9f9" />
 
-            <!-- riflessi -->
-            <rect x="462" y="136" width="10" height="880" fill="#ffffff" fill-opacity="0.38" />
-            <rect x="646" y="136" width="5" height="880" fill="#000000" fill-opacity="0.07" />
-
-            <!-- maniglia -->
+            <!-- maniglia dx -->
             <g transform="translate(486 530)">
               <rect x="-9" y="-38" width="16" height="98" rx="6" fill="url(#metal)" />
               <rect x="-18" y="6" width="60" height="10" rx="5" fill="url(#metal)" />
@@ -507,8 +420,8 @@
             </g>
           </g>
 
-          <!-- montante centrale e dettagli -->
-          <rect x="408" y="110" width="4" height="958" fill="#d0d0d0" fill-opacity="0.8" />
+          <!-- montante centrale -->
+          <rect x="408" y="110" width="4" height="958" fill="#d0d0d0" />
           <rect x="118" y="110" width="584" height="958" fill="none" stroke="#cfcfcf" stroke-width="4" />
         </svg>
       </div>
@@ -522,17 +435,19 @@
   const MAX_LOADER_TIME = 7000;
 
   /* ───────────────── CONFIG ───────────────── */
-  const FRAME_COUNT = 127;
+  const FRAME_COUNT = 127; // compressed_002.jpg → compressed_128.jpg
   const PX_PER_FRAME = window.innerWidth <= 768 ? 30 : 24;
   const FADE_PX = 420;
+
+  // distanza scroll per avvicinarsi alla porta e poi "entrare"
   const DOOR_APPROACH_PX = 1500;
   const DOOR_ENTER_PX = 900;
 
-  const S_SEQ_END   = (FRAME_COUNT - 1) * PX_PER_FRAME;
-  const S_FADE_END  = S_SEQ_END + FADE_PX;
-  const S_OPEN_END  = S_FADE_END + DOOR_APPROACH_PX;
-  const S_TUNN_END  = S_OPEN_END + DOOR_ENTER_PX;
-  const TOTAL_PX    = S_TUNN_END;
+  const S_SEQ_END  = (FRAME_COUNT - 1) * PX_PER_FRAME;
+  const S_FADE_END = S_SEQ_END + FADE_PX;
+  const S_OPEN_END = S_FADE_END + DOOR_APPROACH_PX;
+  const S_TUNN_END = S_OPEN_END + DOOR_ENTER_PX;
+  const TOTAL_PX   = S_TUNN_END;
 
   const frameSrc = i => `img-sequence/compressed_${String(i + 2).padStart(3, '0')}.jpg`;
 
@@ -547,7 +462,6 @@
   const doorWrapper = document.getElementById('door-wrapper');
   const doorLeft = document.getElementById('door-left');
   const doorRight = document.getElementById('door-right');
-  const purpleTunnel = document.getElementById('purple-tunnel');
 
   function setScrollHeight() {
     scrollSpace.style.height = (TOTAL_PX + window.innerHeight) + 'px';
@@ -699,7 +613,7 @@
     body.classList.add('is-ready');
   }
 
-  /* ───────────────── PORTA ───────────────── */
+  /* ───────────────── PORTA: apertura + zoom ───────────────── */
   function renderDoorSequence(scrollY) {
     if (scrollY < S_SEQ_END) {
       doorScene.style.opacity = '0';
@@ -709,26 +623,24 @@
     const revealT = norm(scrollY, S_SEQ_END, S_FADE_END);
     doorScene.style.opacity = revealT.toFixed(3);
 
+    // avvicinamento (zoom) e apertura
     const approachT = ease(norm(scrollY, S_FADE_END, S_OPEN_END));
-    const openT = ease(norm(scrollY, S_FADE_END + 80, S_OPEN_END));
-    const enterT = ease(norm(scrollY, S_OPEN_END - 160, S_TUNN_END));
+    const openT = ease(norm(scrollY, S_FADE_END, S_OPEN_END));
 
-    const scale = 0.12 + approachT * 4.4;
+    // scala da ~0.10 a ~4.0
+    const scale = 0.10 + approachT * 3.90;
     const translateY = 40 - approachT * 40;
 
     doorWrapper.style.transform =
       `translate3d(0, ${translateY.toFixed(2)}px, 0) scale(${scale.toFixed(4)})`;
 
-    const swing = 95 * openT;
+    // ante tra 0° e circa 100° (fra 90 e 110 come richiesto)
+    const swing = 100 * openT;
 
     doorLeft.style.transform =
-      `perspective(1800px) rotateY(${(-swing).toFixed(2)}deg) translateZ(${(18 * openT).toFixed(2)}px)`;
-
+      `perspective(1600px) rotateY(${(-swing).toFixed(2)}deg)`;
     doorRight.style.transform =
-      `perspective(1800px) rotateY(${swing.toFixed(2)}deg) translateZ(${(18 * openT).toFixed(2)}px)`;
-
-    purpleTunnel.style.transform =
-      `translateZ(${(-40 + 260 * enterT).toFixed(2)}px) scale(${(1.05 + 1.6 * enterT).toFixed(4)}) rotate(${(-2 - 8 * enterT).toFixed(2)}deg)`;
+      `perspective(1600px) rotateY(${swing.toFixed(2)}deg)`;
   }
 
   /* ───────────────── SMOOTH RENDER LOOP ───────────────── */
