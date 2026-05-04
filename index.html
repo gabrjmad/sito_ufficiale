@@ -2,31 +2,16 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>Gabrimad + Porta</title>
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Scroll Sequence + Porta</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@900&display=swap" rel="stylesheet">
-
   <style>
-    :root {
-      --loader-bg: #a9acb6;
-      --loader-fg: #ffffff;
-      --loader-out: 900ms;
-    }
-
     * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #000; }
 
-    html, body {
-      background: #000;
-      overscroll-behavior: none;
-    }
-
-    body { min-height: 100vh; }
-    body.is-loading { overflow: hidden; }
-
-    #scroll-space {}
+    #scroll-space { /* altezza impostata via JS */ }
 
     #stage {
       position: fixed;
@@ -35,32 +20,12 @@
       height: 100vh;
       background: #000;
       overflow: hidden;
-      opacity: 0;
-      transform: scale(1.01);
-      transition: opacity 900ms ease, transform 1200ms ease;
     }
 
-    body.is-ready #stage {
-      opacity: 1;
-      transform: scale(1);
-    }
-
-    .seq-layer {
+    #sequence {
       position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      object-position: center center;
-      background: #000;
-      pointer-events: none;
-      opacity: 0;
-      will-change: opacity;
-      backface-visibility: hidden;
-      transform: translateZ(0);
+      display: block;
     }
-
-    .seq-layer.active { opacity: 1; }
 
     #fade-overlay {
       position: absolute;
@@ -68,14 +33,9 @@
       background: #000;
       opacity: 0;
       pointer-events: none;
-      will-change: opacity;
-      z-index: 2;
     }
 
-    /* ═══════════════════════════════
-       PORTA — versione definitiva
-    ═══════════════════════════════ */
-
+    /* ── PORTA + TUNNEL ───────────────────────── */
     #door-scene {
       position: absolute;
       inset: 0;
@@ -84,80 +44,52 @@
       justify-content: center;
       opacity: 0;
       pointer-events: none;
-      z-index: 5;
     }
 
     #door-wrapper {
       position: relative;
-      width: 400px;
-      height: 560px;
+      width: 360px;
+      height: 520px;
       transform-origin: center center;
-      transform: scale(0.08);
-      will-change: transform;
+      transform: scale(0.1);
     }
 
-    #door-bg {
-      position: absolute;
-      inset: 0;
-      z-index: 0;
-      background:
-        radial-gradient(ellipse at 50% 38%,
-          #f0e0b0 0%,
-          #c09828 18%,
-          #6b4808 40%,
-          #1a0f02 65%,
-          #000000 100%);
-    }
-
-    .door-leaf {
-      position: absolute;
-      top: 0;
-      bottom: 0;
-      width: 50%;
+    #door-svg {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      overflow: visible;
       z-index: 2;
-      backface-visibility: hidden;
-      -webkit-backface-visibility: hidden;
-      will-change: transform;
+    }
+
+    #door-tunnel {
+      position: absolute;
+      top: 16%;
+      left: 23%;
+      width: 54%;
+      height: 64%;
+      background: #6fb0e6;
       overflow: hidden;
+      perspective: 900px;
+      z-index: 1;
     }
 
-    .door-leaf svg {
+    #tunnel-inner {
       position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      display: block;
-      overflow: visible;
+      inset: -60% -60%;
+      transform-style: preserve-3d;
+      transform-origin: center center;
     }
 
-    .door-leaf-left  {
-      left: 0;
-      transform-origin: 0% 50%;
-    }
-
-    .door-leaf-right {
-      right: 0;
-      transform-origin: 100% 50%;
-    }
-
-    #door-frame {
+    .tunnel-word {
       position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 3;
-      pointer-events: none;
-      overflow: visible;
-    }
-
-    @media (max-width: 768px) {
-      #door-wrapper { width: 280px; height: 392px; }
-    }
-    @media (max-width: 480px) {
-      #door-wrapper { width: 230px; height: 322px; }
-    }
-    @media (max-aspect-ratio: 9/16) {
-      #door-wrapper { width: 260px; height: 364px; }
+      font-family: 'Playfair Display', Georgia, serif;
+      font-weight: 900;
+      color: #f5f7ff;
+      white-space: nowrap;
+      line-height: 1;
+      user-select: none;
+      transform-origin: center center;
     }
 
     /* ═══════════════════════════════
@@ -169,12 +101,12 @@
       z-index: 9999;
       display: grid;
       place-items: center;
-      background: var(--loader-bg);
+      background: #a9acb6; /* come var(--loader-bg) di prima */
       opacity: 1;
       visibility: visible;
       transition:
-        opacity var(--loader-out) ease,
-        visibility var(--loader-out) ease;
+        opacity 900ms ease,
+        visibility 900ms ease;
     }
 
     #preloader.is-hidden {
@@ -221,7 +153,7 @@
     }
   </style>
 </head>
-<body class="is-loading">
+<body>
 
 <!-- PRELOADER SOLO TESTO -->
 <div id="preloader" aria-hidden="true">
@@ -240,269 +172,217 @@
 <div id="scroll-space"></div>
 
 <div id="stage">
-  <img id="seq-a" class="seq-layer active" alt="" decoding="async" fetchpriority="high">
-  <img id="seq-b" class="seq-layer" alt="" decoding="async">
+  <canvas id="sequence"></canvas>
   <div id="fade-overlay"></div>
 
-  <!-- PORTA -->
+  <!-- PORTA + TUNNEL -->
   <div id="door-scene">
     <div id="door-wrapper">
-      <div id="door-bg"></div>
 
-      <div id="door-left" class="door-leaf door-leaf-left">
-        <!-- il tuo SVG sinistro completo qui -->
+      <div id="door-tunnel">
+        <div id="tunnel-inner"></div>
       </div>
 
-      <div id="door-right" class="door-leaf door-leaf-right">
-        <!-- il tuo SVG destro completo qui -->
-      </div>
+      <svg id="door-svg" viewBox="0 0 360 520" xmlns="http://www.w3.org/2000/svg">
+        <rect x="0" y="0" width="360" height="520" fill="#000" />
+        <rect x="20" y="20" width="320" height="480" fill="#f5f5f5" />
+        <rect x="36" y="36" width="288" height="448" fill="#e9e9e9" />
+        <rect x="180" y="36" width="2" height="448" fill="#d0d0d0" />
 
-      <svg id="door-frame" viewBox="0 0 400 560" xmlns="http://www.w3.org/2000/svg">
-        <!-- il tuo SVG cornice completo qui -->
+        <g id="door-left" style="transform-origin: 36px 260px; transform-box: fill-box;">
+          <rect x="36" y="36" width="144" height="448" fill="#fdfdfd" />
+          <rect x="48" y="52" width="120" height="416" fill="#f2f2f2" />
+          <rect x="56" y="60" width="104" height="400" fill="#fdfdfd" />
+          <rect x="160" y="246" width="8" height="32" rx="4" fill="#d0d0d0" />
+        </g>
+
+        <g id="door-right" style="transform-origin: 324px 260px; transform-box: fill-box;">
+          <rect x="196" y="36" width="144" height="448" fill="#fdfdfd" />
+          <rect x="208" y="52" width="120" height="416" fill="#f2f2f2" />
+          <rect x="216" y="60" width="104" height="400" fill="#fdfdfd" />
+          <rect x="196" y="246" width="8" height="32" rx="4" fill="#d0d0d0" />
+        </g>
+
+        <rect x="20" y="20" width="320" height="480" fill="none" stroke="#d0d0d0" stroke-width="2" />
       </svg>
+
     </div>
   </div>
+
 </div>
 
 <script>
-  /* ───────────────── PRELOADER CONFIG ───────────────── */
-  const MIN_LOADER_TIME = 1800;
-  const MAX_LOADER_TIME = 7000;
+/* ───────────────── CONFIG GENERALE ───────────────── */
 
-  /* ───────────────── CONFIG ───────────────── */
-  const FRAME_COUNT  = 127;
-  const PX_PER_FRAME = window.innerWidth <= 768 ? 30 : 24;
-  const FADE_PX      = 420;
+const FRAME_COUNT  = 127;
+const PX_PER_FRAME = 18;
+const FADE_PX      = 250;
+const DOOR_ZOOM_PX = 1200;
+const DOOR_OPEN_PX = 600;
+const TUNNEL_PX    = 900;
 
-  const DOOR_APPROACH_PX = 1500;
-  const DOOR_ENTER_PX    = 900;
+const TOTAL_PX = (FRAME_COUNT * PX_PER_FRAME) + FADE_PX + DOOR_ZOOM_PX + DOOR_OPEN_PX + TUNNEL_PX;
 
-  const S_SEQ_END  = (FRAME_COUNT - 1) * PX_PER_FRAME;
-  const S_FADE_END = S_SEQ_END + FADE_PX;
-  const S_OPEN_END = S_FADE_END + DOOR_APPROACH_PX;
-  const S_TUNN_END = S_OPEN_END + DOOR_ENTER_PX;
-  const TOTAL_PX   = S_TUNN_END;
+const frameSrc = i => `img-sequence/${String(i + 2).padStart(3, '0')}.png`;
 
-  const frameSrc = i =>
-    `img-sequence/compressed_${String(i + 2).padStart(3, '0')}.jpg`;
+const S_SEQ_END   = FRAME_COUNT * PX_PER_FRAME;
+const S_FADE_END  = S_SEQ_END + FADE_PX;
+const S_ZOOM_END  = S_FADE_END + DOOR_ZOOM_PX;
+const S_OPEN_END  = S_ZOOM_END + DOOR_OPEN_PX;
+const S_TUNN_END  = S_OPEN_END + TUNNEL_PX;
 
-  const body        = document.body;
-  const preloader   = document.getElementById('preloader');
-  const scrollSpace = document.getElementById('scroll-space');
-  const layerA      = document.getElementById('seq-a');
-  const layerB      = document.getElementById('seq-b');
-  const overlay     = document.getElementById('fade-overlay');
-  const doorScene   = document.getElementById('door-scene');
-  const doorWrapper = document.getElementById('door-wrapper');
-  const doorLeft    = document.getElementById('door-left');
-  const doorRight   = document.getElementById('door-right');
+/* ───────────────── SCROLL SPACE ─────────────────── */
+const scrollSpace = document.getElementById('scroll-space');
+function setScrollHeight() {
+  scrollSpace.style.height = (TOTAL_PX + window.innerHeight) + 'px';
+}
+setScrollHeight();
 
-  function setScrollHeight() {
-    scrollSpace.style.height = (TOTAL_PX + window.innerHeight) + 'px';
-  }
-  setScrollHeight();
+/* ───────────────── CANVAS SEQUENZA ──────────────── */
+const canvas  = document.getElementById('sequence');
+const ctx     = canvas.getContext('2d');
+let natW = 1920, natH = 1080;
 
-  const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
-  const norm  = (v, a, b) => clamp((v - a) / (b - a), 0, 1);
+function applyCanvasCover() {
+  const vw = window.innerWidth;
+  const vh = window.innerHeight;
+  const ir = natW / natH;
+  const vr = vw / vh;
+  let dw, dh;
+  if (vr > ir) { dw = vw; dh = vw / ir; }
+  else { dh = vh; dw = vh * ir; }
+  dw = Math.round(dw); dh = Math.round(dh);
+  canvas.width = dw; canvas.height = dh;
+  canvas.style.left = Math.round((vw - dw) / 2) + 'px';
+  canvas.style.top  = Math.round((vh - dh) / 2) + 'px';
+  canvas.style.width  = dw + 'px';
+  canvas.style.height = dh + 'px';
+}
 
-  const easeOut3  = t => 1 - Math.pow(1 - t, 3);
-  const easeIO3   = t => t < .5 ? 4*t*t*t : 1 - Math.pow(-2*t + 2, 3) / 2;
+const images = new Array(FRAME_COUNT);
+let loadedCount = 0;
+let firstLoaded = false;
 
-  function frameIndexFor(scrollY) {
-    if (scrollY >= S_SEQ_END) return FRAME_COUNT - 1;
-    const progress = clamp(scrollY / S_SEQ_END, 0, 1);
-    return Math.round(progress * (FRAME_COUNT - 1));
-  }
-
-  const frames = Array.from({ length: FRAME_COUNT }, () => ({
-    status: 0, img: null, promise: null
-  }));
-
-  let activeLayer = layerA;
-  let hiddenLayer = layerB;
-  let shownFrame  = -1;
-  let wantedFrame = 0;
-
-  function swapTo(src) {
-    if (hiddenLayer.src !== src) hiddenLayer.src = src;
-    hiddenLayer.classList.add('active');
-    activeLayer.classList.remove('active');
-    const tmp = activeLayer;
-    activeLayer = hiddenLayer;
-    hiddenLayer = tmp;
-  }
-
-  function ensureFrame(index, priority = 'auto') {
-    if (index < 0 || index >= FRAME_COUNT) return Promise.resolve(null);
-    const item = frames[index];
-    if (item.status === 2) return Promise.resolve(item.img);
-    if (item.promise) return item.promise;
-    item.status = 1;
-    const img = new Image();
-    img.decoding = 'async';
-    img.fetchPriority = priority;
-    img.src = frameSrc(index);
-    item.promise = new Promise((resolve, reject) => {
-      img.onload = async () => {
-        try { if (img.decode) await img.decode(); } catch (e) {}
-        item.status = 2;
-        item.img = img;
-        resolve(img);
-      };
-      img.onerror = () => {
-        item.status = 3;
-        reject(new Error(`Frame non trovato: ${frameSrc(index)}`));
-      };
-    }).finally(() => {
-      item.promise = null;
-      if (wantedFrame === index && frames[index].status === 2) startLoop();
-    });
-    return item.promise;
-  }
-
-  function warmFrames(center) {
-    ensureFrame(center,     'high');
-    ensureFrame(center + 1, 'high');
-    ensureFrame(center - 1, 'high');
-    ensureFrame(center + 2, 'auto');
-    ensureFrame(center - 2, 'auto');
-    ensureFrame(center + 3, 'auto');
-    ensureFrame(center - 3, 'auto');
-    ensureFrame(center + 4, 'auto');
-    ensureFrame(center - 4, 'auto');
-  }
-
-  function showFrame(index) {
-    index = clamp(index, 0, FRAME_COUNT - 1);
-    wantedFrame = index;
-    warmFrames(index);
-    const item = frames[index];
-    if (item.status !== 2 || !item.img) return;
-    if (shownFrame === index) return;
-    shownFrame = index;
-    swapTo(item.img.currentSrc || item.img.src);
-  }
-
-  function preloadInitial() {
-    for (let i = 0; i < Math.min(18, FRAME_COUNT); i++) {
-      ensureFrame(i, 'high').catch(() => {});
+function loadFrame(i) {
+  const img = new Image();
+  img.fetchPriority = i < 10 ? 'high' : 'auto';
+  img.src = frameSrc(i);
+  img.onload = function () {
+    loadedCount++;
+    if (!firstLoaded) {
+      firstLoaded = true;
+      natW = img.naturalWidth || natW;
+      natH = img.naturalHeight || natH;
+      applyCanvasCover();
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
     }
-    let cursor = 18;
-    function pump() {
-      let count = 0;
-      while (cursor < FRAME_COUNT && count < 4) {
-        ensureFrame(cursor, 'auto').catch(() => {});
-        cursor++; count++;
-      }
-      if (cursor < FRAME_COUNT) {
-        if ('requestIdleCallback' in window)
-          requestIdleCallback(pump, { timeout: 120 });
-        else setTimeout(pump, 40);
-      }
+  };
+  img.onerror = function() {
+    console.warn(`Frame ${i + 2} non trovato: ${frameSrc(i)}`);
+  };
+  images[i] = img;
+}
+
+for (let i = 0; i < FRAME_COUNT; i++) {
+  loadFrame(i);
+}
+
+/* ───────────────── TUNNEL PAROLE ────────────────── */
+const WORDS = [
+  { text: 'GABRJMAD', size: 130, x: 5,   y: 10,  rot: -5  },
+  { text: 'DESIGNER', size: 90,  x: 55,  y: 18,  rot: 8   },
+  { text: 'INVESTOR', size: 110, x: 10,  y: 40,  rot: -8  },
+  { text: 'BUISNESS', size: 100, x: 55,  y: 45,  rot: 7   },
+  { text: 'MODEL',    size: 140, x: 0,   y: 60,  rot: -10 },
+  { text: 'ROUND',    size: 95,  x: 60,  y: 68,  rot: 6   },
+  { text: 'FRONT',    size: 120, x: 8,   y: 78,  rot: -7  },
+  { text: 'BELLO',    size: 105, x: 58,  y: 82,  rot: 9   },
+  { text: 'GABRJMAD', size: 70,  x: -5,  y: 28,  rot: 4   },
+  { text: 'DESIGNER', size: 150, x: 25,  y: 52,  rot: -4  },
+];
+
+const tunnelInner = document.getElementById('tunnel-inner');
+WORDS.forEach(w => {
+  const el = document.createElement('div');
+  el.className = 'tunnel-word';
+  el.textContent = w.text;
+  el.style.fontSize = w.size + 'px';
+  el.style.left = w.x + '%';
+  el.style.top  = w.y + '%';
+  el.style.transform = `rotate(${w.rot}deg)`;
+  tunnelInner.appendChild(el);
+});
+
+/* ───────────────── DOM ELEMENTS ─────────────────── */
+const overlay     = document.getElementById('fade-overlay');
+const doorScene   = document.getElementById('door-scene');
+const doorWrapper = document.getElementById('door-wrapper');
+const doorLeft    = document.getElementById('door-left');
+const doorRight   = document.getElementById('door-right');
+
+/* ───────────────── HELPERS ─────────────────────── */
+function clamp(v, min, max) { return Math.min(max, Math.max(min, v)); }
+function norm(v, a, b)      { return clamp((v - a) / (b - a), 0, 1); }
+function ease(t)            { return t < 0.5 ? 2*t*t : -1 + (4 - 2*t)*t; }
+
+/* ───────────────── SCROLL LOGIC ─────────────────── */
+let lastFrameIdx = -1;
+
+function redraw() {
+  const sy = window.scrollY || document.documentElement.scrollTop || 0;
+
+  const frameIdx = clamp(Math.floor(sy / PX_PER_FRAME), 0, FRAME_COUNT - 1);
+  if (frameIdx !== lastFrameIdx) {
+    lastFrameIdx = frameIdx;
+    const img = images[frameIdx];
+    if (img && img.complete && img.naturalWidth > 0) {
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
     }
-    setTimeout(pump, 80);
   }
 
-  function waitForFonts() {
-    if (!document.fonts || !document.fonts.ready) return Promise.resolve();
-    return document.fonts.ready.catch(() => Promise.resolve());
-  }
-  const minDelay = ms => new Promise(r => setTimeout(r, ms));
-  const timeout  = ms => new Promise(r => setTimeout(r, ms));
+  const fadeT = norm(sy, S_SEQ_END, S_FADE_END);
+  overlay.style.opacity = fadeT.toFixed(4);
 
-  function hidePreloader() {
-    preloader.classList.add('is-hidden');
-    body.classList.remove('is-loading');
-    body.classList.add('is-ready');
+  if (sy < S_FADE_END) {
+    doorScene.style.opacity = '0';
+    return;
   }
 
-  const PERSP_PX = 1800;
+  doorScene.style.opacity = '1';
 
-  function renderDoorSequence(scrollY) {
-    if (scrollY < S_SEQ_END) {
-      doorScene.style.opacity = '0';
-      return;
-    }
+  const zoomT = ease(norm(sy, S_FADE_END, S_TUNN_END));
+  const scale = 0.08 + zoomT * 3.2;
+  doorWrapper.style.transform = `scale(${scale.toFixed(4)})`;
 
-    const revealT = norm(scrollY, S_SEQ_END, S_FADE_END);
-    doorScene.style.opacity = revealT.toFixed(3);
+  const openT = ease(norm(sy, S_FADE_END, S_OPEN_END));
+  const leftDeg  = -85 * openT;
+  const rightDeg =  85 * openT;
+  doorLeft.style.transform  = `perspective(900px) rotateY(${leftDeg.toFixed(2)}deg)`;
+  doorRight.style.transform = `perspective(900px) rotateY(${rightDeg.toFixed(2)}deg)`;
 
-    if (scrollY < S_FADE_END) return;
+  const tunnelT = ease(norm(sy, S_ZOOM_END, S_TUNN_END));
+  const rotX = -20 - 70 * tunnelT;
+  const translateZ = -400 + 400 * tunnelT;
+  tunnelInner.style.transform = `translateZ(${translateZ}px) rotateX(${rotX}deg)`;
+}
 
-    const zoomT  = easeIO3(norm(scrollY, S_FADE_END, S_TUNN_END));
-    const scale  = 0.08 + zoomT * 4.72;
-    const transY = 28 * (1 - zoomT);
-    doorWrapper.style.transform =
-      `translate(0, ${transY.toFixed(1)}px) scale(${scale.toFixed(4)})`;
+window.addEventListener('scroll', () => requestAnimationFrame(redraw), { passive: true });
+window.addEventListener('resize', () => { setScrollHeight(); applyCanvasCover(); redraw(); });
 
-    const openT = easeOut3(norm(scrollY, S_FADE_END, S_OPEN_END));
-    const deg   = 90 * openT;
+applyCanvasCover();
+redraw();
 
-    doorLeft.style.transform  =
-      `perspective(${PERSP_PX}px) rotateY(${(-deg).toFixed(2)}deg)`;
-    doorRight.style.transform =
-      `perspective(${PERSP_PX}px) rotateY(${deg.toFixed(2)}deg)`;
-  }
+/* ───────────────── HIDE PRELOADER DOPO AVVIO ───────────────── */
+/* preloader molto semplice: scompare dopo un minimo tempo + primo frame */
+const preloader = document.getElementById('preloader');
+function hidePreloader() {
+  preloader.classList.add('is-hidden');
+}
 
-  let targetScrollY  = window.scrollY || document.documentElement.scrollTop || 0;
-  let currentScrollY = targetScrollY;
-  let running        = false;
-
-  function render(scrollY) {
-    showFrame(frameIndexFor(scrollY));
-    overlay.style.opacity = norm(scrollY, S_SEQ_END, S_FADE_END).toFixed(3);
-    renderDoorSequence(scrollY);
-  }
-
-  function loop() {
-    const delta = targetScrollY - currentScrollY;
-    if (Math.abs(delta) > 0.15) currentScrollY += delta * 0.22;
-    else currentScrollY = targetScrollY;
-    render(currentScrollY);
-    const stillMoving    = Math.abs(targetScrollY - currentScrollY) > 0.15;
-    const waitingForFrame = frames[wantedFrame]?.status !== 2;
-    if (stillMoving || waitingForFrame) requestAnimationFrame(loop);
-    else { running = false; render(targetScrollY); }
-  }
-
-  function startLoop() {
-    if (running) return;
-    running = true;
-    requestAnimationFrame(loop);
-  }
-
-  window.addEventListener('scroll', () => {
-    targetScrollY = window.scrollY || document.documentElement.scrollTop || 0;
-    startLoop();
-  }, { passive: true });
-
-  window.addEventListener('resize', () => {
-    setScrollHeight();
-    targetScrollY  = window.scrollY || document.documentElement.scrollTop || 0;
-    currentScrollY = targetScrollY;
-    startLoop();
-  }, { passive: true });
-
-  async function init() {
-    preloadInitial();
-    const firstFramePromise = ensureFrame(0, 'high')
-      .then(img => {
-        layerA.src = img.currentSrc || img.src;
-        shownFrame = 0; wantedFrame = 0;
-        render(currentScrollY);
-      })
-      .catch(() => render(currentScrollY));
-
-    await Promise.race([
-      Promise.all([firstFramePromise, waitForFonts(), minDelay(MIN_LOADER_TIME)]),
-      timeout(MAX_LOADER_TIME)
-    ]);
-
-    hidePreloader();
-    startLoop();
-  }
-
-  window.addEventListener('load', init, { once: true });
+window.addEventListener('load', () => {
+  // piccolo delay per far vedere l'animazione delle lettere
+  setTimeout(hidePreloader, 1200);
+});
 </script>
 
 </body>
