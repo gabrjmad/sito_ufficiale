@@ -2,16 +2,24 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Scroll Sequence + Porta</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@900&display=swap" rel="stylesheet">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { background: #000; }
 
-    #scroll-space { /* altezza impostata via JS */ }
+    html, body {
+      background: #000;
+      overscroll-behavior: none;
+    }
+
+    body {
+      min-height: 100vh;
+    }
+
+    #scroll-space {}
 
     #stage {
       position: fixed;
@@ -22,9 +30,23 @@
       overflow: hidden;
     }
 
-    #sequence {
+    .seq-layer {
       position: absolute;
-      display: block;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center center;
+      background: #000;
+      pointer-events: none;
+      opacity: 0;
+      will-change: opacity;
+      backface-visibility: hidden;
+      transform: translateZ(0);
+    }
+
+    .seq-layer.active {
+      opacity: 1;
     }
 
     #fade-overlay {
@@ -33,9 +55,9 @@
       background: #000;
       opacity: 0;
       pointer-events: none;
+      will-change: opacity;
     }
 
-    /* ── PORTA + TUNNEL ───────────────────────── */
     #door-scene {
       position: absolute;
       inset: 0;
@@ -52,6 +74,7 @@
       height: 520px;
       transform-origin: center center;
       transform: scale(0.1);
+      will-change: transform;
     }
 
     #door-svg {
@@ -79,6 +102,7 @@
       inset: -60% -60%;
       transform-style: preserve-3d;
       transform-origin: center center;
+      will-change: transform;
     }
 
     .tunnel-word {
@@ -92,93 +116,23 @@
       transform-origin: center center;
     }
 
-    /* ═══════════════════════════════
-       PRELOADER "GABRIELE"
-    ═══════════════════════════════ */
-    #preloader {
-      position: fixed;
-      inset: 0;
-      z-index: 9999;
-      display: grid;
-      place-items: center;
-      background: #a9acb6; /* come var(--loader-bg) di prima */
-      opacity: 1;
-      visibility: visible;
-      transition:
-        opacity 900ms ease,
-        visibility 900ms ease;
-    }
-
-    #preloader.is-hidden {
-      opacity: 0;
-      visibility: hidden;
-      pointer-events: none;
-    }
-
-    .loader-text-wrap {
-      display: flex;
-      gap: 0.45rem;
-      font-family: "Playfair Display", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      font-size: clamp(2.4rem, 5vw, 3.4rem);
-      letter-spacing: 0.22em;
-      color: #111;
-    }
-
-    .loader-letter {
-      position: relative;
-      display: inline-block;
-      text-transform: uppercase;
-      color: #111111;
-      text-shadow:
-        0 0.04em 0 rgba(255,255,255,0.5),
-        0 0.06em 0 rgba(0,0,0,0.24);
-      animation: letterBounce 1.1s ease-in-out infinite;
-    }
-
-    .loader-letter:nth-child(1) { animation-delay: 0s;    }
-    .loader-letter:nth-child(2) { animation-delay: 0.10s; }
-    .loader-letter:nth-child(3) { animation-delay: 0.20s; }
-    .loader-letter:nth-child(4) { animation-delay: 0.30s; }
-    .loader-letter:nth-child(5) { animation-delay: 0.40s; }
-    .loader-letter:nth-child(6) { animation-delay: 0.50s; }
-    .loader-letter:nth-child(7) { animation-delay: 0.60s; }
-    .loader-letter:nth-child(8) { animation-delay: 0.70s; }
-
-    @keyframes letterBounce {
-      0%   { transform: translateY(0)    scale(1);      opacity: 0.40; }
-      25%  { transform: translateY(-8px) scale(1);      opacity: 1;    }
-      50%  { transform: translateY(0)    scale(1);      opacity: 0.9;  }
-      75%  { transform: translateY(3px)  scale(1.02);   opacity: 0.85; }
-      100% { transform: translateY(0)    scale(1.04);   opacity: 1;    }
+    #door-left,
+    #door-right {
+      will-change: transform;
     }
   </style>
 </head>
 <body>
 
-<!-- PRELOADER SOLO TESTO -->
-<div id="preloader" aria-hidden="true">
-  <div class="loader-text-wrap">
-    <span class="loader-letter">G</span>
-    <span class="loader-letter">A</span>
-    <span class="loader-letter">B</span>
-    <span class="loader-letter">R</span>
-    <span class="loader-letter">I</span>
-    <span class="loader-letter">E</span>
-    <span class="loader-letter">L</span>
-    <span class="loader-letter">E</span>
-  </div>
-</div>
-
 <div id="scroll-space"></div>
 
 <div id="stage">
-  <canvas id="sequence"></canvas>
+  <img id="seq-a" class="seq-layer active" alt="" decoding="async" fetchpriority="high">
+  <img id="seq-b" class="seq-layer" alt="" decoding="async">
   <div id="fade-overlay"></div>
 
-  <!-- PORTA + TUNNEL -->
   <div id="door-scene">
     <div id="door-wrapper">
-
       <div id="door-tunnel">
         <div id="tunnel-inner"></div>
       </div>
@@ -205,184 +159,276 @@
 
         <rect x="20" y="20" width="320" height="480" fill="none" stroke="#d0d0d0" stroke-width="2" />
       </svg>
-
     </div>
   </div>
-
 </div>
 
 <script>
-/* ───────────────── CONFIG GENERALE ───────────────── */
+  /* ───────────────── CONFIG ───────────────── */
+  const FRAME_COUNT = 127; // compressed_002.jpg → compressed_128.jpg
+  const PX_PER_FRAME = window.innerWidth <= 768 ? 30 : 24;
+  const FADE_PX = 420;
+  const DOOR_ZOOM_PX = 1200;
+  const DOOR_OPEN_PX = 600;
+  const TUNNEL_PX = 900;
 
-const FRAME_COUNT  = 127;
-const PX_PER_FRAME = 18;
-const FADE_PX      = 250;
-const DOOR_ZOOM_PX = 1200;
-const DOOR_OPEN_PX = 600;
-const TUNNEL_PX    = 900;
+  const S_SEQ_END  = (FRAME_COUNT - 1) * PX_PER_FRAME; // ultimo frame = compressed_128.jpg
+  const S_FADE_END = S_SEQ_END + FADE_PX;
+  const S_ZOOM_END = S_FADE_END + DOOR_ZOOM_PX;
+  const S_OPEN_END = S_ZOOM_END + DOOR_OPEN_PX;
+  const S_TUNN_END = S_OPEN_END + TUNNEL_PX;
+  const TOTAL_PX   = S_TUNN_END;
 
-const TOTAL_PX = (FRAME_COUNT * PX_PER_FRAME) + FADE_PX + DOOR_ZOOM_PX + DOOR_OPEN_PX + TUNNEL_PX;
+  const frameSrc = i => `img-sequence/compressed_${String(i + 2).padStart(3, '0')}.jpg`;
 
-const frameSrc = i => `img-sequence/${String(i + 2).padStart(3, '0')}.png`;
+  /* ───────────────── DOM ───────────────── */
+  const scrollSpace = document.getElementById('scroll-space');
+  const layerA = document.getElementById('seq-a');
+  const layerB = document.getElementById('seq-b');
+  const overlay = document.getElementById('fade-overlay');
+  const doorScene = document.getElementById('door-scene');
+  const doorWrapper = document.getElementById('door-wrapper');
+  const doorLeft = document.getElementById('door-left');
+  const doorRight = document.getElementById('door-right');
+  const tunnelInner = document.getElementById('tunnel-inner');
 
-const S_SEQ_END   = FRAME_COUNT * PX_PER_FRAME;
-const S_FADE_END  = S_SEQ_END + FADE_PX;
-const S_ZOOM_END  = S_FADE_END + DOOR_ZOOM_PX;
-const S_OPEN_END  = S_ZOOM_END + DOOR_OPEN_PX;
-const S_TUNN_END  = S_OPEN_END + TUNNEL_PX;
+  function setScrollHeight() {
+    scrollSpace.style.height = (TOTAL_PX + window.innerHeight) + 'px';
+  }
+  setScrollHeight();
 
-/* ───────────────── SCROLL SPACE ─────────────────── */
-const scrollSpace = document.getElementById('scroll-space');
-function setScrollHeight() {
-  scrollSpace.style.height = (TOTAL_PX + window.innerHeight) + 'px';
-}
-setScrollHeight();
+  /* ───────────────── TUNNEL ───────────────── */
+  const WORDS = [
+    { text: 'GABRJMAD', size: 130, x: 5,   y: 10, rot: -5  },
+    { text: 'DESIGNER', size: 90,  x: 55,  y: 18, rot: 8   },
+    { text: 'INVESTOR', size: 110, x: 10,  y: 40, rot: -8  },
+    { text: 'BUISNESS', size: 100, x: 55,  y: 45, rot: 7   },
+    { text: 'MODEL',    size: 140, x: 0,   y: 60, rot: -10 },
+    { text: 'ROUND',    size: 95,  x: 60,  y: 68, rot: 6   },
+    { text: 'FRONT',    size: 120, x: 8,   y: 78, rot: -7  },
+    { text: 'BELLO',    size: 105, x: 58,  y: 82, rot: 9   },
+    { text: 'GABRJMAD', size: 70,  x: -5,  y: 28, rot: 4   },
+    { text: 'DESIGNER', size: 150, x: 25,  y: 52, rot: -4  },
+  ];
 
-/* ───────────────── CANVAS SEQUENZA ──────────────── */
-const canvas  = document.getElementById('sequence');
-const ctx     = canvas.getContext('2d');
-let natW = 1920, natH = 1080;
+  WORDS.forEach(w => {
+    const el = document.createElement('div');
+    el.className = 'tunnel-word';
+    el.textContent = w.text;
+    el.style.fontSize = w.size + 'px';
+    el.style.left = w.x + '%';
+    el.style.top = w.y + '%';
+    el.style.transform = `rotate(${w.rot}deg)`;
+    tunnelInner.appendChild(el);
+  });
 
-function applyCanvasCover() {
-  const vw = window.innerWidth;
-  const vh = window.innerHeight;
-  const ir = natW / natH;
-  const vr = vw / vh;
-  let dw, dh;
-  if (vr > ir) { dw = vw; dh = vw / ir; }
-  else { dh = vh; dw = vh * ir; }
-  dw = Math.round(dw); dh = Math.round(dh);
-  canvas.width = dw; canvas.height = dh;
-  canvas.style.left = Math.round((vw - dw) / 2) + 'px';
-  canvas.style.top  = Math.round((vh - dh) / 2) + 'px';
-  canvas.style.width  = dw + 'px';
-  canvas.style.height = dh + 'px';
-}
+  /* ───────────────── HELPERS ───────────────── */
+  const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
+  const norm = (v, a, b) => clamp((v - a) / (b - a), 0, 1);
+  const ease = t => t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
 
-const images = new Array(FRAME_COUNT);
-let loadedCount = 0;
-let firstLoaded = false;
+  function frameIndexFor(scrollY) {
+    if (scrollY >= S_SEQ_END) return FRAME_COUNT - 1;
+    const progress = clamp(scrollY / S_SEQ_END, 0, 1);
+    return Math.round(progress * (FRAME_COUNT - 1));
+  }
 
-function loadFrame(i) {
-  const img = new Image();
-  img.fetchPriority = i < 10 ? 'high' : 'auto';
-  img.src = frameSrc(i);
-  img.onload = function () {
-    loadedCount++;
-    if (!firstLoaded) {
-      firstLoaded = true;
-      natW = img.naturalWidth || natW;
-      natH = img.naturalHeight || natH;
-      applyCanvasCover();
-      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+  /* ───────────────── FRAME CACHE ───────────────── */
+  const frames = Array.from({ length: FRAME_COUNT }, () => ({
+    status: 0,   // 0 idle, 1 loading, 2 ready, 3 error
+    img: null,
+    promise: null
+  }));
+
+  let activeLayer = layerA;
+  let hiddenLayer = layerB;
+  let shownFrame = -1;
+  let wantedFrame = 0;
+
+  function swapTo(src) {
+    if (hiddenLayer.src !== src) hiddenLayer.src = src;
+    hiddenLayer.classList.add('active');
+    activeLayer.classList.remove('active');
+
+    const tmp = activeLayer;
+    activeLayer = hiddenLayer;
+    hiddenLayer = tmp;
+  }
+
+  function ensureFrame(index, priority = 'auto') {
+    if (index < 0 || index >= FRAME_COUNT) return Promise.resolve(null);
+
+    const item = frames[index];
+    if (item.status === 2) return Promise.resolve(item.img);
+    if (item.promise) return item.promise;
+
+    item.status = 1;
+
+    const img = new Image();
+    img.decoding = 'async';
+    img.fetchPriority = priority;
+    img.src = frameSrc(index);
+
+    item.promise = new Promise((resolve, reject) => {
+      img.onload = async () => {
+        try {
+          if (img.decode) await img.decode();
+        } catch (e) {}
+        item.status = 2;
+        item.img = img;
+        resolve(img);
+      };
+
+      img.onerror = () => {
+        item.status = 3;
+        reject(new Error(`Frame non trovato: ${frameSrc(index)}`));
+      };
+    }).finally(() => {
+      item.promise = null;
+      if (wantedFrame === index && frames[index].status === 2) {
+        startLoop();
+      }
+    });
+
+    return item.promise;
+  }
+
+  function warmFrames(center) {
+    ensureFrame(center, 'high');
+    ensureFrame(center + 1, 'high');
+    ensureFrame(center - 1, 'high');
+    ensureFrame(center + 2, 'auto');
+    ensureFrame(center - 2, 'auto');
+    ensureFrame(center + 3, 'auto');
+    ensureFrame(center - 3, 'auto');
+    ensureFrame(center + 4, 'auto');
+    ensureFrame(center - 4, 'auto');
+  }
+
+  function showFrame(index) {
+    index = clamp(index, 0, FRAME_COUNT - 1);
+    wantedFrame = index;
+    warmFrames(index);
+
+    const item = frames[index];
+    if (item.status !== 2 || !item.img) return;
+    if (shownFrame === index) return;
+
+    shownFrame = index;
+    swapTo(item.img.currentSrc || item.img.src);
+  }
+
+  function preloadInitial() {
+    for (let i = 0; i < Math.min(18, FRAME_COUNT); i++) {
+      ensureFrame(i, 'high').catch(() => {});
     }
-  };
-  img.onerror = function() {
-    console.warn(`Frame ${i + 2} non trovato: ${frameSrc(i)}`);
-  };
-  images[i] = img;
-}
 
-for (let i = 0; i < FRAME_COUNT; i++) {
-  loadFrame(i);
-}
+    let cursor = 18;
+    function pump() {
+      let count = 0;
+      while (cursor < FRAME_COUNT && count < 4) {
+        ensureFrame(cursor, 'auto').catch(() => {});
+        cursor++;
+        count++;
+      }
 
-/* ───────────────── TUNNEL PAROLE ────────────────── */
-const WORDS = [
-  { text: 'GABRJMAD', size: 130, x: 5,   y: 10,  rot: -5  },
-  { text: 'DESIGNER', size: 90,  x: 55,  y: 18,  rot: 8   },
-  { text: 'INVESTOR', size: 110, x: 10,  y: 40,  rot: -8  },
-  { text: 'BUISNESS', size: 100, x: 55,  y: 45,  rot: 7   },
-  { text: 'MODEL',    size: 140, x: 0,   y: 60,  rot: -10 },
-  { text: 'ROUND',    size: 95,  x: 60,  y: 68,  rot: 6   },
-  { text: 'FRONT',    size: 120, x: 8,   y: 78,  rot: -7  },
-  { text: 'BELLO',    size: 105, x: 58,  y: 82,  rot: 9   },
-  { text: 'GABRJMAD', size: 70,  x: -5,  y: 28,  rot: 4   },
-  { text: 'DESIGNER', size: 150, x: 25,  y: 52,  rot: -4  },
-];
+      if (cursor < FRAME_COUNT) {
+        if ('requestIdleCallback' in window) {
+          requestIdleCallback(pump, { timeout: 120 });
+        } else {
+          setTimeout(pump, 40);
+        }
+      }
+    }
 
-const tunnelInner = document.getElementById('tunnel-inner');
-WORDS.forEach(w => {
-  const el = document.createElement('div');
-  el.className = 'tunnel-word';
-  el.textContent = w.text;
-  el.style.fontSize = w.size + 'px';
-  el.style.left = w.x + '%';
-  el.style.top  = w.y + '%';
-  el.style.transform = `rotate(${w.rot}deg)`;
-  tunnelInner.appendChild(el);
-});
+    setTimeout(pump, 80);
+  }
 
-/* ───────────────── DOM ELEMENTS ─────────────────── */
-const overlay     = document.getElementById('fade-overlay');
-const doorScene   = document.getElementById('door-scene');
-const doorWrapper = document.getElementById('door-wrapper');
-const doorLeft    = document.getElementById('door-left');
-const doorRight   = document.getElementById('door-right');
+  /* ───────────────── SMOOTH RENDER LOOP ───────────────── */
+  let targetScrollY = window.scrollY || document.documentElement.scrollTop || 0;
+  let currentScrollY = targetScrollY;
+  let running = false;
 
-/* ───────────────── HELPERS ─────────────────────── */
-function clamp(v, min, max) { return Math.min(max, Math.max(min, v)); }
-function norm(v, a, b)      { return clamp((v - a) / (b - a), 0, 1); }
-function ease(t)            { return t < 0.5 ? 2*t*t : -1 + (4 - 2*t)*t; }
+  function render(scrollY) {
+    const frameIdx = frameIndexFor(scrollY);
+    showFrame(frameIdx);
 
-/* ───────────────── SCROLL LOGIC ─────────────────── */
-let lastFrameIdx = -1;
+    const fadeT = norm(scrollY, S_SEQ_END, S_FADE_END);
+    overlay.style.opacity = fadeT.toFixed(3);
 
-function redraw() {
-  const sy = window.scrollY || document.documentElement.scrollTop || 0;
+    if (scrollY < S_FADE_END) {
+      doorScene.style.opacity = '0';
+      return;
+    }
 
-  const frameIdx = clamp(Math.floor(sy / PX_PER_FRAME), 0, FRAME_COUNT - 1);
-  if (frameIdx !== lastFrameIdx) {
-    lastFrameIdx = frameIdx;
-    const img = images[frameIdx];
-    if (img && img.complete && img.naturalWidth > 0) {
-      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    doorScene.style.opacity = '1';
+
+    const zoomT = ease(norm(scrollY, S_FADE_END, S_TUNN_END));
+    doorWrapper.style.transform = `scale(${(0.08 + zoomT * 3.2).toFixed(4)})`;
+
+    const openT = ease(norm(scrollY, S_FADE_END, S_OPEN_END));
+    doorLeft.style.transform  = `perspective(900px) rotateY(${(-85 * openT).toFixed(2)}deg)`;
+    doorRight.style.transform = `perspective(900px) rotateY(${( 85 * openT).toFixed(2)}deg)`;
+
+    const tunnelT = ease(norm(scrollY, S_ZOOM_END, S_TUNN_END));
+    tunnelInner.style.transform =
+      `translateZ(${(-400 + 400 * tunnelT).toFixed(1)}px) rotateX(${(-20 - 70 * tunnelT).toFixed(2)}deg)`;
+  }
+
+  function loop() {
+    const delta = targetScrollY - currentScrollY;
+
+    if (Math.abs(delta) > 0.15) {
+      currentScrollY += delta * 0.22;
+    } else {
+      currentScrollY = targetScrollY;
+    }
+
+    render(currentScrollY);
+
+    const stillMoving = Math.abs(targetScrollY - currentScrollY) > 0.15;
+    const waitingForFrame = frames[wantedFrame]?.status !== 2;
+
+    if (stillMoving || waitingForFrame) {
+      requestAnimationFrame(loop);
+    } else {
+      running = false;
+      render(targetScrollY);
     }
   }
 
-  const fadeT = norm(sy, S_SEQ_END, S_FADE_END);
-  overlay.style.opacity = fadeT.toFixed(4);
-
-  if (sy < S_FADE_END) {
-    doorScene.style.opacity = '0';
-    return;
+  function startLoop() {
+    if (running) return;
+    running = true;
+    requestAnimationFrame(loop);
   }
 
-  doorScene.style.opacity = '1';
+  /* ───────────────── EVENTS ───────────────── */
+  window.addEventListener('scroll', () => {
+    targetScrollY = window.scrollY || document.documentElement.scrollTop || 0;
+    startLoop();
+  }, { passive: true });
 
-  const zoomT = ease(norm(sy, S_FADE_END, S_TUNN_END));
-  const scale = 0.08 + zoomT * 3.2;
-  doorWrapper.style.transform = `scale(${scale.toFixed(4)})`;
+  window.addEventListener('resize', () => {
+    setScrollHeight();
+    targetScrollY = window.scrollY || document.documentElement.scrollTop || 0;
+    currentScrollY = targetScrollY;
+    startLoop();
+  }, { passive: true });
 
-  const openT = ease(norm(sy, S_FADE_END, S_OPEN_END));
-  const leftDeg  = -85 * openT;
-  const rightDeg =  85 * openT;
-  doorLeft.style.transform  = `perspective(900px) rotateY(${leftDeg.toFixed(2)}deg)`;
-  doorRight.style.transform = `perspective(900px) rotateY(${rightDeg.toFixed(2)}deg)`;
+  /* ───────────────── INIT ───────────────── */
+  preloadInitial();
 
-  const tunnelT = ease(norm(sy, S_ZOOM_END, S_TUNN_END));
-  const rotX = -20 - 70 * tunnelT;
-  const translateZ = -400 + 400 * tunnelT;
-  tunnelInner.style.transform = `translateZ(${translateZ}px) rotateX(${rotX}deg)`;
-}
-
-window.addEventListener('scroll', () => requestAnimationFrame(redraw), { passive: true });
-window.addEventListener('resize', () => { setScrollHeight(); applyCanvasCover(); redraw(); });
-
-applyCanvasCover();
-redraw();
-
-/* ───────────────── HIDE PRELOADER DOPO AVVIO ───────────────── */
-/* preloader molto semplice: scompare dopo un minimo tempo + primo frame */
-const preloader = document.getElementById('preloader');
-function hidePreloader() {
-  preloader.classList.add('is-hidden');
-}
-
-window.addEventListener('load', () => {
-  // piccolo delay per far vedere l'animazione delle lettere
-  setTimeout(hidePreloader, 1200);
-});
+  ensureFrame(0, 'high')
+    .then(img => {
+      layerA.src = img.currentSrc || img.src;
+      shownFrame = 0;
+      wantedFrame = 0;
+      render(currentScrollY);
+    })
+    .catch(() => {
+      render(currentScrollY);
+    });
 </script>
 
 </body>
