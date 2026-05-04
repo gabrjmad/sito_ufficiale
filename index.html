@@ -87,12 +87,13 @@
       height: 100%;
       display: block;
       z-index: 5;
-      pointer-events: none; /* solo visual, lo scroll resta su page */
+      pointer-events: none;
     }
 
     /* ═══════════════════════════════
-       PRELOADER
+       PRELOADER "GABRIELE"
     ═══════════════════════════════ */
+
     #preloader {
       position: fixed;
       inset: 0;
@@ -113,95 +114,57 @@
       pointer-events: none;
     }
 
-    .loader-wrap {
+    .loader-text-wrap {
+      display: flex;
+      gap: 0.45rem;
+      font-family: "Playfair Display", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: clamp(2.4rem, 5vw, 3.4rem);
+      letter-spacing: 0.22em;
+      color: #111;
+    }
+
+    .loader-letter {
       position: relative;
-      width: 82px;
-      height: 82px;
-      display: grid;
-      place-items: center;
-      transform: scale(0.88);
-      animation: loaderAppear 900ms ease forwards;
+      display: inline-block;
+      text-transform: uppercase;
+      color: #111111;
+      text-shadow:
+        0 0.04em 0 rgba(255,255,255,0.5),
+        0 0.06em 0 rgba(0,0,0,0.24);
+      animation: letterBounce 1.1s ease-in-out infinite;
     }
 
-    .loader-ring {
-      position: absolute;
-      inset: 0;
-      animation: rotateRing 2.8s linear infinite;
-    }
+    .loader-letter:nth-child(1) { animation-delay: 0s;    }
+    .loader-letter:nth-child(2) { animation-delay: 0.10s; }
+    .loader-letter:nth-child(3) { animation-delay: 0.20s; }
+    .loader-letter:nth-child(4) { animation-delay: 0.30s; }
+    .loader-letter:nth-child(5) { animation-delay: 0.40s; }
+    .loader-letter:nth-child(6) { animation-delay: 0.50s; }
+    .loader-letter:nth-child(7) { animation-delay: 0.60s; }
+    .loader-letter:nth-child(8) { animation-delay: 0.70s; }
 
-    .loader-segment {
-      position: absolute;
-      left: 50%;
-      top: 50%;
-      width: 16px;
-      height: 2px;
-      border-radius: 999px;
-      background: var(--loader-fg);
-      transform-origin: -22px center;
-      opacity: 0.16;
-      animation: pulseSeg 1.08s ease-in-out infinite;
-      will-change: transform, opacity;
-    }
-
-    .loader-center {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.95);
-      box-shadow: 0 0 18px rgba(255,255,255,0.20);
-      animation: centerBreath 1.6s ease-in-out infinite;
-    }
-
-    .loader-segment:nth-child(1)  { transform: translate(-50%,-50%) rotate(0deg);   animation-delay: 0s; }
-    .loader-segment:nth-child(2)  { transform: translate(-50%,-50%) rotate(30deg);  animation-delay: .08s; }
-    .loader-segment:nth-child(3)  { transform: translate(-50%,-50%) rotate(60deg);  animation-delay: .16s; }
-    .loader-segment:nth-child(4)  { transform: translate(-50%,-50%) rotate(90deg);  animation-delay: .24s; }
-    .loader-segment:nth-child(5)  { transform: translate(-50%,-50%) rotate(120deg); animation-delay: .32s; }
-    .loader-segment:nth-child(6)  { transform: translate(-50%,-50%) rotate(150deg); animation-delay: .40s; }
-    .loader-segment:nth-child(7)  { transform: translate(-50%,-50%) rotate(180deg); animation-delay: .48s; }
-    .loader-segment:nth-child(8)  { transform: translate(-50%,-50%) rotate(210deg); animation-delay: .56s; }
-    .loader-segment:nth-child(9)  { transform: translate(-50%,-50%) rotate(240deg); animation-delay: .64s; }
-    .loader-segment:nth-child(10) { transform: translate(-50%,-50%) rotate(270deg); animation-delay: .72s; }
-    .loader-segment:nth-child(11) { transform: translate(-50%,-50%) rotate(300deg); animation-delay: .80s; }
-    .loader-segment:nth-child(12) { transform: translate(-50%,-50%) rotate(330deg); animation-delay: .88s; }
-
-    @keyframes rotateRing {
-      from { transform: rotate(0deg); }
-      to   { transform: rotate(360deg); }
-    }
-    @keyframes pulseSeg {
-      0%, 100% { opacity: 0.12; filter: blur(0px); }
-      50%      { opacity: 1;    filter: blur(0.2px); }
-    }
-    @keyframes centerBreath {
-      0%, 100% { transform: scale(0.75); opacity: 0.6; }
-      50%      { transform: scale(1);    opacity: 1; }
-    }
-    @keyframes loaderAppear {
-      from { opacity: 0; transform: scale(0.72); }
-      to   { opacity: 1; transform: scale(0.88); }
+    @keyframes letterBounce {
+      0%   { transform: translateY(0) scale(1);      opacity: 0.40; }
+      25%  { transform: translateY(-8px) scale(1);   opacity: 1;    }
+      50%  { transform: translateY(0) scale(1);      opacity: 0.9;  }
+      75%  { transform: translateY(3px) scale(1.02); opacity: 0.85; }
+      100% { transform: translateY(0) scale(1.04);   opacity: 1;    }
     }
   </style>
 </head>
 <body class="is-loading">
 
+<!-- PRELOADER TESTUALE -->
 <div id="preloader" aria-hidden="true">
-  <div class="loader-wrap">
-    <div class="loader-ring">
-      <span class="loader-segment"></span>
-      <span class="loader-segment"></span>
-      <span class="loader-segment"></span>
-      <span class="loader-segment"></span>
-      <span class="loader-segment"></span>
-      <span class="loader-segment"></span>
-      <span class="loader-segment"></span>
-      <span class="loader-segment"></span>
-      <span class="loader-segment"></span>
-      <span class="loader-segment"></span>
-      <span class="loader-segment"></span>
-      <span class="loader-segment"></span>
-    </div>
-    <div class="loader-center"></div>
+  <div class="loader-text-wrap">
+    <span class="loader-letter">G</span>
+    <span class="loader-letter">A</span>
+    <span class="loader-letter">B</span>
+    <span class="loader-letter">R</span>
+    <span class="loader-letter">I</span>
+    <span class="loader-letter">E</span>
+    <span class="loader-letter">L</span>
+    <span class="loader-letter">E</span>
   </div>
 </div>
 
@@ -216,14 +179,16 @@
   <canvas id="door-canvas"></canvas>
 </div>
 
+<!-- Three.js + porta (logica in src/main.js) -->
 <script type="module" src="src/main.js"></script>
 
 <script>
   /* ───────────────── PRELOADER CONFIG ───────────────── */
   const MIN_LOADER_TIME = 1800;
   const MAX_LOADER_TIME = 7000;
+  const MIN_FRAMES_READY = 40; // minimo di frame pronti prima di togliere il preloader
 
-  /* ───────────────── CONFIG ───────────────── */
+  /* ───────────────── CONFIG SEQUENCE ───────────────── */
   const FRAME_COUNT  = 127;
   const PX_PER_FRAME = window.innerWidth <= 768 ? 30 : 24;
   const FADE_PX      = 420;
@@ -334,10 +299,13 @@
   }
 
   function preloadInitial() {
-    for (let i = 0; i < Math.min(18, FRAME_COUNT); i++) {
+    // prima ondata forte sui primi MIN_FRAMES_READY frame
+    for (let i = 0; i < Math.min(MIN_FRAMES_READY, FRAME_COUNT); i++) {
       ensureFrame(i, 'high').catch(() => {});
     }
-    let cursor = 18;
+
+    // poi continua a riempire il resto in background
+    let cursor = MIN_FRAMES_READY;
     function pump() {
       let count = 0;
       while (cursor < FRAME_COUNT && count < 4) {
@@ -351,6 +319,21 @@
       }
     }
     setTimeout(pump, 80);
+  }
+
+  /* attende finché almeno N frame sono in status 2 (ready) */
+  function waitUntilFramesReady(count) {
+    return new Promise(resolve => {
+      function check() {
+        const ready = frames.filter(f => f.status === 2).length;
+        if (ready >= count) {
+          resolve();
+        } else {
+          setTimeout(check, 80);
+        }
+      }
+      check();
+    });
   }
 
   /* ───────────────── PRELOADER HELPERS ───────────────── */
@@ -375,10 +358,7 @@
   function render(scrollY) {
     showFrame(frameIndexFor(scrollY));
     overlay.style.opacity = norm(scrollY, S_SEQ_END, S_FADE_END).toFixed(3);
-
-    // NOTA: qui non tocchiamo più la porta,
-    // sarà Three.js (src/main.js) a leggere scrollY se vuoi
-    // oppure a ricevere un doorProgress normalizzato.
+    // la porta 3D verrà aggiornata dentro src/main.js leggendo scrollY/doorProgress
   }
 
   function loop() {
@@ -398,36 +378,29 @@
     requestAnimationFrame(loop);
   }
 
-  /* ───────────────── EVENTS ───────────────── */
-  window.addEventListener('scroll', () => {
-    targetScrollY = window.scrollY || document.documentElement.scrollTop || 0;
-    startLoop();
-  }, { passive: true });
-
-  window.addEventListener('resize', () => {
-    setScrollHeight();
-    targetScrollY  = window.scrollY || document.documentElement.scrollTop || 0;
-    currentScrollY = targetScrollY;
-    startLoop();
-  }, { passive: true });
-
   /* ───────────────── INIT ───────────────── */
   async function init() {
     preloadInitial();
-    const firstFramePromise = ensureFrame(0, 'high')
-      .then(img => {
-        layerA.src = img.currentSrc || img.src;
-        shownFrame = 0; wantedFrame = 0;
-        render(currentScrollY);
-      })
-      .catch(() => render(currentScrollY));
 
     await Promise.race([
-      Promise.all([firstFramePromise, waitForFonts(), minDelay(MIN_LOADER_TIME)]),
+      Promise.all([
+        waitForFonts(),
+        minDelay(MIN_LOADER_TIME),
+        waitUntilFramesReady(MIN_FRAMES_READY)
+      ]),
       timeout(MAX_LOADER_TIME)
     ]);
 
+    // assicura che il primo frame sia impostato
+    const firstItem = frames[0];
+    if (firstItem && firstItem.status === 2 && firstItem.img) {
+      layerA.src = firstItem.img.currentSrc || firstItem.img.src;
+      shownFrame = 0;
+      wantedFrame = 0;
+    }
+
     hidePreloader();
+    render(0);
     startLoop();
   }
 
