@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>Gabrimad + Porta</title>
+  <title>Gabrimad + Porta 3D</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -21,9 +21,13 @@
     html, body {
       background: #000;
       overscroll-behavior: none;
+      height: 100%;
     }
 
-    body { min-height: 100vh; }
+    body {
+      min-height: 100vh;
+    }
+
     body.is-loading { overflow: hidden; }
 
     #scroll-space {}
@@ -73,95 +77,17 @@
     }
 
     /* ═══════════════════════════════
-       PORTA — versione definitiva
+       PORTA 3D (Three.js)
     ═══════════════════════════════ */
 
-    #door-scene {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      opacity: 0;
-      pointer-events: none;
-      z-index: 5;
-      /* NO perspective qui: applicata per-anta in JS */
-    }
-
-    #door-wrapper {
-      position: relative;
-      width: 400px;
-      height: 560px;
-      transform-origin: center center;
-      transform: scale(0.08);
-      will-change: transform;
-      /* NO transform-style: preserve-3d sul wrapper */
-    }
-
-    /* Sfondo ambrato visibile quando le ante si aprono */
-    #door-bg {
-      position: absolute;
-      inset: 0;
-      z-index: 0;
-      background:
-        radial-gradient(ellipse at 50% 38%,
-          #f0e0b0 0%,
-          #c09828 18%,
-          #6b4808 40%,
-          #1a0f02 65%,
-          #000000 100%);
-    }
-
-    .door-leaf {
-      position: absolute;
-      top: 0;
-      bottom: 0;
-      width: 50%;
-      z-index: 2;
-      backface-visibility: hidden;
-      -webkit-backface-visibility: hidden;
-      will-change: transform;
-      overflow: hidden;
-    }
-
-    .door-leaf svg {
+    #door-canvas {
       position: absolute;
       inset: 0;
       width: 100%;
       height: 100%;
       display: block;
-      overflow: visible;
-    }
-
-    .door-leaf-left  {
-      left: 0;
-      transform-origin: 0% 50%;
-    }
-
-    .door-leaf-right {
-      right: 0;
-      transform-origin: 100% 50%;
-    }
-
-    #door-frame {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 3;
-      pointer-events: none;
-      overflow: visible;
-    }
-
-    /* ── responsive ── */
-    @media (max-width: 768px) {
-      #door-wrapper { width: 280px; height: 392px; }
-    }
-    @media (max-width: 480px) {
-      #door-wrapper { width: 230px; height: 322px; }
-    }
-    @media (max-aspect-ratio: 9/16) {
-      #door-wrapper { width: 260px; height: 364px; }
+      z-index: 5;
+      pointer-events: none; /* solo visual, lo scroll resta su page */
     }
 
     /* ═══════════════════════════════
@@ -286,33 +212,11 @@
   <img id="seq-b" class="seq-layer" alt="" decoding="async">
   <div id="fade-overlay"></div>
 
-  <!-- PORTA -->
-  <div id="door-scene">
-    <div id="door-wrapper">
-
-      <!-- Luce ambrata dietro le ante -->
-      <div id="door-bg"></div>
-
-      <!-- Anta sinistra -->
-      <div id="door-left" class="door-leaf door-leaf-left">
-        <!-- SVG sinistra invariato -->
-        <!-- ... (tutto il tuo SVG sinistro come da file) ... -->
-      </div>
-
-      <!-- Anta destra -->
-      <div id="door-right" class="door-leaf door-leaf-right">
-        <!-- SVG destra invariato -->
-        <!-- ... (tutto il tuo SVG destro come da file) ... -->
-      </div>
-
-      <!-- Cornice in legno dorato sovrapposta -->
-      <svg id="door-frame" viewBox="0 0 400 560" xmlns="http://www.w3.org/2000/svg">
-        <!-- ... (cornice come da tuo file) ... -->
-      </svg>
-
-    </div>
-  </div>
+  <!-- Canvas porta 3D -->
+  <canvas id="door-canvas"></canvas>
 </div>
+
+<script type="module" src="src/main.js"></script>
 
 <script>
   /* ───────────────── PRELOADER CONFIG ───────────────── */
@@ -343,10 +247,6 @@
   const layerA      = document.getElementById('seq-a');
   const layerB      = document.getElementById('seq-b');
   const overlay     = document.getElementById('fade-overlay');
-  const doorScene   = document.getElementById('door-scene');
-  const doorWrapper = document.getElementById('door-wrapper');
-  const doorLeft    = document.getElementById('door-left');
-  const doorRight   = document.getElementById('door-right');
 
   function setScrollHeight() {
     scrollSpace.style.height = (TOTAL_PX + window.innerHeight) + 'px';
@@ -356,9 +256,6 @@
   /* ───────────────── HELPERS ───────────────── */
   const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
   const norm  = (v, a, b) => clamp((v - a) / (b - a), 0, 1);
-
-  const easeOut3  = t => 1 - Math.pow(1 - t, 3);
-  const easeIO3   = t => t < .5 ? 4*t*t*t : 1 - Math.pow(-2*t + 2, 3) / 2;
 
   function frameIndexFor(scrollY) {
     if (scrollY >= S_SEQ_END) return FRAME_COUNT - 1;
@@ -470,37 +367,6 @@
     body.classList.add('is-ready');
   }
 
-  /* ─────────────────────────────────────────────────────
-     PORTA — renderDoorSequence
-  ───────────────────────────────────────────────────── */
-  const PERSP_PX = 1800;
-
-  function renderDoorSequence(scrollY) {
-    if (scrollY < S_SEQ_END) {
-      doorScene.style.opacity = '0';
-      return;
-    }
-
-    const revealT = norm(scrollY, S_SEQ_END, S_FADE_END);
-    doorScene.style.opacity = revealT.toFixed(3);
-
-    if (scrollY < S_FADE_END) return;
-
-    const zoomT  = easeIO3(norm(scrollY, S_FADE_END, S_TUNN_END));
-    const scale  = 0.08 + zoomT * 4.72;
-    const transY = 28 * (1 - zoomT);
-    doorWrapper.style.transform =
-      `translate(0, ${transY.toFixed(1)}px) scale(${scale.toFixed(4)})`;
-
-    const openT = easeOut3(norm(scrollY, S_FADE_END, S_OPEN_END));
-    const deg   = 90 * openT;
-
-    doorLeft.style.transform  =
-      `perspective(${PERSP_PX}px) rotateY(${(-deg).toFixed(2)}deg)`;
-    doorRight.style.transform =
-      `perspective(${PERSP_PX}px) rotateY(${deg.toFixed(2)}deg)`;
-  }
-
   /* ───────────────── SMOOTH RENDER LOOP ───────────────── */
   let targetScrollY  = window.scrollY || document.documentElement.scrollTop || 0;
   let currentScrollY = targetScrollY;
@@ -509,7 +375,10 @@
   function render(scrollY) {
     showFrame(frameIndexFor(scrollY));
     overlay.style.opacity = norm(scrollY, S_SEQ_END, S_FADE_END).toFixed(3);
-    renderDoorSequence(scrollY);
+
+    // NOTA: qui non tocchiamo più la porta,
+    // sarà Three.js (src/main.js) a leggere scrollY se vuoi
+    // oppure a ricevere un doorProgress normalizzato.
   }
 
   function loop() {
