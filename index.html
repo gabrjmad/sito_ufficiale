@@ -73,105 +73,23 @@
     }
 
     /* ═══════════════════════════════
-       PORTA — versione definitiva
+       CANVAS PORTA 3D (Three.js)
     ═══════════════════════════════ */
 
-    #door-scene {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      opacity: 0;
-      pointer-events: none;
-      z-index: 5;
-      /* NO perspective qui: applicata per-anta in JS */
-    }
-
-    #door-wrapper {
-      position: relative;
-      width: 400px;
-      height: 560px;
-      transform-origin: center center;
-      transform: scale(0.08);
-      will-change: transform;
-      /* NO transform-style: preserve-3d sul wrapper:
-         evita che il contesto 3D padre interferisca */
-    }
-
-    /* Sfondo ambrato visibile quando le ante si aprono */
-    #door-bg {
-      position: absolute;
-      inset: 0;
-      z-index: 0;
-      background:
-        radial-gradient(ellipse at 50% 38%,
-          #f0e0b0 0%,
-          #c09828 18%,
-          #6b4808 40%,
-          #1a0f02 65%,
-          #000000 100%);
-    }
-
-    /* Ogni anta è un div con SVG dentro */
-    .door-leaf {
-      position: absolute;
-      top: 0;
-      bottom: 0;
-      width: 50%;
-      z-index: 2;
-      /* CRITICO: backface nascosta → l'anta oltre 90° diventa
-         invisibile invece di mostrare il retro */
-      backface-visibility: hidden;
-      -webkit-backface-visibility: hidden;
-      will-change: transform;
-      overflow: hidden;
-    }
-
-    .door-leaf svg {
+    #door-canvas {
       position: absolute;
       inset: 0;
       width: 100%;
       height: 100%;
       display: block;
-      overflow: visible;
-    }
-
-    .door-leaf-left  {
-      left: 0;
-      transform-origin: 0% 50%;    /* cardine sinistro */
-    }
-
-    .door-leaf-right {
-      right: 0;
-      transform-origin: 100% 50%;  /* cardine destro */
-    }
-
-    /* Cornice SVG sovrapposta ad entrambe le ante */
-    #door-frame {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 3;
-      pointer-events: none;
-      overflow: visible;
-    }
-
-    /* ── responsive ── */
-    @media (max-width: 768px) {
-      #door-wrapper { width: 280px; height: 392px; }
-    }
-    @media (max-width: 480px) {
-      #door-wrapper { width: 230px; height: 322px; }
-    }
-    @media (max-aspect-ratio: 9/16) {
-      #door-wrapper { width: 260px; height: 364px; }
+      z-index: 5;
+      pointer-events: none; /* lo scroll resta sulla pagina */
     }
 
     /* ═══════════════════════════════
        PRELOADER "GABRIELE"
     ═══════════════════════════════ */
+
     #preloader {
       position: fixed;
       inset: 0;
@@ -232,6 +150,7 @@
 </head>
 <body class="is-loading">
 
+<!-- PRELOADER TESTUALE -->
 <div id="preloader" aria-hidden="true">
   <div class="loader-text-wrap">
     <span class="loader-letter">G</span>
@@ -248,45 +167,24 @@
 <div id="scroll-space"></div>
 
 <div id="stage">
+  <!-- SEQUENZA IMMAGINI -->
   <img id="seq-a" class="seq-layer active" alt="" decoding="async" fetchpriority="high">
   <img id="seq-b" class="seq-layer" alt="" decoding="async">
   <div id="fade-overlay"></div>
 
-  <!-- PORTA -->
-  <div id="door-scene">
-    <div id="door-wrapper">
-
-      <!-- Luce ambrata dietro le ante -->
-      <div id="door-bg"></div>
-
-      <!-- Anta sinistra -->
-      <div id="door-left" class="door-leaf door-leaf-left">
-        <!-- tutto il tuo SVG sinistro, invariato -->
-        <!-- … -->
-      </div>
-
-      <!-- Anta destra -->
-      <div id="door-right" class="door-leaf door-leaf-right">
-        <!-- tutto il tuo SVG destro, invariato -->
-        <!-- … -->
-      </div>
-
-      <!-- Cornice in legno dorato sovrapposta -->
-      <svg id="door-frame" viewBox="0 0 400 560" xmlns="http://www.w3.org/2000/svg">
-        <!-- tutto il tuo SVG della cornice, invariato -->
-        <!-- … -->
-      </svg>
-
-    </div>
-  </div>
+  <!-- CANVAS PORTA 3D -->
+  <canvas id="door-canvas"></canvas>
 </div>
+
+<!-- Three.js + logica porta/scroll -->
+<script type="module" src="src/main.js"></script>
 
 <script>
   /* ───────────────── PRELOADER CONFIG ───────────────── */
   const MIN_LOADER_TIME = 1800;
   const MAX_LOADER_TIME = 7000;
 
-  /* ───────────────── CONFIG ───────────────── */
+  /* ───────────────── CONFIG SEQUENZA ───────────────── */
   const FRAME_COUNT  = 127;
   const PX_PER_FRAME = window.innerWidth <= 768 ? 30 : 24;
   const FADE_PX      = 420;
@@ -296,12 +194,15 @@
 
   const S_SEQ_END  = (FRAME_COUNT - 1) * PX_PER_FRAME;
   const S_FADE_END = S_SEQ_END + FADE_PX;
-  const S_OPEN_END = S_FADE_END + DOOR_APPROACH_PX;   /* ante completamente aperte */
-  const S_TUNN_END = S_OPEN_END + DOOR_ENTER_PX;      /* dentro la porta */
+  const S_OPEN_END = S_FADE_END + DOOR_APPROACH_PX;
+  const S_TUNN_END = S_OPEN_END + DOOR_ENTER_PX;
   const TOTAL_PX   = S_TUNN_END;
 
+  /* QUI specifichi da dove arrivano le immagini */
   const frameSrc = i =>
     `img-sequence/compressed_${String(i + 2).padStart(3, '0')}.jpg`;
+  // Assicurati che in /img-sequence/ tu abbia:
+  // compressed_002.jpg ... compressed_128.jpg
 
   /* ───────────────── DOM ───────────────── */
   const body        = document.body;
@@ -310,10 +211,6 @@
   const layerA      = document.getElementById('seq-a');
   const layerB      = document.getElementById('seq-b');
   const overlay     = document.getElementById('fade-overlay');
-  const doorScene   = document.getElementById('door-scene');
-  const doorWrapper = document.getElementById('door-wrapper');
-  const doorLeft    = document.getElementById('door-left');
-  const doorRight   = document.getElementById('door-right');
 
   function setScrollHeight() {
     scrollSpace.style.height = (TOTAL_PX + window.innerHeight) + 'px';
@@ -323,9 +220,6 @@
   /* ───────────────── HELPERS ───────────────── */
   const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
   const norm  = (v, a, b) => clamp((v - a) / (b - a), 0, 1);
-
-  const easeOut3  = t => 1 - Math.pow(1 - t, 3);
-  const easeIO3   = t => t < .5 ? 4*t*t*t : 1 - Math.pow(-2*t + 2, 3) / 2;
 
   function frameIndexFor(scrollY) {
     if (scrollY >= S_SEQ_END) return FRAME_COUNT - 1;
@@ -404,10 +298,11 @@
   }
 
   function preloadInitial() {
-    for (let i = 0; i < Math.min(18, FRAME_COUNT); i++) {
+    // un po' più aggressivo per ridurre lag iniziali
+    for (let i = 0; i < Math.min(24, FRAME_COUNT); i++) {
       ensureFrame(i, 'high').catch(() => {});
     }
-    let cursor = 18;
+    let cursor = 24;
     function pump() {
       let count = 0;
       while (cursor < FRAME_COUNT && count < 4) {
@@ -437,35 +332,6 @@
     body.classList.add('is-ready');
   }
 
-  /* ───────────────── PORTA ───────────────── */
-  const PERSP_PX = 1800;
-
-  function renderDoorSequence(scrollY) {
-    if (scrollY < S_SEQ_END) {
-      doorScene.style.opacity = '0';
-      return;
-    }
-
-    const revealT = norm(scrollY, S_SEQ_END, S_FADE_END);
-    doorScene.style.opacity = revealT.toFixed(3);
-
-    if (scrollY < S_FADE_END) return;
-
-    const zoomT  = easeIO3(norm(scrollY, S_FADE_END, S_TUNN_END));
-    const scale  = 0.08 + zoomT * 4.72;
-    const transY = 28 * (1 - zoomT);
-    doorWrapper.style.transform =
-      `translate(0, ${transY.toFixed(1)}px) scale(${scale.toFixed(4)})`;
-
-    const openT = easeOut3(norm(scrollY, S_FADE_END, S_OPEN_END));
-    const deg   = 90 * openT;
-
-    doorLeft.style.transform  =
-      `perspective(${PERSP_PX}px) rotateY(${(-deg).toFixed(2)}deg)`;
-    doorRight.style.transform =
-      `perspective(${PERSP_PX}px) rotateY(${deg).toFixed(2)}deg)`;
-  }
-
   /* ───────────────── SMOOTH RENDER LOOP ───────────────── */
   let targetScrollY  = window.scrollY || document.documentElement.scrollTop || 0;
   let currentScrollY = targetScrollY;
@@ -474,7 +340,10 @@
   function render(scrollY) {
     showFrame(frameIndexFor(scrollY));
     overlay.style.opacity = norm(scrollY, S_SEQ_END, S_FADE_END).toFixed(3);
-    renderDoorSequence(scrollY);
+
+    // La porta 3D (in src/main.js) può leggere scrollY/doorProgress
+    // usando, ad esempio, window.currentScrollY o un evento custom.
+    window.currentScrollY = scrollY;
   }
 
   function loop() {
@@ -510,16 +379,22 @@
   /* ───────────────── INIT ───────────────── */
   async function init() {
     preloadInitial();
+
     const firstFramePromise = ensureFrame(0, 'high')
       .then(img => {
         layerA.src = img.currentSrc || img.src;
-        shownFrame = 0; wantedFrame = 0;
+        shownFrame = 0;
+        wantedFrame = 0;
         render(currentScrollY);
       })
       .catch(() => render(currentScrollY));
 
     await Promise.race([
-      Promise.all([firstFramePromise, waitForFonts(), minDelay(MIN_LOADER_TIME)]),
+      Promise.all([
+        firstFramePromise,
+        waitForFonts(),
+        minDelay(MIN_LOADER_TIME)
+      ]),
       timeout(MAX_LOADER_TIME)
     ]);
 
