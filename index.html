@@ -4,10 +4,18 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Scroll Sequence + Porta</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@900&display=swap" rel="stylesheet">
+
+  //fonts.googleapis.com">
+  //fonts.gstatic.com" crossorigin>
+  //fonts.googleapis.com/css2?family=Playfair+Display:wght@900&display=swap" rel="stylesheet">
+
   <style>
+    :root {
+      --loader-bg: #a9acb6;
+      --loader-fg: #ffffff;
+      --loader-out: 900ms;
+    }
+
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
     html, body {
@@ -19,6 +27,10 @@
       min-height: 100vh;
     }
 
+    body.is-loading {
+      overflow: hidden;
+    }
+
     #scroll-space {}
 
     #stage {
@@ -28,6 +40,14 @@
       height: 100vh;
       background: #000;
       overflow: hidden;
+      opacity: 0;
+      transform: scale(1.01);
+      transition: opacity 900ms ease, transform 1200ms ease;
+    }
+
+    body.is-ready #stage {
+      opacity: 1;
+      transform: scale(1);
     }
 
     .seq-layer {
@@ -120,9 +140,162 @@
     #door-right {
       will-change: transform;
     }
+
+    /* PRELOADER */
+    #preloader {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      display: grid;
+      place-items: center;
+      background: var(--loader-bg);
+      opacity: 1;
+      visibility: visible;
+      transition:
+        opacity var(--loader-out) ease,
+        visibility var(--loader-out) ease;
+    }
+
+    #preloader.is-hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .loader-wrap {
+      position: relative;
+      width: 82px;
+      height: 82px;
+      display: grid;
+      place-items: center;
+      transform: scale(0.88);
+      animation: loaderAppear 900ms ease forwards;
+    }
+
+    .loader-ring {
+      position: absolute;
+      inset: 0;
+      animation: rotateRing 2.8s linear infinite;
+    }
+
+    .loader-segment {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 16px;
+      height: 2px;
+      border-radius: 999px;
+      background: var(--loader-fg);
+      transform-origin: -22px center;
+      opacity: 0.16;
+      animation: pulseSeg 1.08s ease-in-out infinite;
+      will-change: transform, opacity;
+    }
+
+    .loader-center {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.95);
+      box-shadow: 0 0 18px rgba(255,255,255,0.20);
+      animation: centerBreath 1.6s ease-in-out infinite;
+    }
+
+    .loader-segment:nth-child(1)  { transform: translate(-50%, -50%) rotate(0deg);   animation-delay: 0s; }
+    .loader-segment:nth-child(2)  { transform: translate(-50%, -50%) rotate(30deg);  animation-delay: .08s; }
+    .loader-segment:nth-child(3)  { transform: translate(-50%, -50%) rotate(60deg);  animation-delay: .16s; }
+    .loader-segment:nth-child(4)  { transform: translate(-50%, -50%) rotate(90deg);  animation-delay: .24s; }
+    .loader-segment:nth-child(5)  { transform: translate(-50%, -50%) rotate(120deg); animation-delay: .32s; }
+    .loader-segment:nth-child(6)  { transform: translate(-50%, -50%) rotate(150deg); animation-delay: .40s; }
+    .loader-segment:nth-child(7)  { transform: translate(-50%, -50%) rotate(180deg); animation-delay: .48s; }
+    .loader-segment:nth-child(8)  { transform: translate(-50%, -50%) rotate(210deg); animation-delay: .56s; }
+    .loader-segment:nth-child(9)  { transform: translate(-50%, -50%) rotate(240deg); animation-delay: .64s; }
+    .loader-segment:nth-child(10) { transform: translate(-50%, -50%) rotate(270deg); animation-delay: .72s; }
+    .loader-segment:nth-child(11) { transform: translate(-50%, -50%) rotate(300deg); animation-delay: .80s; }
+    .loader-segment:nth-child(12) { transform: translate(-50%, -50%) rotate(330deg); animation-delay: .88s; }
+
+    @keyframes rotateRing {
+      from { transform: rotate(0deg); }
+      to   { transform: rotate(360deg); }
+    }
+
+    @keyframes pulseSeg {
+      0%, 100% {
+        opacity: 0.12;
+        filter: blur(0px);
+      }
+      50% {
+        opacity: 1;
+        filter: blur(0.2px);
+      }
+    }
+
+    @keyframes centerBreath {
+      0%, 100% {
+        transform: scale(0.75);
+        opacity: 0.6;
+      }
+      50% {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    @keyframes loaderAppear {
+      from {
+        opacity: 0;
+        transform: scale(0.72);
+      }
+      to {
+        opacity: 1;
+        transform: scale(0.88);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .loader-wrap {
+        width: 64px;
+        height: 64px;
+      }
+
+      .loader-segment {
+        width: 12px;
+        transform-origin: -18px center;
+      }
+
+      .loader-center {
+        width: 8px;
+        height: 8px;
+      }
+
+      #door-wrapper {
+        width: 300px;
+        height: 440px;
+      }
+    }
   </style>
 </head>
-<body>
+<body class="is-loading">
+
+<div id="preloader" aria-hidden="true">
+  <div class="loader-wrap">
+    <div class="loader-ring">
+      <span class="loader-segment"></span>
+      <span class="loader-segment"></span>
+      <span class="loader-segment"></span>
+      <span class="loader-segment"></span>
+      <span class="loader-segment"></span>
+      <span class="loader-segment"></span>
+      <span class="loader-segment"></span>
+      <span class="loader-segment"></span>
+      <span class="loader-segment"></span>
+      <span class="loader-segment"></span>
+      <span class="loader-segment"></span>
+      <span class="loader-segment"></span>
+    </div>
+    <div class="loader-center"></div>
+  </div>
+</div>
 
 <div id="scroll-space"></div>
 
@@ -164,6 +337,10 @@
 </div>
 
 <script>
+  /* ───────────────── PRELOADER CONFIG ───────────────── */
+  const MIN_LOADER_TIME = 1800;
+  const MAX_LOADER_TIME = 7000;
+
   /* ───────────────── CONFIG ───────────────── */
   const FRAME_COUNT = 127; // compressed_002.jpg → compressed_128.jpg
   const PX_PER_FRAME = window.innerWidth <= 768 ? 30 : 24;
@@ -172,7 +349,7 @@
   const DOOR_OPEN_PX = 600;
   const TUNNEL_PX = 900;
 
-  const S_SEQ_END  = (FRAME_COUNT - 1) * PX_PER_FRAME; // ultimo frame = compressed_128.jpg
+  const S_SEQ_END  = (FRAME_COUNT - 1) * PX_PER_FRAME;
   const S_FADE_END = S_SEQ_END + FADE_PX;
   const S_ZOOM_END = S_FADE_END + DOOR_ZOOM_PX;
   const S_OPEN_END = S_ZOOM_END + DOOR_OPEN_PX;
@@ -182,6 +359,8 @@
   const frameSrc = i => `img-sequence/compressed_${String(i + 2).padStart(3, '0')}.jpg`;
 
   /* ───────────────── DOM ───────────────── */
+  const body = document.body;
+  const preloader = document.getElementById('preloader');
   const scrollSpace = document.getElementById('scroll-space');
   const layerA = document.getElementById('seq-a');
   const layerB = document.getElementById('seq-b');
@@ -235,7 +414,7 @@
 
   /* ───────────────── FRAME CACHE ───────────────── */
   const frames = Array.from({ length: FRAME_COUNT }, () => ({
-    status: 0,   // 0 idle, 1 loading, 2 ready, 3 error
+    status: 0,
     img: null,
     promise: null
   }));
@@ -274,6 +453,7 @@
         try {
           if (img.decode) await img.decode();
         } catch (e) {}
+
         item.status = 2;
         item.img = img;
         resolve(img);
@@ -324,8 +504,10 @@
     }
 
     let cursor = 18;
+
     function pump() {
       let count = 0;
+
       while (cursor < FRAME_COUNT && count < 4) {
         ensureFrame(cursor, 'auto').catch(() => {});
         cursor++;
@@ -342,6 +524,26 @@
     }
 
     setTimeout(pump, 80);
+  }
+
+  /* ───────────────── PRELOADER HELPERS ───────────────── */
+  function waitForFonts() {
+    if (!document.fonts || !document.fonts.ready) return Promise.resolve();
+    return document.fonts.ready.catch(() => Promise.resolve());
+  }
+
+  function minDelay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+  function timeout(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+  function hidePreloader() {
+    preloader.classList.add('is-hidden');
+    body.classList.remove('is-loading');
+    body.classList.add('is-ready');
   }
 
   /* ───────────────── SMOOTH RENDER LOOP ───────────────── */
@@ -368,7 +570,7 @@
 
     const openT = ease(norm(scrollY, S_FADE_END, S_OPEN_END));
     doorLeft.style.transform  = `perspective(900px) rotateY(${(-85 * openT).toFixed(2)}deg)`;
-    doorRight.style.transform = `perspective(900px) rotateY(${( 85 * openT).toFixed(2)}deg)`;
+    doorRight.style.transform = `perspective(900px) rotateY(${(85 * openT).toFixed(2)}deg)`;
 
     const tunnelT = ease(norm(scrollY, S_ZOOM_END, S_TUNN_END));
     tunnelInner.style.transform =
@@ -417,18 +619,34 @@
   }, { passive: true });
 
   /* ───────────────── INIT ───────────────── */
-  preloadInitial();
+  async function init() {
+    preloadInitial();
 
-  ensureFrame(0, 'high')
-    .then(img => {
-      layerA.src = img.currentSrc || img.src;
-      shownFrame = 0;
-      wantedFrame = 0;
-      render(currentScrollY);
-    })
-    .catch(() => {
-      render(currentScrollY);
-    });
+    const firstFramePromise = ensureFrame(0, 'high')
+      .then(img => {
+        layerA.src = img.currentSrc || img.src;
+        shownFrame = 0;
+        wantedFrame = 0;
+        render(currentScrollY);
+      })
+      .catch(() => {
+        render(currentScrollY);
+      });
+
+    await Promise.race([
+      Promise.all([
+        firstFramePromise,
+        waitForFonts(),
+        minDelay(MIN_LOADER_TIME)
+      ]),
+      timeout(MAX_LOADER_TIME)
+    ]);
+
+    hidePreloader();
+    startLoop();
+  }
+
+  window.addEventListener('load', init, { once: true });
 </script>
 
 </body>
