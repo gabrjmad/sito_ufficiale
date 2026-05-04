@@ -197,31 +197,6 @@
   }
   setScrollHeight();
 
-  /* ───────────────── TUNNEL ───────────────── */
-  const WORDS = [
-    { text: 'GABRJMAD', size: 130, x: 5,   y: 10, rot: -5  },
-    { text: 'DESIGNER', size: 90,  x: 55,  y: 18, rot: 8   },
-    { text: 'INVESTOR', size: 110, x: 10,  y: 40, rot: -8  },
-    { text: 'BUISNESS', size: 100, x: 55,  y: 45, rot: 7   },
-    { text: 'MODEL',    size: 140, x: 0,   y: 60, rot: -10 },
-    { text: 'ROUND',    size: 95,  x: 60,  y: 68, rot: 6   },
-    { text: 'FRONT',    size: 120, x: 8,   y: 78, rot: -7  },
-    { text: 'BELLO',    size: 105, x: 58,  y: 82, rot: 9   },
-    { text: 'GABRJMAD', size: 70,  x: -5,  y: 28, rot: 4   },
-    { text: 'DESIGNER', size: 150, x: 25,  y: 52, rot: -4  },
-  ];
-
-  WORDS.forEach(w => {
-    const el = document.createElement('div');
-    el.className = 'tunnel-word';
-    el.textContent = w.text;
-    el.style.fontSize = w.size + 'px';
-    el.style.left = w.x + '%';
-    el.style.top = w.y + '%';
-    el.style.transform = `rotate(${w.rot}deg)`;
-    tunnelInner.appendChild(el);
-  });
-
   /* ───────────────── HELPERS ───────────────── */
   const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
   const norm = (v, a, b) => clamp((v - a) / (b - a), 0, 1);
