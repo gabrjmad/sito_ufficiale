@@ -43,7 +43,7 @@
       will-change: opacity;
       backface-visibility: hidden;
       transform: translateZ(0);
-      z-index: 3;
+      z-index: 2;
     }
 
     .seq-layer.active {
@@ -315,8 +315,6 @@
     height: 0,
     dpr: 1,
     stars: [],
-    visible: false,
-    reveal: 0,
     baseCenterX: 0,
     baseCenterY: 0,
     currentCenterX: 0,
@@ -328,6 +326,8 @@
     speed: 11,
     depth: 2200,
     focal: 380,
+    reveal: 0,
+    visible: false,
     lastTime: performance.now()
   };
 
@@ -474,20 +474,20 @@
     showFrame(frameIdx);
 
     const fadeT = norm(scrollY, S_SEQ_END, S_FADE_END);
-    overlay.style.opacity = fadeT.toFixed(3);
 
-    const starStarted = scrollY >= S_FADE_END - 2;
-
-    if (starStarted) {
-      starCanvas.classList.add('is-visible');
-      starState.visible = true;
-      layerA.classList.add('hidden-after-fade');
-      layerB.classList.add('hidden-after-fade');
-    } else {
+    if (scrollY <= S_FADE_END) {
+      overlay.style.opacity = fadeT.toFixed(3);
       starCanvas.classList.remove('is-visible');
       starState.visible = false;
       layerA.classList.remove('hidden-after-fade');
       layerB.classList.remove('hidden-after-fade');
+    } else {
+      const starFade = norm(scrollY, S_FADE_END, S_FADE_END + 200);
+      overlay.style.opacity = (1 - starFade).toFixed(3);
+      starCanvas.classList.add('is-visible');
+      starState.visible = true;
+      layerA.classList.add('hidden-after-fade');
+      layerB.classList.add('hidden-after-fade');
     }
   }
 
