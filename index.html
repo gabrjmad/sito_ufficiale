@@ -43,10 +43,32 @@
       will-change: opacity;
       backface-visibility: hidden;
       transform: translateZ(0);
-      z-index: 1;
+      z-index: 3;
     }
 
     .seq-layer.active {
+      opacity: 1;
+    }
+
+    .seq-layer.hidden-after-fade {
+      opacity: 0 !important;
+      visibility: hidden;
+    }
+
+    #starfield-bg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+      z-index: 1;
+      pointer-events: none;
+      background: #000;
+      opacity: 0;
+      transition: opacity 450ms linear;
+    }
+
+    #starfield-bg.is-visible {
       opacity: 1;
     }
 
@@ -59,28 +81,6 @@
       will-change: opacity;
       z-index: 5;
     }
-
-    #starfield-bg {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      display: block;
-      z-index: 2;
-      pointer-events: none;
-      background: #000;
-      opacity: 0;
-      will-change: opacity, transform;
-      transition: opacity 700ms ease;
-    }
-
-    #starfield-bg.is-visible {
-      opacity: 1;
-    }
-
-    /* ═══════════════════════════════
-       PRELOADER "GABRIELE"
-    ═══════════════════════════════ */
 
     #preloader {
       position: fixed;
@@ -156,9 +156,9 @@
 <div id="scroll-space"></div>
 
 <div id="stage">
+  <canvas id="starfield-bg" aria-hidden="true"></canvas>
   <img id="seq-a" class="seq-layer active" alt="" decoding="async" fetchpriority="high">
   <img id="seq-b" class="seq-layer" alt="" decoding="async">
-  <canvas id="starfield-bg" aria-hidden="true"></canvas>
   <div id="fade-overlay"></div>
 </div>
 
@@ -167,7 +167,7 @@
   const FRAME_COUNT = 127;
   const PX_PER_FRAME = window.innerWidth <= 768 ? 30 : 24;
   const FADE_PX = 420;
-  const STARFIELD_PX = window.innerWidth <= 768 ? 2400 : 3200;
+  const STARFIELD_PX = window.innerWidth <= 768 ? 2600 : 3600;
 
   const S_SEQ_END  = (FRAME_COUNT - 1) * PX_PER_FRAME;
   const S_FADE_END = S_SEQ_END + FADE_PX;
@@ -193,7 +193,6 @@
   /* ───────────────── HELPERS ───────────────── */
   const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
   const norm = (v, a, b) => clamp((v - a) / (b - a), 0, 1);
-  const ease = t => t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
 
   function frameIndexFor(scrollY) {
     if (scrollY >= S_SEQ_END) return FRAME_COUNT - 1;
@@ -269,8 +268,6 @@
     ensureFrame(center - 2, 'auto');
     ensureFrame(center + 3, 'auto');
     ensureFrame(center - 3, 'auto');
-    ensureFrame(center + 4, 'auto');
-    ensureFrame(center - 4, 'auto');
   }
 
   function showFrame(index) {
@@ -318,47 +315,46 @@
     height: 0,
     dpr: 1,
     stars: [],
-    targetX: 0,
-    targetY: 0,
-    currentX: 0,
-    currentY: 0,
+    visible: false,
+    reveal: 0,
     baseCenterX: 0,
     baseCenterY: 0,
+    currentCenterX: 0,
+    currentCenterY: 0,
+    targetCenterX: 0,
+    targetCenterY: 0,
     driftX: 0,
     driftY: 0,
-    time: 0,
-    speed: 8.5,
-    baseFov: 520,
-    depth: 2600,
-    visibleAmount: 0
+    speed: 11,
+    depth: 2200,
+    focal: 380,
+    lastTime: performance.now()
   };
 
-  function makeStar(randomZ = false) {
-    const spreadX = starState.width * 2.4;
-    const spreadY = starState.height * 2.4;
-
+  function createStar(randomZ = false) {
+    const spread = Math.max(starState.width, starState.height) * 1.8;
     return {
-      x: (Math.random() - 0.5) * spreadX,
-      y: (Math.random() - 0.5) * spreadY,
-      z: randomZ ? Math.random() * starState.depth : starState.depth,
-      size: Math.random() * 1.25 + 0.25,
-      alpha: Math.random() * 0.65 + 0.25,
-      twinkleSpeed: Math.random() * 0.03 + 0.008,
-      twinkleOffset: Math.random() * Math.PI * 2
+      x: (Math.random() - 0.5) * spread,
+      y: (Math.random() - 0.5) * spread,
+      z: randomZ ? Math.random() * starState.depth + 1 : starState.depth,
+      radius: Math.random() * 0.8 + 0.15,
+      alpha: Math.random() * 0.55 + 0.25,
+      tint: Math.random() < 0.9 ? 255 : 235,
+      twinkleOffset: Math.random() * Math.PI * 2,
+      twinkleSpeed: Math.random() * 0.025 + 0.008
     };
   }
 
-  function recycleStar(star) {
-    const spreadX = starState.width * 2.4;
-    const spreadY = starState.height * 2.4;
-
-    star.x = (Math.random() - 0.5) * spreadX;
-    star.y = (Math.random() - 0.5) * spreadY;
+  function resetStar(star) {
+    const spread = Math.max(starState.width, starState.height) * 1.8;
+    star.x = (Math.random() - 0.5) * spread;
+    star.y = (Math.random() - 0.5) * spread;
     star.z = starState.depth;
-    star.size = Math.random() * 1.25 + 0.25;
-    star.alpha = Math.random() * 0.65 + 0.25;
-    star.twinkleSpeed = Math.random() * 0.03 + 0.008;
+    star.radius = Math.random() * 0.8 + 0.15;
+    star.alpha = Math.random() * 0.55 + 0.25;
+    star.tint = Math.random() < 0.9 ? 255 : 235;
     star.twinkleOffset = Math.random() * Math.PI * 2;
+    star.twinkleSpeed = Math.random() * 0.025 + 0.008;
   }
 
   function initStars() {
@@ -366,33 +362,16 @@
     starState.height = window.innerHeight;
     starState.baseCenterX = starState.width * 0.5;
     starState.baseCenterY = starState.height * 0.5;
-    starState.currentX = starState.baseCenterX;
-    starState.currentY = starState.baseCenterY;
-    starState.targetX = starState.baseCenterX;
-    starState.targetY = starState.baseCenterY;
-    starState.stars = [];
+    starState.currentCenterX = starState.baseCenterX;
+    starState.currentCenterY = starState.baseCenterY;
+    starState.targetCenterX = starState.baseCenterX;
+    starState.targetCenterY = starState.baseCenterY;
 
-    const count = Math.max(320, Math.floor((starState.width * starState.height) / 4200));
-    for (let i = 0; i < count; i++) {
-      starState.stars.push(makeStar(true));
-    }
+    const count = Math.max(260, Math.floor((starState.width * starState.height) / 5200));
+    starState.stars = Array.from({ length: count }, () => createStar(true));
   }
 
-  function onPointerMove(clientX, clientY) {
-    const nx = clientX / starState.width - 0.5;
-    const ny = clientY / starState.height - 0.5;
-
-    const followRangeX = starState.width * 0.09;
-    const followRangeY = starState.height * 0.09;
-
-    starState.targetX = starState.baseCenterX + nx * followRangeX;
-    starState.targetY = starState.baseCenterY + ny * followRangeY;
-
-    starState.driftX = nx * 26;
-    starState.driftY = ny * 26;
-  }
-
-  function resizeStage() {
+  function resizeStarfield() {
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     starState.dpr = dpr;
 
@@ -402,85 +381,90 @@
     starCanvas.style.height = window.innerHeight + 'px';
 
     starCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
-
-    setScrollHeight();
     initStars();
   }
 
-  function drawStars() {
-    starState.time += 1;
+  function updatePointer(clientX, clientY) {
+    const nx = clientX / starState.width - 0.5;
+    const ny = clientY / starState.height - 0.5;
+    const rangeX = starState.width * 0.06;
+    const rangeY = starState.height * 0.06;
 
-    starState.currentX += (starState.targetX - starState.currentX) * 0.035;
-    starState.currentY += (starState.targetY - starState.currentY) * 0.035;
+    starState.targetCenterX = starState.baseCenterX + nx * rangeX;
+    starState.targetCenterY = starState.baseCenterY + ny * rangeY;
+    starState.driftX = nx * 10;
+    starState.driftY = ny * 10;
+  }
 
-    starCtx.fillStyle = "#000000";
+  function drawStarfield(now) {
+    const dt = Math.min(2, (now - starState.lastTime) / 16.6667 || 1);
+    starState.lastTime = now;
+
+    starState.currentCenterX += (starState.targetCenterX - starState.currentCenterX) * 0.035;
+    starState.currentCenterY += (starState.targetCenterY - starState.currentCenterY) * 0.035;
+    starState.reveal += ((starState.visible ? 1 : 0) - starState.reveal) * 0.06;
+
+    starCtx.fillStyle = "#000";
     starCtx.fillRect(0, 0, starState.width, starState.height);
 
-    if (starState.visibleAmount <= 0.001) {
-      requestAnimationFrame(drawStars);
+    if (starState.reveal < 0.002) {
+      requestAnimationFrame(drawStarfield);
       return;
     }
 
+    const time = now * 0.001;
+
     for (let i = 0; i < starState.stars.length; i++) {
       const s = starState.stars[i];
+      const speedBoost = 1 + (1 - s.z / starState.depth) * 1.35;
 
-      const depthBoost = 1 + (1 - s.z / starState.depth) * 1.8;
-      s.z -= starState.speed * depthBoost;
+      s.z -= starState.speed * speedBoost * dt;
 
       if (s.z <= 1) {
-        recycleStar(s);
+        resetStar(s);
         continue;
       }
 
-      const persp = starState.baseFov / s.z;
-      const parallaxFactor = 1.65 - s.z / starState.depth;
+      const perspective = starState.focal / s.z;
+      const parallax = 1.15 - s.z / starState.depth;
 
-      const px = starState.currentX + (s.x + starState.driftX * parallaxFactor) * persp;
-      const py = starState.currentY + (s.y + starState.driftY * parallaxFactor) * persp;
+      const x = starState.currentCenterX + (s.x + starState.driftX * parallax) * perspective;
+      const y = starState.currentCenterY + (s.y + starState.driftY * parallax) * perspective;
 
-      const trailZ = s.z + 34;
-      const trailPersp = starState.baseFov / trailZ;
+      const prevZ = s.z + 20 * dt;
+      const prevPerspective = starState.focal / prevZ;
 
-      const tx = starState.currentX + (s.x + starState.driftX * parallaxFactor) * trailPersp;
-      const ty = starState.currentY + (s.y + starState.driftY * parallaxFactor) * trailPersp;
+      const prevX = starState.currentCenterX + (s.x + starState.driftX * parallax) * prevPerspective;
+      const prevY = starState.currentCenterY + (s.y + starState.driftY * parallax) * prevPerspective;
 
-      if (px < -160 || px > starState.width + 160 || py < -160 || py > starState.height + 160) {
-        recycleStar(s);
+      if (x < -40 || x > starState.width + 40 || y < -40 || y > starState.height + 40) {
+        resetStar(s);
         continue;
       }
 
       const proximity = 1 - s.z / starState.depth;
-      const radius = Math.max(0.35, s.size + proximity * 2.2);
-      const twinkle = 0.76 + Math.sin(starState.time * s.twinkleSpeed + s.twinkleOffset) * 0.24;
-      const alpha = Math.min(1, (s.alpha + proximity * 0.45) * twinkle * starState.visibleAmount);
+      const radius = Math.max(0.18, s.radius + proximity * 0.95);
+      const twinkle = 0.78 + Math.sin(time * (2.2 + s.twinkleSpeed * 40) + s.twinkleOffset) * 0.22;
+      const alpha = Math.min(1, (s.alpha + proximity * 0.35) * twinkle * starState.reveal);
+      const tint = s.tint;
 
       starCtx.beginPath();
-      starCtx.strokeStyle = `rgba(255,255,255,${alpha * 0.24})`;
-      starCtx.lineWidth = Math.max(0.45, radius * 0.85);
-      starCtx.moveTo(tx, ty);
-      starCtx.lineTo(px, py);
+      starCtx.strokeStyle = `rgba(${tint},${tint},${tint},${alpha * 0.18})`;
+      starCtx.lineWidth = Math.max(0.18, radius * 0.55);
+      starCtx.moveTo(prevX, prevY);
+      starCtx.lineTo(x, y);
       starCtx.stroke();
 
-      const glow = starCtx.createRadialGradient(px, py, 0, px, py, radius * 4.5);
-      glow.addColorStop(0, `rgba(255,255,255,${alpha})`);
-      glow.addColorStop(0.35, `rgba(255,255,255,${alpha * 0.35})`);
-      glow.addColorStop(1, `rgba(255,255,255,0)`);
-
       starCtx.beginPath();
-      starCtx.fillStyle = glow;
-      starCtx.arc(px, py, radius * 4.5, 0, Math.PI * 2);
-      starCtx.fill();
-
-      starCtx.beginPath();
-      starCtx.fillStyle = `rgba(255,255,255,${Math.min(1, alpha * 1.08)})`;
-      starCtx.arc(px, py, radius, 0, Math.PI * 2);
+      starCtx.fillStyle = `rgba(${tint},${tint},${tint},${alpha})`;
+      starCtx.arc(x, y, radius, 0, Math.PI * 2);
       starCtx.fill();
     }
 
-    requestAnimationFrame(drawStars);
+    requestAnimationFrame(drawStarfield);
   }
 
-  /* ───────────────── SMOOTH RENDER LOOP ───────────────── */
+  /* ───────────────── RENDER LOOP ───────────────── */
   let targetScrollY = window.scrollY || document.documentElement.scrollTop || 0;
   let currentScrollY = targetScrollY;
   let running = false;
@@ -492,16 +476,19 @@
     const fadeT = norm(scrollY, S_SEQ_END, S_FADE_END);
     overlay.style.opacity = fadeT.toFixed(3);
 
-    const starT = ease(norm(scrollY, S_FADE_END, S_FADE_END + 220));
+    const starStarted = scrollY >= S_FADE_END - 2;
 
-    if (scrollY < S_FADE_END) {
+    if (starStarted) {
+      starCanvas.classList.add('is-visible');
+      starState.visible = true;
+      layerA.classList.add('hidden-after-fade');
+      layerB.classList.add('hidden-after-fade');
+    } else {
       starCanvas.classList.remove('is-visible');
-      starState.visibleAmount = 0;
-      return;
+      starState.visible = false;
+      layerA.classList.remove('hidden-after-fade');
+      layerB.classList.remove('hidden-after-fade');
     }
-
-    starCanvas.classList.add('is-visible');
-    starState.visibleAmount = starT;
   }
 
   function loop() {
@@ -539,24 +526,25 @@
   }, { passive: true });
 
   window.addEventListener('resize', () => {
+    setScrollHeight();
     targetScrollY = window.scrollY || document.documentElement.scrollTop || 0;
     currentScrollY = targetScrollY;
-    resizeStage();
+    resizeStarfield();
     startLoop();
   }, { passive: true });
 
-  window.addEventListener('mousemove', e => {
-    onPointerMove(e.clientX, e.clientY);
+  window.addEventListener('mousemove', (e) => {
+    updatePointer(e.clientX, e.clientY);
   }, { passive: true });
 
-  window.addEventListener('touchmove', e => {
+  window.addEventListener('touchmove', (e) => {
     if (!e.touches[0]) return;
-    onPointerMove(e.touches[0].clientX, e.touches[0].clientY);
+    updatePointer(e.touches[0].clientX, e.touches[0].clientY);
   }, { passive: true });
 
   window.addEventListener('mouseleave', () => {
-    starState.targetX = starState.baseCenterX;
-    starState.targetY = starState.baseCenterY;
+    starState.targetCenterX = starState.baseCenterX;
+    starState.targetCenterY = starState.baseCenterY;
     starState.driftX = 0;
     starState.driftY = 0;
   });
@@ -581,8 +569,8 @@
     }, 1200);
   });
 
-  resizeStage();
-  requestAnimationFrame(drawStars);
+  resizeStarfield();
+  requestAnimationFrame(drawStarfield);
 </script>
 
 </body>
