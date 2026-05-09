@@ -102,13 +102,13 @@
     }
 
     .text-scroll-block {
-      width: min(1080px, 92vw);
+      width: min(960px, 88vw);
       display: flex;
       flex-direction: column;
-      gap: 0.08em;
+      gap: 0.1em;
       align-items: center;
       text-align: center;
-      transform: translateY(-4vh);
+      transform: translateY(-2vh);
     }
 
     .reveal-line {
@@ -117,9 +117,10 @@
       width: 100%;
       font-family: "Playfair Display", Georgia, serif;
       font-weight: 900;
-      font-size: clamp(2rem, 5.4vw, 5.25rem);
-      line-height: 0.96;
-      letter-spacing: -0.03em;
+      font-size: clamp(1.55rem, 4vw, 3.95rem); /* ridotto */
+      line-height: 0.98;
+      letter-spacing: -0.028em;
+      transition: transform 180ms linear, opacity 180ms linear;
     }
 
     .ghost-line,
@@ -127,11 +128,11 @@
       display: flex;
       justify-content: center;
       flex-wrap: wrap;
-      gap: 0.22em;
+      gap: 0.2em;
     }
 
     .ghost-line {
-      color: rgba(255, 255, 255, 0.12);
+      color: rgba(255, 255, 255, 0.1);
     }
 
     .fill-line {
@@ -146,7 +147,7 @@
     }
 
     .ghost-line .word {
-      color: rgba(255,255,255,0.14);
+      color: rgba(255,255,255,0.12);
     }
 
     .fill-line .word {
@@ -216,19 +217,19 @@
 
     @media (max-width: 768px) {
       .text-scroll-block {
-        width: min(96vw, 720px);
+        width: min(94vw, 700px);
         gap: 0.13em;
-        transform: translateY(-2vh);
+        transform: translateY(-1vh);
       }
 
       .ghost-line,
       .fill-line {
-        gap: 0.18em;
+        gap: 0.16em;
       }
 
       .reveal-line {
-        font-size: clamp(1.8rem, 8vw, 3.6rem);
-        line-height: 0.98;
+        font-size: clamp(1.45rem, 6.4vw, 2.9rem);
+        line-height: 1.02;
       }
     }
   </style>
@@ -605,38 +606,41 @@
   }
 
   function updateTextReveal(scrollY) {
-    const overlayIn = S_FADE_END + 80;
-    const overlayOut = S_STAR_END - 160;
-
+    const overlayIn = S_FADE_END + 60;
+    const overlayOut = S_STAR_END - 140;
     const overlayVisible = scrollY >= overlayIn && scrollY <= overlayOut;
     textOverlay.classList.toggle('is-visible', overlayVisible);
 
-    const revealStart = S_FADE_END + 180;
-    const revealEnd = S_FADE_END + Math.min(1900, STARFIELD_PX * 0.72);
-    const progress = norm(scrollY, revealStart, revealEnd);
+    const revealStart = S_FADE_END + 140;
+    const revealEnd = S_FADE_END + Math.min(2400, STARFIELD_PX * 0.82);
+    const globalProgress = norm(scrollY, revealStart, revealEnd);
 
     revealLineEls.forEach((lineEl, lineIndex) => {
       const fillWords = [...lineEl.querySelectorAll('.fill-line .word')];
       const total = fillWords.length;
 
-      fillWords.forEach((wordEl, wordIndex) => {
-        const overallIndex = wordIndex;
-        const localStart = total <= 1 ? 0 : overallIndex / total;
-        const localEnd = total <= 1 ? 1 : Math.min(1, localStart + 0.34);
-        const t = clamp((progress - localStart) / (localEnd - localStart), 0, 1);
+      const linesCount = revealLineEls.length;
+      const lineStart = lineIndex / linesCount;
+      const lineEnd = (lineIndex + 1) / linesCount;
+      const lineProgress = clamp((globalProgress - lineStart) / (lineEnd - lineStart), 0, 1);
 
-        const gray = 105;
+      fillWords.forEach((wordEl, wordIndex) => {
+        const wordStart = total <= 1 ? 0 : wordIndex / total;
+        const wordEnd = total <= 1 ? 1 : Math.min(1, wordStart + 0.42);
+        const t = clamp((lineProgress - wordStart) / (wordEnd - wordStart), 0, 1);
+
+        const gray = 92;
         const white = 255;
         const ch = Math.round(gray + (white - gray) * t);
 
         wordEl.style.color = `rgb(${ch}, ${ch}, ${ch})`;
-        wordEl.style.opacity = String(0.42 + t * 0.58);
-        wordEl.style.filter = `blur(${(1 - t) * 1.25}px)`;
+        wordEl.style.opacity = String(0.32 + t * 0.68);
+        wordEl.style.filter = `blur(${(1 - t) * 1.2}px)`;
       });
 
-      const lineOffset = lineIndex * 0.02;
-      lineEl.style.transform = `translateY(${Math.max(0, 18 - progress * 18 - lineOffset * 120)}px)`;
-      lineEl.style.opacity = String(0.5 + progress * 0.5);
+      const lineShown = lineProgress > 0.02;
+      lineEl.style.opacity = String(lineShown ? (0.42 + lineProgress * 0.58) : 0.3);
+      lineEl.style.transform = `translateY(${Math.max(0, 14 - lineProgress * 14)}px)`;
     });
   }
 
