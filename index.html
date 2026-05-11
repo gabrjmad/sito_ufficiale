@@ -158,6 +158,109 @@
       transition: color 100ms linear, opacity 100ms linear, filter 100ms linear, transform 100ms linear;
     }
 
+    /* ───────────────── SPATIAL CAROUSEL OVERLAY ───────────────── */
+
+    #spatial-carousel-overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 7;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 260ms linear;
+    }
+
+    #spatial-carousel-overlay.is-visible {
+      opacity: 1;
+    }
+
+    .spatial-carousel-inner {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      padding: 4vw;
+      perspective: 1800px;
+      perspective-origin: 50% 50%;
+    }
+
+    .spatial-carousel-track {
+      position: relative;
+      width: min(1300px, 94vw);
+      height: min(82vh, 940px);
+      pointer-events: none;
+      transform-style: preserve-3d;
+    }
+
+    .spatial-card {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: clamp(190px, 22vw, 320px);
+      aspect-ratio: 9 / 16;
+      border-radius: 28px;
+      overflow: hidden;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.12);
+      box-shadow:
+        0 10px 30px rgba(0,0,0,0.28),
+        0 24px 80px rgba(0,0,0,0.48);
+      transform-origin: center center;
+      will-change: transform, opacity, filter;
+      backface-visibility: hidden;
+    }
+
+    .spatial-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.14), rgba(255,255,255,0.02) 24%, rgba(0,0,0,0.08) 100%);
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    .spatial-card::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.18),
+        inset 0 -18px 40px rgba(0,0,0,0.18);
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    .spatial-card img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center center;
+      display: block;
+      user-select: none;
+      -webkit-user-drag: none;
+      filter: saturate(1.02) contrast(1.02);
+    }
+
+    .spatial-card-shadow {
+      position: absolute;
+      left: 50%;
+      top: calc(50% + min(26vh, 210px));
+      width: clamp(180px, 20vw, 300px);
+      height: clamp(24px, 4vh, 42px);
+      border-radius: 999px;
+      background: radial-gradient(circle, rgba(0,0,0,0.42) 0%, rgba(0,0,0,0.2) 45%, rgba(0,0,0,0) 76%);
+      transform: translateX(-50%);
+      filter: blur(10px);
+      opacity: 0;
+      will-change: transform, opacity;
+      pointer-events: none;
+    }
+
     #preloader {
       position: fixed;
       inset: 0;
@@ -229,6 +332,25 @@
         font-size: clamp(1.18rem, 5.4vw, 2.35rem);
         line-height: 1.04;
       }
+
+      .spatial-carousel-inner {
+        padding: 6vw;
+      }
+
+      .spatial-carousel-track {
+        width: 100%;
+        height: 78vh;
+      }
+
+      .spatial-card {
+        width: clamp(168px, 44vw, 250px);
+        border-radius: 22px;
+      }
+
+      .spatial-card-shadow {
+        width: clamp(148px, 38vw, 216px);
+        top: calc(50% + 23vh);
+      }
     }
   </style>
 </head>
@@ -278,6 +400,38 @@
     </div>
   </div>
 
+  <div id="spatial-carousel-overlay" aria-hidden="true">
+    <div class="spatial-carousel-inner">
+      <div class="spatial-carousel-track" id="spatial-carousel-track">
+        <div class="spatial-card-shadow" data-shadow="0"></div>
+        <div class="spatial-card-shadow" data-shadow="1"></div>
+        <div class="spatial-card-shadow" data-shadow="2"></div>
+        <div class="spatial-card-shadow" data-shadow="3"></div>
+        <div class="spatial-card-shadow" data-shadow="4"></div>
+        <div class="spatial-card-shadow" data-shadow="5"></div>
+
+        <div class="spatial-card" data-card="0">
+          <img src="spatial-carousel/photo-1.jpg" alt="">
+        </div>
+        <div class="spatial-card" data-card="1">
+          <img src="spatial-carousel/photo-2.jpg" alt="">
+        </div>
+        <div class="spatial-card" data-card="2">
+          <img src="spatial-carousel/photo-3.jpg" alt="">
+        </div>
+        <div class="spatial-card" data-card="3">
+          <img src="spatial-carousel/photo-4.jpg" alt="">
+        </div>
+        <div class="spatial-card" data-card="4">
+          <img src="spatial-carousel/photo-5.jpg" alt="">
+        </div>
+        <div class="spatial-card" data-card="5">
+          <img src="spatial-carousel/photo-6.jpg" alt="">
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div id="fade-overlay"></div>
 </div>
 
@@ -287,10 +441,16 @@
   const FADE_PX = 420;
   const STARFIELD_PX = window.innerWidth <= 768 ? 3200 : 4200;
 
+  const SPATIAL_ITEM_COUNT = 6;
+  const SPATIAL_STEP_PX = window.innerWidth <= 768 ? 520 : 600;
+  const SPATIAL_PX = SPATIAL_STEP_PX * (SPATIAL_ITEM_COUNT - 1 + 1.45);
+
   const S_SEQ_END  = (FRAME_COUNT - 1) * PX_PER_FRAME;
   const S_FADE_END = S_SEQ_END + FADE_PX;
   const S_STAR_END = S_FADE_END + STARFIELD_PX;
-  const TOTAL_PX   = S_STAR_END;
+  const S_SPATIAL_START = S_FADE_END + 180;
+  const S_SPATIAL_END = S_SPATIAL_START + SPATIAL_PX;
+  const TOTAL_PX   = Math.max(S_STAR_END, S_SPATIAL_END);
 
   const TEXT_LINES = [
     "questa è la sezione delle foto",
@@ -310,6 +470,10 @@
   const starCtx = starCanvas.getContext('2d', { alpha: false });
   const textOverlay = document.getElementById('text-scroll-overlay');
   const revealLineEls = [...document.querySelectorAll('.reveal-line')];
+
+  const spatialOverlay = document.getElementById('spatial-carousel-overlay');
+  const spatialCards = [...document.querySelectorAll('.spatial-card')];
+  const spatialShadows = [...document.querySelectorAll('.spatial-card-shadow')];
 
   function setScrollHeight() {
     scrollSpace.style.height = (TOTAL_PX + window.innerHeight) + 'px';
@@ -624,7 +788,7 @@
       fillWords.forEach((wordEl, wordIndex) => {
         const wordSpan = 1 / total;
         const wordStart = wordIndex * wordSpan;
-        const wordEnd = wordStart + wordSpan * 0.72; /* meno overlap */
+        const wordEnd = wordStart + wordSpan * 0.72;
         const t = clamp((lineProgress - wordStart) / (wordEnd - wordStart), 0, 1);
 
         const gray = 78;
@@ -640,6 +804,61 @@
       const lineShown = lineProgress > 0.01;
       lineEl.style.opacity = String(lineShown ? (0.28 + lineProgress * 0.72) : 0.2);
       lineEl.style.transform = `translateY(${Math.max(0, 12 - lineProgress * 12)}px)`;
+    });
+  }
+
+  function updateSpatialCarousel(scrollY) {
+    const visibleIn = S_SPATIAL_START - 140;
+    const visibleOut = S_SPATIAL_END + 80;
+    const visible = scrollY >= visibleIn && scrollY <= visibleOut;
+    spatialOverlay.classList.toggle('is-visible', visible);
+
+    const progress = norm(scrollY, S_SPATIAL_START, S_SPATIAL_END);
+    const activeIndex = progress * (SPATIAL_ITEM_COUNT - 1);
+
+    const isMobile = window.innerWidth <= 768;
+    const spreadX = isMobile ? window.innerWidth * 0.56 : window.innerWidth * 0.285;
+    const leftCompression = 0.54;
+    const baseLift = isMobile ? 10 : 6;
+    const arcLift = isMobile ? 34 : 28;
+    const stepY = isMobile ? 12 : 10;
+    const zStep = isMobile ? 140 : 160;
+    const rotateStep = isMobile ? -6 : -7;
+    const maxVisibleDepth = 3.4;
+
+    spatialCards.forEach((card, i) => {
+      const delta = i - activeIndex;
+      const abs = Math.abs(delta);
+      const limitedAbs = Math.min(abs, maxVisibleDepth);
+
+      const sideFactor = delta >= 0 ? 1 : leftCompression;
+      const x = delta * spreadX * sideFactor;
+
+      const arc = Math.pow(Math.min(limitedAbs, 1.85) / 1.85, 1.35);
+      const y = delta * stepY - arc * arcLift - baseLift;
+
+      const scale = Math.max(0.56, 1 - limitedAbs * 0.115);
+      const opacity = Math.max(0, 1 - limitedAbs * 0.22);
+      const blur = Math.max(0, (limitedAbs - 0.08) * 1.25);
+      const rotate = delta * rotateStep;
+      const z = 320 - limitedAbs * zStep;
+
+      card.style.zIndex = String(2000 - Math.round(limitedAbs * 100) - i);
+      card.style.opacity = opacity.toFixed(3);
+      card.style.filter = `blur(${blur.toFixed(2)}px)`;
+      card.style.transform =
+        `translate3d(calc(-50% + ${x.toFixed(2)}px), calc(-50% + ${y.toFixed(2)}px), ${z.toFixed(2)}px) ` +
+        `scale(${scale.toFixed(4)}) rotateZ(${rotate.toFixed(2)}deg)`;
+
+      const shadow = spatialShadows[i];
+      if (shadow) {
+        const shadowOpacity = Math.max(0, 0.2 - limitedAbs * 0.045) * opacity;
+        const shadowX = x * 0.16;
+        const shadowScale = 0.78 + scale * 0.26;
+        shadow.style.opacity = shadowOpacity.toFixed(3);
+        shadow.style.transform =
+          `translateX(calc(-50% + ${shadowX.toFixed(2)}px)) scale(${shadowScale.toFixed(3)})`;
+      }
     });
   }
 
@@ -667,13 +886,14 @@
     }
 
     updateTextReveal(scrollY);
+    updateSpatialCarousel(scrollY);
   }
 
   function loop() {
     const delta = targetScrollY - currentScrollY;
 
     if (Math.abs(delta) > 0.15) {
-      currentScrollY += delta * 0.22;
+      currentScrollY += delta * 0.16;
     } else {
       currentScrollY = targetScrollY;
     }
