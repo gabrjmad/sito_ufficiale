@@ -4,9 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Gabriele Madeo</title>
-  //fonts.googleapis.com">
-  //fonts.gstatic.com" crossorigin>
-  //fonts.googleapis.com/css2?family=Playfair+Display:wght@900&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@900&display=swap" rel="stylesheet">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -212,7 +212,6 @@
     .cp-inner {
       display: flex;
       flex-direction: column;
-      gap: 0.8rem;
       align-items: center;
     }
 
@@ -224,14 +223,14 @@
       gap: 0.5em;
       letter-spacing: 0.18em;
       text-transform: uppercase;
-      white-space: nowrap;
+      white-space: nowrap; /* tutte sulla stessa riga */
     }
 
     .cp-word {
-      font-size: clamp(1rem, 1rem + 0.7vw, 1.5rem);
+      font-size: clamp(1.1rem, 1.0rem + 0.9vw, 1.8rem);
       font-weight: 600;
-      color: rgba(255,255,255,0.18);
-      opacity: 0.4;
+      color: rgba(255,255,255,0.22);
+      opacity: 0;
       transform: translateY(0.9em);
       transition:
         opacity 520ms ease-out,
@@ -243,46 +242,7 @@
     .cp-word.is-active {
       opacity: 1;
       transform: translateY(0);
-      color: rgba(255,255,255,0.86);
-    }
-
-    .cp-logo {
-      margin-top: 0.4rem;
-      font-size: clamp(1.3rem, 1.3rem + 1.1vw, 2.1rem);
-      font-weight: 900;
-      letter-spacing: 0.16em;
-      text-transform: uppercase;
-      color: #ffffff;
-      opacity: 0;
-      transform: translateY(1.2em);
-      transition:
-        opacity 680ms ease-out,
-        transform 680ms ease-out;
-      will-change: opacity, transform;
-      white-space: nowrap;
-    }
-
-    .cp-logo.is-visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    .cp-hint {
-      margin-top: 0.35rem;
-      font-size: clamp(0.7rem, 0.68rem + 0.3vw, 0.9rem);
-      letter-spacing: 0.16em;
-      text-transform: uppercase;
-      color: rgba(255,255,255,0.45);
-      opacity: 0;
-      transform: translateY(0.8em);
-      transition:
-        opacity 380ms ease-out,
-        transform 380ms ease-out;
-    }
-
-    .cp-hint.is-visible {
-      opacity: 1;
-      transform: translateY(0);
+      color: rgba(255,255,255,0.9);
     }
 
     #preloader.is-splitting .cp-bg-top {
@@ -459,7 +419,7 @@
 </head>
 <body>
 
-<!-- NUOVO: cinematic pageloader -->
+<!-- Preloader cinematico -->
 <div id="preloader" aria-hidden="true">
   <div class="cp-bg cp-bg-top"></div>
   <div class="cp-bg cp-bg-bottom"></div>
@@ -469,9 +429,8 @@
         <span class="cp-word cp-word-active">Welcome</span>
         <span class="cp-word">i am</span>
         <span class="cp-word">GABRIELE</span>
+        <span class="cp-word">this is my portfolio</span>
       </div>
-      <div class="cp-logo">this is my portfolio</div>
-      <div class="cp-hint">loading experience</div>
     </div>
   </div>
 </div>
@@ -479,7 +438,7 @@
 <div id="scroll-space"></div>
 
 <div id="stage">
-  anvas id="starfield-bg" aria-hidden="true"></canvas>
+  <canvas id="starfield-bg" aria-hidden="true"></canvas>
 
   <img id="seq-a" class="seq-layer active" alt="" decoding="async" fetchpriority="high">
   <img id="seq-b" class="seq-layer" alt="" decoding="async">
@@ -507,7 +466,6 @@
     </div>
   </div>
 
-  <!-- spatial carousel (come versione precedente) -->
   <div id="spatial-carousel-overlay" aria-hidden="true">
     <div class="spatial-carousel-inner">
       <div class="spatial-carousel-track" id="spatial-carousel-track">
@@ -577,10 +535,7 @@
   /* ───────────── Cinematic PageLoader logic ───────────── */
 
   const cpWords = [...document.querySelectorAll('.cp-word')];
-  const cpLogo = document.querySelector('.cp-logo');
-  const cpHint = document.querySelector('.cp-hint');
   let cpIndex = 0;
-  let cpSequenceDone = false;
   let cpWordTimer = null;
 
   function cpShowWord(nextIndex) {
@@ -595,48 +550,33 @@
 
   function triggerPreloaderSplit() {
     if (!preloader || preloader.classList.contains('is-splitting')) return;
+
     preloader.classList.add('is-splitting');
 
     setTimeout(() => {
       preloader.classList.add('is-hidden');
-    }, 850);
+    }, 1100);
   }
 
   function startCinematicLoader() {
-    if (!cpWords.length || !preloader) return;
+    if (!cpWords.length) return;
 
     cpIndex = 0;
     cpShowWord(cpIndex);
 
-    const WORD_DELAY = 900;
-    const LOGO_DELAY = 650;
-    const SPLIT_DELAY = 1400;
+    const WORD_DELAY = 950;
+    const LAST_HOLD  = 1300;
 
     function advance() {
       cpIndex += 1;
+
       if (cpIndex < cpWords.length) {
         cpShowWord(cpIndex);
         cpWordTimer = setTimeout(advance, WORD_DELAY);
       } else {
-        cpSequenceDone = true;
-        cpWords.forEach(w => w.classList.remove('is-active'));
-
-        if (cpLogo) {
-          setTimeout(() => {
-            cpLogo.classList.add('is-visible');
-            if (cpHint) {
-              setTimeout(() => {
-                cpHint.classList.add('is-visible');
-              }, 260);
-            }
-
-            setTimeout(() => {
-              triggerPreloaderSplit();
-            }, SPLIT_DELAY);
-          }, LOGO_DELAY);
-        } else {
+        setTimeout(() => {
           triggerPreloaderSplit();
-        }
+        }, LAST_HOLD);
       }
     }
 
@@ -647,7 +587,7 @@
     startCinematicLoader();
   });
 
-  /* ───────────── resto del codice (starfield, testi, carousel) ───────────── */
+  /* ───────────── resto: scroll, starfield, carousel ───────────── */
 
   function setScrollHeight() {
     scrollSpace.style.height = (TOTAL_PX + window.innerHeight) + 'px';
