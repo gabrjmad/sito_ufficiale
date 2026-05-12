@@ -166,17 +166,15 @@
       z-index: 9999;
       background: radial-gradient(circle at 20% 0%, #18151f 0%, #050509 42%, #020104 90%);
       display: block;
+      /* niente fade globale: la “tenda” fa tutto il lavoro */
       opacity: 1;
       visibility: visible;
-      transition: opacity 900ms ease, visibility 900ms ease;
       overflow: hidden;
       pointer-events: auto;
     }
 
     #preloader.is-hidden {
-      opacity: 0;
-      visibility: hidden;
-      pointer-events: none;
+      display: none;
     }
 
     .cp-bg {
@@ -188,11 +186,13 @@
       pointer-events: none;
     }
 
+    /* metà superiore: copre da 0% a 50% di altezza */
     .cp-bg-top {
       clip-path: inset(0 0 50% 0);
       transform-origin: 50% 0%;
     }
 
+    /* metà inferiore: copre da 50% a 100% */
     .cp-bg-bottom {
       clip-path: inset(50% 0 0 0);
       transform-origin: 50% 100%;
@@ -243,12 +243,13 @@
       transform: translateY(0);
     }
 
+    /* stato di apertura: i due pannelli scorrono via dal centro */
     #preloader.is-splitting .cp-bg-top {
-      animation: cpSplitTop 1200ms cubic-bezier(0.19,0.8,0.22,1) forwards;
+      animation: cpSplitTop 1400ms cubic-bezier(0.22, 0.8, 0.25, 1) forwards;
     }
 
     #preloader.is-splitting .cp-bg-bottom {
-      animation: cpSplitBottom 1200ms cubic-bezier(0.19,0.8,0.22,1) forwards;
+      animation: cpSplitBottom 1400ms cubic-bezier(0.22, 0.8, 0.25, 1) forwards;
     }
 
     #preloader.is-splitting .cp-content {
@@ -260,13 +261,24 @@
     }
 
     @keyframes cpSplitTop {
-      0%   { transform: translate3d(0,0,0); }
-      100% { transform: translate3d(0,-100%,0); }
+      0% {
+        transform: translateY(0);
+      }
+      100% {
+        /* la metà superiore sale fuori dallo schermo,
+           creando dal centro una fessura che si allarga */
+        transform: translateY(-100%);
+      }
     }
 
     @keyframes cpSplitBottom {
-      0%   { transform: translate3d(0,0,0); }
-      100% { transform: translate3d(0,100%,0); }
+      0% {
+        transform: translateY(0);
+      }
+      100% {
+        /* la metà inferiore scende fuori dallo schermo */
+        transform: translateY(100%);
+      }
     }
 
     /* ───────────────── SPATIAL CAROUSEL OVERLAY ───────────────── */
@@ -555,9 +567,10 @@
 
     preloader.classList.add('is-splitting');
 
+    // rimuovi il preloader quando le due metà sono ormai fuori
     setTimeout(() => {
       preloader.classList.add('is-hidden');
-    }, 1100);
+    }, 1450);
   }
 
   function startCinematicLoader() {
