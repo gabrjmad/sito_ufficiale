@@ -4,9 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Gabriele Madeo</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@900&display=swap" rel="stylesheet">
+  //fonts.googleapis.com">
+  //fonts.gstatic.com" crossorigin>
+  //fonts.googleapis.com/css2?family=Playfair+Display:wght@900&display=swap" rel="stylesheet">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -164,11 +164,11 @@
       position: fixed;
       inset: 0;
       z-index: 9999;
-      background: radial-gradient(circle at 20% 0%, #16151b 0%, #050509 40%, #020104 85%);
+      background: radial-gradient(circle at 20% 0%, #18151f 0%, #050509 42%, #020104 90%);
       display: block;
       opacity: 1;
       visibility: visible;
-      transition: opacity 800ms ease, visibility 800ms ease;
+      transition: opacity 900ms ease, visibility 900ms ease;
       overflow: hidden;
       pointer-events: auto;
     }
@@ -218,18 +218,21 @@
 
     .cp-words {
       display: flex;
-      flex-direction: column;
-      gap: 0.18rem;
-      letter-spacing: 0.16em;
+      flex-direction: row;
+      align-items: baseline;
+      justify-content: center;
+      gap: 0.5em;
+      letter-spacing: 0.18em;
       text-transform: uppercase;
+      white-space: nowrap;
     }
 
     .cp-word {
-      font-size: clamp(0.88rem, 0.9rem + 0.6vw, 1.3rem);
+      font-size: clamp(1rem, 1rem + 0.7vw, 1.5rem);
       font-weight: 600;
-      color: rgba(255,255,255,0.16);
-      opacity: 0;
-      transform: translateY(0.8em);
+      color: rgba(255,255,255,0.18);
+      opacity: 0.4;
+      transform: translateY(0.9em);
       transition:
         opacity 520ms ease-out,
         transform 520ms ease-out,
@@ -240,22 +243,23 @@
     .cp-word.is-active {
       opacity: 1;
       transform: translateY(0);
-      color: rgba(255,255,255,0.76);
+      color: rgba(255,255,255,0.86);
     }
 
     .cp-logo {
       margin-top: 0.4rem;
-      font-size: clamp(1.5rem, 1.4rem + 1.4vw, 2.5rem);
+      font-size: clamp(1.3rem, 1.3rem + 1.1vw, 2.1rem);
       font-weight: 900;
-      letter-spacing: 0.18em;
+      letter-spacing: 0.16em;
       text-transform: uppercase;
       color: #ffffff;
       opacity: 0;
       transform: translateY(1.2em);
       transition:
-        opacity 600ms ease-out,
-        transform 600ms ease-out;
+        opacity 680ms ease-out,
+        transform 680ms ease-out;
       will-change: opacity, transform;
+      white-space: nowrap;
     }
 
     .cp-logo.is-visible {
@@ -264,7 +268,7 @@
     }
 
     .cp-hint {
-      margin-top: 0.4rem;
+      margin-top: 0.35rem;
       font-size: clamp(0.7rem, 0.68rem + 0.3vw, 0.9rem);
       letter-spacing: 0.16em;
       text-transform: uppercase;
@@ -282,19 +286,19 @@
     }
 
     #preloader.is-splitting .cp-bg-top {
-      animation: cpSplitTop 900ms cubic-bezier(0.19,0.8,0.26,1) forwards;
+      animation: cpSplitTop 1200ms cubic-bezier(0.19,0.8,0.22,1) forwards;
     }
 
     #preloader.is-splitting .cp-bg-bottom {
-      animation: cpSplitBottom 900ms cubic-bezier(0.19,0.8,0.26,1) forwards;
+      animation: cpSplitBottom 1200ms cubic-bezier(0.19,0.8,0.22,1) forwards;
     }
 
     #preloader.is-splitting .cp-content {
       opacity: 0;
       transform: translateY(-12px);
       transition:
-        opacity 560ms ease-out,
-        transform 560ms ease-out;
+        opacity 600ms ease-out,
+        transform 600ms ease-out;
     }
 
     @keyframes cpSplitTop {
@@ -308,7 +312,6 @@
     }
 
     /* ───────────────── SPATIAL CAROUSEL OVERLAY ───────────────── */
-    /* (da qui in poi lascio tutto come nella tua versione con il carousel) */
 
     #spatial-carousel-overlay {
       position: absolute;
@@ -463,12 +466,12 @@
   <div class="cp-content">
     <div class="cp-inner">
       <div class="cp-words">
-        <span class="cp-word cp-word-active">CINEMATIC</span>
-        <span class="cp-word">PAGE</span>
-        <span class="cp-word">LOADER</span>
+        <span class="cp-word cp-word-active">Welcome</span>
+        <span class="cp-word">i am</span>
+        <span class="cp-word">GABRIELE</span>
       </div>
-      <div class="cp-logo">CINEMATIC PAGELOADER</div>
-      <div class="cp-hint">Scroll to reveal</div>
+      <div class="cp-logo">this is my portfolio</div>
+      <div class="cp-hint">loading experience</div>
     </div>
   </div>
 </div>
@@ -476,7 +479,7 @@
 <div id="scroll-space"></div>
 
 <div id="stage">
-  <canvas id="starfield-bg" aria-hidden="true"></canvas>
+  anvas id="starfield-bg" aria-hidden="true"></canvas>
 
   <img id="seq-a" class="seq-layer active" alt="" decoding="async" fetchpriority="high">
   <img id="seq-b" class="seq-layer" alt="" decoding="async">
@@ -504,7 +507,7 @@
     </div>
   </div>
 
-  <!-- spatial carousel come in precedente versione, non modificato -->
+  <!-- spatial carousel (come versione precedente) -->
   <div id="spatial-carousel-overlay" aria-hidden="true">
     <div class="spatial-carousel-inner">
       <div class="spatial-carousel-track" id="spatial-carousel-track">
@@ -549,9 +552,9 @@
   const TOTAL_PX = S_SPATIAL_END;
 
   const TEXT_LINES = [
-    "questo è come sono fatto,",
+    "questa è la sezione delle foto",
     "scorrendo troverai",
-    "alcune mie foto,",
+    "la mi adescrizione",
     "lascia un feedback se ti piace il sito."
   ];
 
@@ -578,7 +581,6 @@
   const cpHint = document.querySelector('.cp-hint');
   let cpIndex = 0;
   let cpSequenceDone = false;
-  let cpSplitDone = false;
   let cpWordTimer = null;
 
   function cpShowWord(nextIndex) {
@@ -591,14 +593,24 @@
     });
   }
 
+  function triggerPreloaderSplit() {
+    if (!preloader || preloader.classList.contains('is-splitting')) return;
+    preloader.classList.add('is-splitting');
+
+    setTimeout(() => {
+      preloader.classList.add('is-hidden');
+    }, 850);
+  }
+
   function startCinematicLoader() {
-    if (!cpWords.length) return;
+    if (!cpWords.length || !preloader) return;
 
     cpIndex = 0;
     cpShowWord(cpIndex);
 
-    const WORD_DELAY = 950;
+    const WORD_DELAY = 900;
     const LOGO_DELAY = 650;
+    const SPLIT_DELAY = 1400;
 
     function advance() {
       cpIndex += 1;
@@ -608,6 +620,7 @@
       } else {
         cpSequenceDone = true;
         cpWords.forEach(w => w.classList.remove('is-active'));
+
         if (cpLogo) {
           setTimeout(() => {
             cpLogo.classList.add('is-visible');
@@ -616,7 +629,13 @@
                 cpHint.classList.add('is-visible');
               }, 260);
             }
+
+            setTimeout(() => {
+              triggerPreloaderSplit();
+            }, SPLIT_DELAY);
           }, LOGO_DELAY);
+        } else {
+          triggerPreloaderSplit();
         }
       }
     }
@@ -624,41 +643,11 @@
     cpWordTimer = setTimeout(advance, WORD_DELAY);
   }
 
-  function triggerPreloaderSplit() {
-    if (cpSplitDone || !preloader) return;
-    cpSplitDone = true;
-
-    preloader.classList.add('is-splitting');
-
-    setTimeout(() => {
-      preloader.classList.add('is-hidden');
-    }, 760);
-  }
-
-  function handleCinematicScrollTrigger() {
-    if (!cpSequenceDone || cpSplitDone) return;
-    triggerPreloaderSplit();
-  }
-
   window.addEventListener('load', () => {
     startCinematicLoader();
   });
 
-  window.addEventListener('wheel', () => {
-    handleCinematicScrollTrigger();
-  }, { passive: true });
-
-  window.addEventListener('touchstart', () => {
-    handleCinematicScrollTrigger();
-  }, { passive: true });
-
-  window.addEventListener('keydown', e => {
-    if (e.key === ' ' || e.key === 'Enter' || e.key === 'ArrowDown' || e.key === 'PageDown') {
-      handleCinematicScrollTrigger();
-    }
-  });
-
-  /* ───────────── resto del codice (starfield, testi, carousel) invariato ───────────── */
+  /* ───────────── resto del codice (starfield, testi, carousel) ───────────── */
 
   function setScrollHeight() {
     scrollSpace.style.height = (TOTAL_PX + window.innerHeight) + 'px';
