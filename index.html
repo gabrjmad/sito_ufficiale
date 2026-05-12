@@ -216,20 +216,19 @@
     }
 
     .cp-words {
+      position: relative;
       display: flex;
-      flex-direction: row;
-      align-items: baseline;
+      align-items: center;
       justify-content: center;
-      gap: 0.5em;
-      letter-spacing: 0.18em;
       text-transform: uppercase;
-      white-space: nowrap; /* tutte sulla stessa riga */
+      letter-spacing: 0.18em;
+      white-space: nowrap;
     }
 
-    .cp-word {
+    #cp-text {
       font-size: clamp(1.1rem, 1.0rem + 0.9vw, 1.8rem);
       font-weight: 600;
-      color: rgba(255,255,255,0.22);
+      color: rgba(255,255,255,0.9);
       opacity: 0;
       transform: translateY(0.9em);
       transition:
@@ -239,10 +238,9 @@
       will-change: opacity, transform;
     }
 
-    .cp-word.is-active {
+    #cp-text.is-visible {
       opacity: 1;
       transform: translateY(0);
-      color: rgba(255,255,255,0.9);
     }
 
     #preloader.is-splitting .cp-bg-top {
@@ -426,10 +424,7 @@
   <div class="cp-content">
     <div class="cp-inner">
       <div class="cp-words">
-        <span class="cp-word cp-word-active">Welcome</span>
-        <span class="cp-word">i am</span>
-        <span class="cp-word">GABRIELE</span>
-        <span class="cp-word">this is my portfolio</span>
+        <span id="cp-text">Welcome</span>
       </div>
     </div>
   </div>
@@ -534,18 +529,25 @@
 
   /* ───────────── Cinematic PageLoader logic ───────────── */
 
-  const cpWords = [...document.querySelectorAll('.cp-word')];
-  let cpIndex = 0;
-  let cpWordTimer = null;
+  const cpTextEl = document.getElementById('cp-text');
 
-  function cpShowWord(nextIndex) {
-    cpWords.forEach((w, i) => {
-      if (i === nextIndex) {
-        w.classList.add('is-active');
-      } else {
-        w.classList.remove('is-active');
-      }
-    });
+  const cpPhrases = [
+    'Welcome',
+    'i am',
+    'GABRIELE',
+    'this is my portfolio'
+  ];
+
+  let cpStep = 0;
+  let cpTimer = null;
+
+  function showPhrase(index) {
+    if (!cpTextEl) return;
+    cpTextEl.classList.remove('is-visible');
+    setTimeout(() => {
+      cpTextEl.textContent = cpPhrases[index];
+      cpTextEl.classList.add('is-visible');
+    }, 120);
   }
 
   function triggerPreloaderSplit() {
@@ -559,20 +561,21 @@
   }
 
   function startCinematicLoader() {
-    if (!cpWords.length) return;
+    if (!cpTextEl || !cpPhrases.length) return;
 
-    cpIndex = 0;
-    cpShowWord(cpIndex);
+    cpStep = 0;
+    cpTextEl.textContent = cpPhrases[cpStep];
+    cpTextEl.classList.add('is-visible');
 
     const WORD_DELAY = 950;
     const LAST_HOLD  = 1300;
 
     function advance() {
-      cpIndex += 1;
+      cpStep += 1;
 
-      if (cpIndex < cpWords.length) {
-        cpShowWord(cpIndex);
-        cpWordTimer = setTimeout(advance, WORD_DELAY);
+      if (cpStep < cpPhrases.length) {
+        showPhrase(cpStep);
+        cpTimer = setTimeout(advance, WORD_DELAY);
       } else {
         setTimeout(() => {
           triggerPreloaderSplit();
@@ -580,7 +583,7 @@
       }
     }
 
-    cpWordTimer = setTimeout(advance, WORD_DELAY);
+    cpTimer = setTimeout(advance, WORD_DELAY);
   }
 
   window.addEventListener('load', () => {
