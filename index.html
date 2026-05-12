@@ -166,7 +166,7 @@
       z-index: 7;
       pointer-events: none;
       opacity: 0;
-      transition: opacity 260ms linear;
+      transition: opacity 280ms linear;
     }
 
     #spatial-carousel-overlay.is-visible {
@@ -181,13 +181,13 @@
       overflow: hidden;
       padding: 4vw;
       perspective: 1800px;
-      perspective-origin: 50% 50%;
+      perspective-origin: 50% 55%;
     }
 
     .spatial-carousel-track {
       position: relative;
-      width: min(1300px, 94vw);
-      height: min(82vh, 940px);
+      width: min(1320px, 94vw);
+      height: min(84vh, 960px);
       pointer-events: none;
       transform-style: preserve-3d;
     }
@@ -203,8 +203,8 @@
       background: rgba(255,255,255,0.04);
       border: 1px solid rgba(255,255,255,0.12);
       box-shadow:
-        0 10px 30px rgba(0,0,0,0.28),
-        0 24px 80px rgba(0,0,0,0.48);
+        0 12px 34px rgba(0,0,0,0.28),
+        0 30px 90px rgba(0,0,0,0.52);
       transform-origin: center center;
       will-change: transform, opacity, filter;
       backface-visibility: hidden;
@@ -216,7 +216,7 @@
       inset: 0;
       border-radius: inherit;
       background:
-        linear-gradient(180deg, rgba(255,255,255,0.14), rgba(255,255,255,0.02) 24%, rgba(0,0,0,0.08) 100%);
+        linear-gradient(180deg, rgba(255,255,255,0.15), rgba(255,255,255,0.03) 24%, rgba(0,0,0,0.1) 100%);
       pointer-events: none;
       z-index: 2;
     }
@@ -228,7 +228,7 @@
       border-radius: inherit;
       box-shadow:
         inset 0 1px 0 rgba(255,255,255,0.18),
-        inset 0 -18px 40px rgba(0,0,0,0.18);
+        inset 0 -18px 40px rgba(0,0,0,0.2);
       pointer-events: none;
       z-index: 2;
     }
@@ -249,11 +249,11 @@
     .spatial-card-shadow {
       position: absolute;
       left: 50%;
-      top: calc(50% + min(26vh, 210px));
+      top: calc(50% + min(28vh, 230px));
       width: clamp(180px, 20vw, 300px);
       height: clamp(24px, 4vh, 42px);
       border-radius: 999px;
-      background: radial-gradient(circle, rgba(0,0,0,0.42) 0%, rgba(0,0,0,0.2) 45%, rgba(0,0,0,0) 76%);
+      background: radial-gradient(circle, rgba(0,0,0,0.44) 0%, rgba(0,0,0,0.2) 45%, rgba(0,0,0,0) 76%);
       transform: translateX(-50%);
       filter: blur(10px);
       opacity: 0;
@@ -339,17 +339,17 @@
 
       .spatial-carousel-track {
         width: 100%;
-        height: 78vh;
+        height: 80vh;
       }
 
       .spatial-card {
-        width: clamp(168px, 44vw, 250px);
+        width: clamp(170px, 44vw, 250px);
         border-radius: 22px;
       }
 
       .spatial-card-shadow {
-        width: clamp(148px, 38vw, 216px);
-        top: calc(50% + 23vh);
+        width: clamp(150px, 38vw, 216px);
+        top: calc(50% + 25vh);
       }
     }
   </style>
@@ -410,24 +410,12 @@
         <div class="spatial-card-shadow" data-shadow="4"></div>
         <div class="spatial-card-shadow" data-shadow="5"></div>
 
-        <div class="spatial-card" data-card="0">
-          <img src="spatial-carousel/photo-1.jpg" alt="">
-        </div>
-        <div class="spatial-card" data-card="1">
-          <img src="spatial-carousel/photo-2.jpg" alt="">
-        </div>
-        <div class="spatial-card" data-card="2">
-          <img src="spatial-carousel/photo-3.jpg" alt="">
-        </div>
-        <div class="spatial-card" data-card="3">
-          <img src="spatial-carousel/photo-4.jpg" alt="">
-        </div>
-        <div class="spatial-card" data-card="4">
-          <img src="spatial-carousel/photo-5.jpg" alt="">
-        </div>
-        <div class="spatial-card" data-card="5">
-          <img src="spatial-carousel/photo-6.jpg" alt="">
-        </div>
+        <div class="spatial-card" data-card="0"><img src="spatial-carousel/photo-1.jpg" alt=""></div>
+        <div class="spatial-card" data-card="1"><img src="spatial-carousel/photo-2.jpg" alt=""></div>
+        <div class="spatial-card" data-card="2"><img src="spatial-carousel/photo-3.jpg" alt=""></div>
+        <div class="spatial-card" data-card="3"><img src="spatial-carousel/photo-4.jpg" alt=""></div>
+        <div class="spatial-card" data-card="4"><img src="spatial-carousel/photo-5.jpg" alt=""></div>
+        <div class="spatial-card" data-card="5"><img src="spatial-carousel/photo-6.jpg" alt=""></div>
       </div>
     </div>
   </div>
@@ -442,15 +430,18 @@
   const STARFIELD_PX = window.innerWidth <= 768 ? 3200 : 4200;
 
   const SPATIAL_ITEM_COUNT = 6;
-  const SPATIAL_STEP_PX = window.innerWidth <= 768 ? 520 : 600;
-  const SPATIAL_PX = SPATIAL_STEP_PX * (SPATIAL_ITEM_COUNT - 1 + 1.45);
+  const SPATIAL_STEP_PX = window.innerWidth <= 768 ? 560 : 660;
+  const SPATIAL_PX = SPATIAL_STEP_PX * (SPATIAL_ITEM_COUNT - 1 + 1.35);
 
   const S_SEQ_END  = (FRAME_COUNT - 1) * PX_PER_FRAME;
   const S_FADE_END = S_SEQ_END + FADE_PX;
   const S_STAR_END = S_FADE_END + STARFIELD_PX;
-  const S_SPATIAL_START = S_FADE_END + 180;
+
+  const TEXT_VISIBLE_END = S_FADE_END + Math.min(3000, STARFIELD_PX * 0.9);
+  const S_SPATIAL_START = TEXT_VISIBLE_END + 260;
   const S_SPATIAL_END = S_SPATIAL_START + SPATIAL_PX;
-  const TOTAL_PX   = Math.max(S_STAR_END, S_SPATIAL_END);
+
+  const TOTAL_PX = S_SPATIAL_END;
 
   const TEXT_LINES = [
     "questa è la sezione delle foto",
@@ -768,12 +759,12 @@
 
   function updateTextReveal(scrollY) {
     const overlayIn = S_FADE_END + 60;
-    const overlayOut = S_STAR_END - 140;
+    const overlayOut = TEXT_VISIBLE_END;
     const overlayVisible = scrollY >= overlayIn && scrollY <= overlayOut;
     textOverlay.classList.toggle('is-visible', overlayVisible);
 
     const revealStart = S_FADE_END + 120;
-    const revealEnd = S_FADE_END + Math.min(3000, STARFIELD_PX * 0.9);
+    const revealEnd = TEXT_VISIBLE_END;
     const globalProgress = norm(scrollY, revealStart, revealEnd);
 
     revealLineEls.forEach((lineEl, lineIndex) => {
@@ -808,8 +799,8 @@
   }
 
   function updateSpatialCarousel(scrollY) {
-    const visibleIn = S_SPATIAL_START - 140;
-    const visibleOut = S_SPATIAL_END + 80;
+    const visibleIn = S_SPATIAL_START - 60;
+    const visibleOut = S_SPATIAL_END + 120;
     const visible = scrollY >= visibleIn && scrollY <= visibleOut;
     spatialOverlay.classList.toggle('is-visible', visible);
 
@@ -817,33 +808,36 @@
     const activeIndex = progress * (SPATIAL_ITEM_COUNT - 1);
 
     const isMobile = window.innerWidth <= 768;
-    const spreadX = isMobile ? window.innerWidth * 0.56 : window.innerWidth * 0.285;
-    const leftCompression = 0.54;
-    const baseLift = isMobile ? 10 : 6;
-    const arcLift = isMobile ? 34 : 28;
-    const stepY = isMobile ? 12 : 10;
-    const zStep = isMobile ? 140 : 160;
-    const rotateStep = isMobile ? -6 : -7;
-    const maxVisibleDepth = 3.4;
+
+    const hSpread = isMobile ? window.innerWidth * 0.50 : window.innerWidth * 0.23;
+    const vGap = isMobile ? window.innerHeight * 0.28 : window.innerHeight * 0.22;
+    const leftCompression = 0.58;
+    const focusLift = isMobile ? 18 : 10;
+    const rotateStep = isMobile ? -5.5 : -6.5;
+    const zStep = isMobile ? 130 : 150;
+    const scaleDrop = 0.115;
+    const fadeDrop = 0.215;
+    const maxDepth = 3.6;
 
     spatialCards.forEach((card, i) => {
       const delta = i - activeIndex;
       const abs = Math.abs(delta);
-      const limitedAbs = Math.min(abs, maxVisibleDepth);
+      const d = Math.min(abs, maxDepth);
 
       const sideFactor = delta >= 0 ? 1 : leftCompression;
-      const x = delta * spreadX * sideFactor;
 
-      const arc = Math.pow(Math.min(limitedAbs, 1.85) / 1.85, 1.35);
-      const y = delta * stepY - arc * arcLift - baseLift;
+      const x = delta * hSpread * sideFactor;
+      const yBase = delta * vGap;
+      const yCurve = -Math.pow(Math.min(d, 2.0) / 2.0, 1.28) * (isMobile ? 24 : 18);
+      const y = yBase + yCurve - focusLift;
 
-      const scale = Math.max(0.56, 1 - limitedAbs * 0.115);
-      const opacity = Math.max(0, 1 - limitedAbs * 0.22);
-      const blur = Math.max(0, (limitedAbs - 0.08) * 1.25);
+      const scale = Math.max(0.56, 1 - d * scaleDrop);
+      const opacity = Math.max(0, 1 - d * fadeDrop);
+      const blur = Math.max(0, (d - 0.02) * 1.2);
       const rotate = delta * rotateStep;
-      const z = 320 - limitedAbs * zStep;
+      const z = 320 - d * zStep;
 
-      card.style.zIndex = String(2000 - Math.round(limitedAbs * 100) - i);
+      card.style.zIndex = String(2000 - Math.round(d * 100) - i);
       card.style.opacity = opacity.toFixed(3);
       card.style.filter = `blur(${blur.toFixed(2)}px)`;
       card.style.transform =
@@ -852,12 +846,13 @@
 
       const shadow = spatialShadows[i];
       if (shadow) {
-        const shadowOpacity = Math.max(0, 0.2 - limitedAbs * 0.045) * opacity;
-        const shadowX = x * 0.16;
-        const shadowScale = 0.78 + scale * 0.26;
+        const shadowOpacity = Math.max(0, 0.21 - d * 0.045) * opacity;
+        const shadowX = x * 0.14;
+        const shadowScale = 0.8 + scale * 0.24;
+        const shadowY = y * 0.035;
         shadow.style.opacity = shadowOpacity.toFixed(3);
         shadow.style.transform =
-          `translateX(calc(-50% + ${shadowX.toFixed(2)}px)) scale(${shadowScale.toFixed(3)})`;
+          `translateX(calc(-50% + ${shadowX.toFixed(2)}px)) translateY(${shadowY.toFixed(2)}px) scale(${shadowScale.toFixed(3)})`;
       }
     });
   }
@@ -875,10 +870,12 @@
       layerA.classList.remove('hidden-after-fade');
       layerB.classList.remove('hidden-after-fade');
       textOverlay.classList.remove('is-visible');
+      spatialOverlay.classList.remove('is-visible');
     } else if (scrollY < S_FADE_END) {
       const fadeT = norm(scrollY, S_SEQ_END, S_FADE_END);
       overlay.style.opacity = fadeT.toFixed(3);
       textOverlay.classList.remove('is-visible');
+      spatialOverlay.classList.remove('is-visible');
     } else {
       overlay.style.opacity = '0';
       layerA.classList.add('hidden-after-fade');
