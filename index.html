@@ -166,7 +166,6 @@
       z-index: 9999;
       background: radial-gradient(circle at 20% 0%, #18151f 0%, #050509 42%, #020104 90%);
       display: block;
-      /* niente fade globale: la “tenda” fa tutto il lavoro */
       opacity: 1;
       visibility: visible;
       overflow: hidden;
@@ -186,13 +185,11 @@
       pointer-events: none;
     }
 
-    /* metà superiore: copre da 0% a 50% di altezza */
     .cp-bg-top {
       clip-path: inset(0 0 50% 0);
       transform-origin: 50% 0%;
     }
 
-    /* metà inferiore: copre da 50% a 100% */
     .cp-bg-bottom {
       clip-path: inset(50% 0 0 0);
       transform-origin: 50% 100%;
@@ -243,7 +240,6 @@
       transform: translateY(0);
     }
 
-    /* stato di apertura: i due pannelli scorrono via dal centro */
     #preloader.is-splitting .cp-bg-top {
       animation: cpSplitTop 1400ms cubic-bezier(0.22, 0.8, 0.25, 1) forwards;
     }
@@ -261,27 +257,16 @@
     }
 
     @keyframes cpSplitTop {
-      0% {
-        transform: translateY(0);
-      }
-      100% {
-        /* la metà superiore sale fuori dallo schermo,
-           creando dal centro una fessura che si allarga */
-        transform: translateY(-100%);
-      }
+      0%   { transform: translateY(0); }
+      100% { transform: translateY(-100%); }
     }
 
     @keyframes cpSplitBottom {
-      0% {
-        transform: translateY(0);
-      }
-      100% {
-        /* la metà inferiore scende fuori dallo schermo */
-        transform: translateY(100%);
-      }
+      0%   { transform: translateY(0); }
+      100% { transform: translateY(100%); }
     }
 
-    /* ───────────────── SPATIAL CAROUSEL OVERLAY ───────────────── */
+    /* ───────────────── STACK SHOWCASE (ex spatial carousel) ───────────────── */
 
     #spatial-carousel-overlay {
       position: absolute;
@@ -304,17 +289,14 @@
       place-items: center;
       overflow: hidden;
       padding: 4vw;
-      perspective: 1800px;
-      perspective-origin: 50% 58%;
       contain: layout paint style;
     }
 
     .spatial-carousel-track {
       position: relative;
-      width: min(1380px, 96vw);
-      height: min(86vh, 980px);
+      width: min(840px, 88vw);
+      height: min(620px, 82vh);
       pointer-events: none;
-      transform-style: preserve-3d;
       contain: layout paint style;
     }
 
@@ -322,19 +304,23 @@
       position: absolute;
       top: 50%;
       left: 50%;
-      width: clamp(190px, 22vw, 320px);
-      aspect-ratio: 9 / 16;
+      width: min(540px, 72vw);
+      aspect-ratio: 4 / 3;
       border-radius: 28px;
       overflow: hidden;
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(10,10,12,0.95);
+      border: 1px solid rgba(255,255,255,0.10);
       box-shadow:
-        0 12px 34px rgba(0,0,0,0.28),
-        0 30px 90px rgba(0,0,0,0.52);
+        0 18px 40px rgba(0,0,0,0.45),
+        0 40px 120px rgba(0,0,0,0.75);
       transform-origin: center center;
       will-change: transform, opacity, filter;
       backface-visibility: hidden;
       contain: layout paint style;
+      transition:
+        transform 260ms cubic-bezier(0.22,0.8,0.25,1),
+        opacity 220ms ease-out,
+        filter 220ms ease-out;
     }
 
     .spatial-card::before {
@@ -343,7 +329,7 @@
       inset: 0;
       border-radius: inherit;
       background:
-        linear-gradient(180deg, rgba(255,255,255,0.15), rgba(255,255,255,0.03) 24%, rgba(0,0,0,0.1) 100%);
+        linear-gradient(180deg, rgba(255,255,255,0.105), rgba(255,255,255,0.02) 26%, rgba(0,0,0,0.16) 100%);
       pointer-events: none;
       z-index: 2;
     }
@@ -354,8 +340,8 @@
       inset: 0;
       border-radius: inherit;
       box-shadow:
-        inset 0 1px 0 rgba(255,255,255,0.18),
-        inset 0 -18px 40px rgba(0,0,0,0.2);
+        inset 0 1px 0 rgba(255,255,255,0.16),
+        inset 0 -20px 40px rgba(0,0,0,0.28);
       pointer-events: none;
       z-index: 2;
     }
@@ -377,16 +363,19 @@
     .spatial-card-shadow {
       position: absolute;
       left: 50%;
-      top: calc(50% + min(30vh, 245px));
-      width: clamp(180px, 20vw, 300px);
-      height: clamp(24px, 4vh, 42px);
+      top: 64%;
+      width: min(380px, 58vw);
+      height: clamp(26px, 4.2vh, 40px);
       border-radius: 999px;
-      background: radial-gradient(circle, rgba(0,0,0,0.44) 0%, rgba(0,0,0,0.2) 45%, rgba(0,0,0,0) 76%);
+      background: radial-gradient(circle, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.24) 45%, rgba(0,0,0,0) 78%);
       transform: translateX(-50%);
-      filter: blur(10px);
+      filter: blur(12px);
       opacity: 0;
       will-change: transform, opacity;
       pointer-events: none;
+      transition:
+        transform 260ms cubic-bezier(0.22,0.8,0.25,1),
+        opacity 220ms ease-out;
     }
 
     @media (max-width: 768px) {
@@ -416,13 +405,13 @@
       }
 
       .spatial-card {
-        width: clamp(170px, 44vw, 250px);
+        width: min(88vw, 520px);
         border-radius: 22px;
       }
 
       .spatial-card-shadow {
-        width: clamp(150px, 38vw, 216px);
-        top: calc(50% + 27vh);
+        width: min(72vw, 360px);
+        top: 68%;
       }
     }
   </style>
@@ -473,6 +462,7 @@
     </div>
   </div>
 
+  <!-- NUOVO: stack tipo StudioShowcase -->
   <div id="spatial-carousel-overlay" aria-hidden="true">
     <div class="spatial-carousel-inner">
       <div class="spatial-carousel-track" id="spatial-carousel-track">
@@ -546,7 +536,9 @@
   const cpPhrases = [
     'Welcome',
     'i am',
-    'GABRIELE',
+    'GABRIEL
+
+E',
     'this is my portfolio'
   ];
 
@@ -559,7 +551,7 @@
     setTimeout(() => {
       cpTextEl.textContent = cpPhrases[index];
       cpTextEl.classList.add('is-visible');
-    }, 120);
+    }, 80);
   }
 
   function triggerPreloaderSplit() {
@@ -567,10 +559,9 @@
 
     preloader.classList.add('is-splitting');
 
-    // rimuovi il preloader quando le due metà sono ormai fuori
     setTimeout(() => {
       preloader.classList.add('is-hidden');
-    }, 1450);
+    }, 1500);
   }
 
   function startCinematicLoader() {
@@ -599,11 +590,9 @@
     cpTimer = setTimeout(advance, WORD_DELAY);
   }
 
-  window.addEventListener('load', () => {
-    startCinematicLoader();
-  });
+  startCinematicLoader();
 
-  /* ───────────── resto: scroll, starfield, carousel ───────────── */
+  /* ───────────── resto: scroll, starfield, stack ───────────── */
 
   function setScrollHeight() {
     scrollSpace.style.height = (TOTAL_PX + window.innerHeight) + 'px';
@@ -937,64 +926,58 @@
     });
   }
 
+  /* NUOVO: stack style tipo StudioShowcase */
   function updateSpatialCarousel(scrollY) {
     const visibleIn = S_SPATIAL_START + 10;
     const visibleOut = S_SPATIAL_END + 140;
     const visible = scrollY >= visibleIn && scrollY <= visibleOut;
     spatialOverlay.classList.toggle('is-visible', visible);
 
-    const progress = norm(scrollY, S_SPATIAL_START, S_SPATIAL_END);
-
-    const entryOffset = 1.05;
-    const activeIndex = -entryOffset + progress * (SPATIAL_ITEM_COUNT - 1 + entryOffset);
-
+    const t = norm(scrollY, S_SPATIAL_START, S_SPATIAL_END);
+    const activeIndex = t * (SPATIAL_ITEM_COUNT - 1);
     const isMobile = window.innerWidth <= 768;
 
-    const hSpread = isMobile ? window.innerWidth * 0.66 : window.innerWidth * 0.34;
-    const vGap = isMobile ? window.innerHeight * 0.40 : window.innerHeight * 0.34;
-    const leftCompression = 0.56;
-    const focusLift = isMobile ? 16 : 10;
-    const rotateStep = isMobile ? -5.5 : -6.5;
-    const zStep = isMobile ? 135 : 150;
-    const scaleDrop = 0.108;
-    const fadeDrop = 0.19;
-    const maxDepth = 4.25;
+    const gapY = isMobile ? 32 : 40;
+    const gapX = isMobile ? 6 : 10;
+    const maxDepth = 3.5;
 
     spatialCards.forEach((card, i) => {
       const delta = i - activeIndex;
       const abs = Math.abs(delta);
       const d = Math.min(abs, maxDepth);
 
-      const sideFactor = delta >= 0 ? 1 : leftCompression;
+      const direction = delta >= 0 ? 1 : -1;
 
-      const x = delta * hSpread * sideFactor;
-      const yBase = delta * vGap;
-      const yCurve = -Math.pow(Math.min(d, 2.6) / 2.6, 1.22) * (isMobile ? 28 : 22);
-      const y = yBase + yCurve - focusLift;
+      const y = d * gapY * direction;
+      const x = delta * gapX;
 
-      const scale = Math.max(0.48, 1 - d * scaleDrop);
-      const opacity = Math.max(0, 1 - d * fadeDrop);
-      const blur = d < 0.12 ? 0 : Math.min(4.6, (d - 0.12) * 1.08);
-      const rotate = delta * rotateStep;
-      const z = 360 - d * zStep;
+      const scale = 1 - d * 0.06;
+      const opacity = Math.max(0, 1 - d * 0.21);
+      const blur = d * 0.7;
+      const rotate = delta * (isMobile ? -1.8 : -1.4);
 
-      card.style.zIndex = String(2200 - Math.round(d * 100) - i);
-      card.style.opacity = opacity < 0.015 ? '0' : opacity.toFixed(3);
+      card.style.zIndex = String(2000 + Math.round((maxDepth - d) * 20));
+      card.style.opacity = opacity.toFixed(3);
       card.style.filter = `blur(${blur.toFixed(2)}px)`;
       card.style.transform =
-        `translate3d(calc(-50% + ${x.toFixed(2)}px), calc(-50% + ${y.toFixed(2)}px), ${z.toFixed(2)}px) ` +
-        `scale(${scale.toFixed(4)}) rotateZ(${rotate.toFixed(2)}deg)`;
+        `translate3d(-50%, -50%, 0) translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0) ` +
+        `scale(${scale.toFixed(3)}) rotate(${rotate.toFixed(1)}deg)`;
+    });
 
-      const shadow = spatialShadows[i];
-      if (shadow) {
-        const shadowOpacity = Math.max(0, 0.19 - d * 0.036) * opacity;
-        const shadowX = x * 0.14;
-        const shadowY = y * 0.04;
-        const shadowScale = 0.78 + scale * 0.24;
-        shadow.style.opacity = shadowOpacity < 0.01 ? '0' : shadowOpacity.toFixed(3);
-        shadow.style.transform =
-          `translateX(calc(-50% + ${shadowX.toFixed(2)}px)) translateY(${shadowY.toFixed(2)}px) scale(${shadowScale.toFixed(3)})`;
-      }
+    spatialShadows.forEach((shadow, i) => {
+      const delta = i - activeIndex;
+      const abs = Math.abs(delta);
+      const d = Math.min(abs, maxDepth);
+
+      const x = delta * (isMobile ? 5 : 8);
+      const y = d * (isMobile ? 8 : 10);
+      const shadowOpacity = Math.max(0, 0.35 - d * 0.08);
+
+      const scale = 1 - d * 0.09;
+
+      shadow.style.opacity = shadowOpacity.toFixed(3);
+      shadow.style.transform =
+        `translateX(calc(-50% + ${x.toFixed(1)}px)) translateY(${y.toFixed(1)}px) scale(${scale.toFixed(3)})`;
     });
   }
 
