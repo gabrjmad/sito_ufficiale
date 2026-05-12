@@ -462,7 +462,7 @@
     </div>
   </div>
 
-  <!-- NUOVO: stack tipo StudioShowcase -->
+  <!-- Stack tipo StudioShowcase -->
   <div id="spatial-carousel-overlay" aria-hidden="true">
     <div class="spatial-carousel-inner">
       <div class="spatial-carousel-track" id="spatial-carousel-track">
@@ -535,10 +535,8 @@
 
   const cpPhrases = [
     'Welcome',
-    'i am',
-    'GABRIEL
-
-E',
+    'I am',
+    'GABRIELE',
     'this is my portfolio'
   ];
 
@@ -590,6 +588,7 @@ E',
     cpTimer = setTimeout(advance, WORD_DELAY);
   }
 
+  // Parte subito all'esecuzione dello script (niente schermo nero intermedio)
   startCinematicLoader();
 
   /* ───────────── resto: scroll, starfield, stack ───────────── */
@@ -926,7 +925,7 @@ E',
     });
   }
 
-  /* NUOVO: stack style tipo StudioShowcase */
+  // Stack stile StudioShowcase
   function updateSpatialCarousel(scrollY) {
     const visibleIn = S_SPATIAL_START + 10;
     const visibleOut = S_SPATIAL_END + 140;
