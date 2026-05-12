@@ -158,7 +158,157 @@
       transition: color 100ms linear, opacity 100ms linear, filter 100ms linear, transform 100ms linear;
     }
 
+    /* ───────────────── CINEMATIC PAGELOADER ───────────────── */
+
+    #preloader {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: radial-gradient(circle at 20% 0%, #16151b 0%, #050509 40%, #020104 85%);
+      display: block;
+      opacity: 1;
+      visibility: visible;
+      transition: opacity 800ms ease, visibility 800ms ease;
+      overflow: hidden;
+      pointer-events: auto;
+    }
+
+    #preloader.is-hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .cp-bg {
+      position: absolute;
+      inset: 0;
+      background: #020108;
+      will-change: transform;
+      transform: translate3d(0,0,0);
+      pointer-events: none;
+    }
+
+    .cp-bg-top {
+      clip-path: inset(0 0 50% 0);
+      transform-origin: 50% 0%;
+    }
+
+    .cp-bg-bottom {
+      clip-path: inset(50% 0 0 0);
+      transform-origin: 50% 100%;
+    }
+
+    .cp-content {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      padding: 4vw;
+      text-align: center;
+      z-index: 2;
+      will-change: opacity, transform;
+    }
+
+    .cp-inner {
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+      align-items: center;
+    }
+
+    .cp-words {
+      display: flex;
+      flex-direction: column;
+      gap: 0.18rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+
+    .cp-word {
+      font-size: clamp(0.88rem, 0.9rem + 0.6vw, 1.3rem);
+      font-weight: 600;
+      color: rgba(255,255,255,0.16);
+      opacity: 0;
+      transform: translateY(0.8em);
+      transition:
+        opacity 520ms ease-out,
+        transform 520ms ease-out,
+        color 520ms ease-out;
+      will-change: opacity, transform;
+    }
+
+    .cp-word.is-active {
+      opacity: 1;
+      transform: translateY(0);
+      color: rgba(255,255,255,0.76);
+    }
+
+    .cp-logo {
+      margin-top: 0.4rem;
+      font-size: clamp(1.5rem, 1.4rem + 1.4vw, 2.5rem);
+      font-weight: 900;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: #ffffff;
+      opacity: 0;
+      transform: translateY(1.2em);
+      transition:
+        opacity 600ms ease-out,
+        transform 600ms ease-out;
+      will-change: opacity, transform;
+    }
+
+    .cp-logo.is-visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .cp-hint {
+      margin-top: 0.4rem;
+      font-size: clamp(0.7rem, 0.68rem + 0.3vw, 0.9rem);
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.45);
+      opacity: 0;
+      transform: translateY(0.8em);
+      transition:
+        opacity 380ms ease-out,
+        transform 380ms ease-out;
+    }
+
+    .cp-hint.is-visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    #preloader.is-splitting .cp-bg-top {
+      animation: cpSplitTop 900ms cubic-bezier(0.19,0.8,0.26,1) forwards;
+    }
+
+    #preloader.is-splitting .cp-bg-bottom {
+      animation: cpSplitBottom 900ms cubic-bezier(0.19,0.8,0.26,1) forwards;
+    }
+
+    #preloader.is-splitting .cp-content {
+      opacity: 0;
+      transform: translateY(-12px);
+      transition:
+        opacity 560ms ease-out,
+        transform 560ms ease-out;
+    }
+
+    @keyframes cpSplitTop {
+      0%   { transform: translate3d(0,0,0); }
+      100% { transform: translate3d(0,-100%,0); }
+    }
+
+    @keyframes cpSplitBottom {
+      0%   { transform: translate3d(0,0,0); }
+      100% { transform: translate3d(0,100%,0); }
+    }
+
     /* ───────────────── SPATIAL CAROUSEL OVERLAY ───────────────── */
+    /* (da qui in poi lascio tutto come nella tua versione con il carousel) */
 
     #spatial-carousel-overlay {
       position: absolute;
@@ -266,61 +416,6 @@
       pointer-events: none;
     }
 
-    #preloader {
-      position: fixed;
-      inset: 0;
-      z-index: 9999;
-      display: grid;
-      place-items: center;
-      background: #a9acb6;
-      opacity: 1;
-      visibility: visible;
-      transition: opacity 900ms ease, visibility 900ms ease;
-    }
-
-    #preloader.is-hidden {
-      opacity: 0;
-      visibility: hidden;
-      pointer-events: none;
-    }
-
-    .loader-text-wrap {
-      display: flex;
-      gap: 0.45rem;
-      font-family: "Playfair Display", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      font-size: clamp(2.4rem, 5vw, 3.4rem);
-      letter-spacing: 0.22em;
-      color: #111;
-    }
-
-    .loader-letter {
-      position: relative;
-      display: inline-block;
-      text-transform: uppercase;
-      color: #111111;
-      text-shadow:
-        0 0.04em 0 rgba(255,255,255,0.5),
-        0 0.06em 0 rgba(0,0,0,0.24);
-      animation: letterBounce 1.1s ease-in-out infinite;
-    }
-
-    .loader-letter:nth-child(1) { animation-delay: 0s;    }
-    .loader-letter:nth-child(2) { animation-delay: 0.10s; }
-    .loader-letter:nth-child(3) { animation-delay: 0.20s; }
-    .loader-letter:nth-child(4) { animation-delay: 0.30s; }
-    .loader-letter:nth-child(5) { animation-delay: 0.40s; }
-    .loader-letter:nth-child(6) { animation-delay: 0.50s; }
-    .loader-letter:nth-child(7) { animation-delay: 0.60s; }
-    .loader-letter:nth-child(8) { animation-delay: 0.70s; }
-
-    @keyframes letterBounce {
-      0%   { transform: translateY(0)    scale(1);      opacity: 0.40; }
-      25%  { transform: translateY(-8px) scale(1);      opacity: 1;    }
-      50%  { transform: translateY(0)    scale(1);      opacity: 0.9;  }
-      75%  { transform: translateY(3px)  scale(1.02);   opacity: 0.85; }
-      100% { transform: translateY(0)    scale(1.04);   opacity: 1;    }
-    }
-
     @media (max-width: 768px) {
       .text-scroll-block {
         width: min(92vw, 640px);
@@ -361,16 +456,20 @@
 </head>
 <body>
 
+<!-- NUOVO: cinematic pageloader -->
 <div id="preloader" aria-hidden="true">
-  <div class="loader-text-wrap">
-    <span class="loader-letter">G</span>
-    <span class="loader-letter">A</span>
-    <span class="loader-letter">B</span>
-    <span class="loader-letter">R</span>
-    <span class="loader-letter">I</span>
-    <span class="loader-letter">E</span>
-    <span class="loader-letter">L</span>
-    <span class="loader-letter">E</span>
+  <div class="cp-bg cp-bg-top"></div>
+  <div class="cp-bg cp-bg-bottom"></div>
+  <div class="cp-content">
+    <div class="cp-inner">
+      <div class="cp-words">
+        <span class="cp-word cp-word-active">CINEMATIC</span>
+        <span class="cp-word">PAGE</span>
+        <span class="cp-word">LOADER</span>
+      </div>
+      <div class="cp-logo">CINEMATIC PAGELOADER</div>
+      <div class="cp-hint">Scroll to reveal</div>
+    </div>
   </div>
 </div>
 
@@ -405,6 +504,7 @@
     </div>
   </div>
 
+  <!-- spatial carousel come in precedente versione, non modificato -->
   <div id="spatial-carousel-overlay" aria-hidden="true">
     <div class="spatial-carousel-inner">
       <div class="spatial-carousel-track" id="spatial-carousel-track">
@@ -449,9 +549,9 @@
   const TOTAL_PX = S_SPATIAL_END;
 
   const TEXT_LINES = [
-    "questa è la sezione delle foto",
+    "questo è come sono fatto,",
     "scorrendo troverai",
-    "la mi adescrizione",
+    "alcune mie foto,",
     "lascia un feedback se ti piace il sito."
   ];
 
@@ -470,6 +570,95 @@
   const spatialOverlay = document.getElementById('spatial-carousel-overlay');
   const spatialCards = [...document.querySelectorAll('.spatial-card')];
   const spatialShadows = [...document.querySelectorAll('.spatial-card-shadow')];
+
+  /* ───────────── Cinematic PageLoader logic ───────────── */
+
+  const cpWords = [...document.querySelectorAll('.cp-word')];
+  const cpLogo = document.querySelector('.cp-logo');
+  const cpHint = document.querySelector('.cp-hint');
+  let cpIndex = 0;
+  let cpSequenceDone = false;
+  let cpSplitDone = false;
+  let cpWordTimer = null;
+
+  function cpShowWord(nextIndex) {
+    cpWords.forEach((w, i) => {
+      if (i === nextIndex) {
+        w.classList.add('is-active');
+      } else {
+        w.classList.remove('is-active');
+      }
+    });
+  }
+
+  function startCinematicLoader() {
+    if (!cpWords.length) return;
+
+    cpIndex = 0;
+    cpShowWord(cpIndex);
+
+    const WORD_DELAY = 950;
+    const LOGO_DELAY = 650;
+
+    function advance() {
+      cpIndex += 1;
+      if (cpIndex < cpWords.length) {
+        cpShowWord(cpIndex);
+        cpWordTimer = setTimeout(advance, WORD_DELAY);
+      } else {
+        cpSequenceDone = true;
+        cpWords.forEach(w => w.classList.remove('is-active'));
+        if (cpLogo) {
+          setTimeout(() => {
+            cpLogo.classList.add('is-visible');
+            if (cpHint) {
+              setTimeout(() => {
+                cpHint.classList.add('is-visible');
+              }, 260);
+            }
+          }, LOGO_DELAY);
+        }
+      }
+    }
+
+    cpWordTimer = setTimeout(advance, WORD_DELAY);
+  }
+
+  function triggerPreloaderSplit() {
+    if (cpSplitDone || !preloader) return;
+    cpSplitDone = true;
+
+    preloader.classList.add('is-splitting');
+
+    setTimeout(() => {
+      preloader.classList.add('is-hidden');
+    }, 760);
+  }
+
+  function handleCinematicScrollTrigger() {
+    if (!cpSequenceDone || cpSplitDone) return;
+    triggerPreloaderSplit();
+  }
+
+  window.addEventListener('load', () => {
+    startCinematicLoader();
+  });
+
+  window.addEventListener('wheel', () => {
+    handleCinematicScrollTrigger();
+  }, { passive: true });
+
+  window.addEventListener('touchstart', () => {
+    handleCinematicScrollTrigger();
+  }, { passive: true });
+
+  window.addEventListener('keydown', e => {
+    if (e.key === ' ' || e.key === 'Enter' || e.key === 'ArrowDown' || e.key === 'PageDown') {
+      handleCinematicScrollTrigger();
+    }
+  });
+
+  /* ───────────── resto del codice (starfield, testi, carousel) invariato ───────────── */
 
   function setScrollHeight() {
     scrollSpace.style.height = (TOTAL_PX + window.innerHeight) + 'px';
@@ -968,12 +1157,6 @@
     .catch(() => {
       render(currentScrollY);
     });
-
-  window.addEventListener('load', () => {
-    setTimeout(() => {
-      preloader.classList.add('is-hidden');
-    }, 1200);
-  });
 
   resizeStarfield();
   requestAnimationFrame(drawStarfield);
