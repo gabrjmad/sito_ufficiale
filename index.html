@@ -32,6 +32,7 @@
       overflow: hidden;
     }
 
+    /* RIMOSSO: #starfield-bg (canvas sfondo interattivo)
     #starfield-bg {
       position: absolute;
       inset: 0;
@@ -42,6 +43,7 @@
       pointer-events: none;
       background: #000;
     }
+    */
 
     .seq-layer {
       position: absolute;
@@ -434,7 +436,8 @@
 <div id="scroll-space"></div>
 
 <div id="stage">
-  <canvas id="starfield-bg" aria-hidden="true"></canvas>
+  <!-- RIMOSSO: canvas starfield-bg -->
+  <!-- <canvas id="starfield-bg" aria-hidden="true"></canvas> -->
 
   <img id="seq-a" class="seq-layer active" alt="" decoding="async" fetchpriority="high">
   <img id="seq-b" class="seq-layer" alt="" decoding="async">
@@ -520,8 +523,11 @@
   const layerB = document.getElementById('seq-b');
   const overlay = document.getElementById('fade-overlay');
   const preloader = document.getElementById('preloader');
-  const starCanvas = document.getElementById('starfield-bg');
-  const starCtx = starCanvas.getContext('2d', { alpha: false });
+
+  // RIMOSSO: riferimenti al canvas starfield
+  // const starCanvas = document.getElementById('starfield-bg');
+  // const starCtx = starCanvas.getContext('2d', { alpha: false });
+
   const textOverlay = document.getElementById('text-scroll-overlay');
   const revealLineEls = [...document.querySelectorAll('.reveal-line')];
 
@@ -591,7 +597,7 @@
   // Parte subito all'esecuzione dello script (niente schermo nero intermedio)
   startCinematicLoader();
 
-  /* ───────────── resto: scroll, starfield, stack ───────────── */
+  /* ───────────── resto: scroll, stack ───────────── */
 
   function setScrollHeight() {
     scrollSpace.style.height = (TOTAL_PX + window.innerHeight) + 'px';
@@ -739,150 +745,16 @@
     setTimeout(pump, 80);
   }
 
-  const starState = {
-    width: 0,
-    height: 0,
-    dpr: 1,
-    stars: [],
-    baseCx: 0,
-    baseCy: 0,
-    cx: 0,
-    cy: 0,
-    tx: 0,
-    ty: 0,
-    driftX: 0,
-    driftY: 0,
-    speed: 7.5,
-    depth: 2200,
-    focal: 420,
-    lastTime: performance.now(),
-    mouseSpeedFactor: 1
-  };
-
-  function createStar(randomZ = false) {
-    const spread = Math.max(starState.width, starState.height) * 2.0;
-    return {
-      x: (Math.random() - 0.5) * spread,
-      y: (Math.random() - 0.5) * spread,
-      z: randomZ ? Math.random() * starState.depth + 1 : starState.depth,
-      radius: Math.random() * 0.7 + 0.15,
-      alpha: Math.random() * 0.55 + 0.25,
-      twinkleOffset: Math.random() * Math.PI * 2,
-      twinkleSpeed: Math.random() * 0.025 + 0.008
-    };
-  }
-
-  function resetStar(s) {
-    const spread = Math.max(starState.width, starState.height) * 2.0;
-    s.x = (Math.random() - 0.5) * spread;
-    s.y = (Math.random() - 0.5) * spread;
-    s.z = starState.depth;
-    s.radius = Math.random() * 0.7 + 0.15;
-    s.alpha = Math.random() * 0.55 + 0.25;
-    s.twinkleOffset = Math.random() * Math.PI * 2;
-    s.twinkleSpeed = Math.random() * 0.025 + 0.008;
-  }
-
-  function initStars() {
-    starState.width = window.innerWidth;
-    starState.height = window.innerHeight;
-    starState.baseCx = starState.width * 0.5;
-    starState.baseCy = starState.height * 0.5;
-    starState.cx = starState.baseCx;
-    starState.cy = starState.baseCy;
-    starState.tx = starState.baseCx;
-    starState.ty = starState.baseCy;
-    const count = Math.max(260, Math.floor((starState.width * starState.height) / 5200));
-    starState.stars = Array.from({ length: count }, () => createStar(true));
-  }
-
-  function resizeStarfield() {
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    starState.dpr = dpr;
-    starCanvas.width = Math.floor(window.innerWidth * dpr);
-    starCanvas.height = Math.floor(window.innerHeight * dpr);
-    starCanvas.style.width = window.innerWidth + 'px';
-    starCanvas.style.height = window.innerHeight + 'px';
-    starCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    initStars();
-  }
-
-  function updatePointer(clientX, clientY) {
-    const nx = clientX / starState.width - 0.5;
-    const ny = clientY / starState.height - 0.5;
-
-    const rangeX = starState.width * 0.16;
-    const rangeY = starState.height * 0.16;
-
-    starState.tx = starState.baseCx + nx * rangeX;
-    starState.ty = starState.baseCy + ny * rangeY;
-    starState.driftX = nx * 36;
-    starState.driftY = ny * 36;
-
-    const dist = Math.sqrt(nx * nx + ny * ny);
-    starState.mouseSpeedFactor = 1 + dist * 0.55;
-  }
-
-  function drawStarfield(now) {
-    const dt = Math.min(2, (now - starState.lastTime) / 16.6667 || 1);
-    starState.lastTime = now;
-
-    starState.cx += (starState.tx - starState.cx) * 0.055;
-    starState.cy += (starState.ty - starState.cy) * 0.055;
-
-    starCtx.fillStyle = "#000";
-    starCtx.fillRect(0, 0, starState.width, starState.height);
-
-    const time = now * 0.001;
-    const speedBase = starState.speed;
-
-    for (let i = 0; i < starState.stars.length; i++) {
-      const s = starState.stars[i];
-      const depthFactor = 1 + (1 - s.z / starState.depth) * 1.3;
-      const mouseBoost = starState.mouseSpeedFactor || 1;
-      s.z -= speedBase * depthFactor * mouseBoost * dt;
-
-      if (s.z <= 1) {
-        resetStar(s);
-        continue;
-      }
-
-      const persp = starState.focal / s.z;
-      const parallax = 1.4 - s.z / starState.depth;
-
-      const x = starState.cx + (s.x + starState.driftX * parallax) * persp;
-      const y = starState.cy + (s.y + starState.driftY * parallax) * persp;
-
-      const prevZ = s.z + 22 * dt;
-      const prevPersp = starState.focal / prevZ;
-      const px = starState.cx + (s.x + starState.driftX * parallax) * prevPersp;
-      const py = starState.cy + (s.y + starState.driftY * parallax) * prevPersp;
-
-      if (x < -60 || x > starState.width + 60 || y < -60 || y > starState.height + 60) {
-        resetStar(s);
-        continue;
-      }
-
-      const proximity = 1 - s.z / starState.depth;
-      const radius = Math.max(0.16, s.radius + proximity * 0.85);
-      const twinkle = 0.8 + Math.sin(time * (2.2 + s.twinkleSpeed * 40) + s.twinkleOffset) * 0.2;
-      const alpha = Math.min(1, (s.alpha + proximity * 0.32) * twinkle);
-
-      starCtx.beginPath();
-      starCtx.strokeStyle = `rgba(255,255,255,${alpha * 0.22})`;
-      starCtx.lineWidth = Math.max(0.18, radius * 0.55);
-      starCtx.moveTo(px, py);
-      starCtx.lineTo(x, y);
-      starCtx.stroke();
-
-      starCtx.beginPath();
-      starCtx.fillStyle = `rgba(255,255,255,${alpha})`;
-      starCtx.arc(x, y, radius, 0, Math.PI * 2);
-      starCtx.fill();
-    }
-
-    requestAnimationFrame(drawStarfield);
-  }
+  // RIMOSSA TUTTA LA LOGICA STARFIELD: stato, init, resize, pointer, draw
+  /*
+  const starState = { ... };
+  function createStar(...) { ... }
+  function resetStar(...) { ... }
+  function initStars() { ... }
+  function resizeStarfield() { ... }
+  function updatePointer(...) { ... }
+  function drawStarfield(now) { ... }
+  */
 
   function updateTextReveal(scrollY) {
     const overlayIn = S_FADE_END + 60;
@@ -1050,11 +922,14 @@
     buildTextReveal();
     targetScrollY = window.scrollY || document.documentElement.scrollTop || 0;
     currentScrollY = targetScrollY;
-    resizeStarfield();
+
+    // RIMOSSO: resizeStarfield();
     render(currentScrollY);
     startLoop();
   }, { passive: true });
 
+  // RIMOSSI gli handler mouse/touch per lo starfield
+  /*
   window.addEventListener('mousemove', e => {
     updatePointer(e.clientX, e.clientY);
   }, { passive: true });
@@ -1071,6 +946,7 @@
     starState.driftY = 0;
     starState.mouseSpeedFactor = 1;
   });
+  */
 
   preloadInitial();
 
@@ -1085,8 +961,9 @@
       render(currentScrollY);
     });
 
-  resizeStarfield();
-  requestAnimationFrame(drawStarfield);
+  // RIMOSSI: resizeStarfield() e drawStarfield
+  // resizeStarfield();
+  // requestAnimationFrame(drawStarfield);
 </script>
 
 </body>
