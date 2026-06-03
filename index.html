@@ -4,13 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Gabriele Madeo</title>
-
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@900&display=swap" rel="stylesheet">
-
   <link rel="preload" as="image" href="img-sequence/compressed_001.webp" fetchpriority="high">
-
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -24,8 +21,6 @@
       color: #fff;
       font-family: "Playfair Display", Georgia, serif;
     }
-
-    #scroll-space {}
 
     #stage {
       position: fixed;
@@ -117,24 +112,10 @@
       gap: 0.18em;
     }
 
-    .ghost-line {
-      color: rgba(255, 255, 255, 0.1);
-    }
-
-    .fill-line {
-      position: absolute;
-      inset: 0;
-      color: #fff;
-    }
-
-    .word {
-      display: inline-block;
-      white-space: pre;
-    }
-
-    .ghost-line .word {
-      color: rgba(255,255,255,0.11);
-    }
+    .ghost-line { color: rgba(255, 255, 255, 0.1); }
+    .fill-line { position: absolute; inset: 0; color: #fff; }
+    .word { display: inline-block; white-space: pre; }
+    .ghost-line .word { color: rgba(255,255,255,0.11); }
 
     .fill-line .word {
       color: rgb(255,255,255);
@@ -156,9 +137,7 @@
       pointer-events: auto;
     }
 
-    #preloader.is-hidden {
-      display: none;
-    }
+    #preloader.is-hidden { display: none; }
 
     .cp-bg {
       position: absolute;
@@ -169,15 +148,8 @@
       pointer-events: none;
     }
 
-    .cp-bg-top {
-      clip-path: inset(0 0 50% 0);
-      transform-origin: 50% 0%;
-    }
-
-    .cp-bg-bottom {
-      clip-path: inset(50% 0 0 0);
-      transform-origin: 50% 100%;
-    }
+    .cp-bg-top { clip-path: inset(0 0 50% 0); transform-origin: 50% 0%; }
+    .cp-bg-bottom { clip-path: inset(50% 0 0 0); transform-origin: 50% 100%; }
 
     .cp-content {
       position: absolute;
@@ -190,11 +162,7 @@
       will-change: opacity, transform;
     }
 
-    .cp-inner {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
+    .cp-inner { display: flex; flex-direction: column; align-items: center; }
 
     .cp-words {
       position: relative;
@@ -212,17 +180,11 @@
       color: rgba(255,255,255,0.9);
       opacity: 0;
       transform: translateY(0.9em);
-      transition:
-        opacity 520ms ease-out,
-        transform 520ms ease-out,
-        color 520ms ease-out;
+      transition: opacity 520ms ease-out, transform 520ms ease-out, color 520ms ease-out;
       will-change: opacity, transform;
     }
 
-    #cp-text.is-visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
+    #cp-text.is-visible { opacity: 1; transform: translateY(0); }
 
     #preloader.is-splitting .cp-bg-top {
       animation: cpSplitTop 1400ms cubic-bezier(0.22, 0.8, 0.25, 1) forwards;
@@ -235,22 +197,18 @@
     #preloader.is-splitting .cp-content {
       opacity: 0;
       transform: translateY(-12px);
-      transition:
-        opacity 600ms ease-out,
-        transform 600ms ease-out;
+      transition: opacity 600ms ease-out, transform 600ms ease-out;
     }
 
     @keyframes cpSplitTop {
-      0%   { transform: translateY(0); }
+      0% { transform: translateY(0); }
       100% { transform: translateY(-100%); }
     }
 
     @keyframes cpSplitBottom {
-      0%   { transform: translateY(0); }
+      0% { transform: translateY(0); }
       100% { transform: translateY(100%); }
     }
-
-    /* ───────────────── ZOOM PARALLAX ───────────────── */
 
     #zoom-parallax-overlay {
       position: absolute;
@@ -262,9 +220,7 @@
       contain: layout paint style;
     }
 
-    #zoom-parallax-overlay.is-visible {
-      opacity: 1;
-    }
+    #zoom-parallax-overlay.is-visible { opacity: 1; }
 
     .zoom-parallax-sticky {
       position: absolute;
@@ -289,9 +245,7 @@
       overflow: hidden;
       border-radius: 18px;
       background: #111;
-      box-shadow:
-        0 20px 60px rgba(0,0,0,0.35),
-        0 40px 120px rgba(0,0,0,0.55);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.35), 0 40px 120px rgba(0,0,0,0.55);
     }
 
     .zoom-card img {
@@ -310,9 +264,7 @@
       inset: 0;
       z-index: 2;
       pointer-events: none;
-      background:
-        radial-gradient(circle at center, rgba(0,0,0,0) 42%, rgba(0,0,0,0.08) 62%, rgba(0,0,0,0.22) 100%);
-      mix-blend-mode: normal;
+      background: radial-gradient(circle at center, rgba(0,0,0,0) 42%, rgba(0,0,0,0.08) 62%, rgba(0,0,0,0.22) 100%);
     }
 
     .zoom-grain {
@@ -328,7 +280,6 @@
       background-size: 18px 18px, 22px 22px, 26px 26px;
     }
 
-    /* Layout desktop: photo-3 principale */
     .zoom-card--main {
       width: min(34vw, 420px);
       height: min(48vh, 520px);
@@ -338,92 +289,27 @@
       z-index: 10;
     }
 
-    .zoom-card--1 {
-      width: min(24vw, 300px);
-      height: min(30vh, 300px);
-      top: 11%;
-      left: 7%;
-    }
-
-    .zoom-card--2 {
-      width: min(19vw, 240px);
-      height: min(42vh, 400px);
-      top: 18%;
-      left: 64%;
-    }
-
-    .zoom-card--4 {
-      width: min(19vw, 240px);
-      height: min(26vh, 240px);
-      top: 64%;
-      left: 12%;
-    }
-
-    .zoom-card--5 {
-      width: min(24vw, 300px);
-      height: min(24vh, 240px);
-      top: 62%;
-      left: 58%;
-    }
-
-    .zoom-card--6 {
-      width: min(14vw, 180px);
-      height: min(18vh, 180px);
-      top: 9%;
-      left: 42%;
-    }
+    .zoom-card--1 { width: min(24vw, 300px); height: min(30vh, 300px); top: 11%; left: 7%; }
+    .zoom-card--2 { width: min(19vw, 240px); height: min(42vh, 400px); top: 18%; left: 64%; }
+    .zoom-card--4 { width: min(19vw, 240px); height: min(26vh, 240px); top: 64%; left: 12%; }
+    .zoom-card--5 { width: min(24vw, 300px); height: min(24vh, 240px); top: 62%; left: 58%; }
+    .zoom-card--6 { width: min(14vw, 180px); height: min(18vh, 180px); top: 9%; left: 42%; }
 
     @media (max-width: 768px) {
-      .zoom-card {
-        border-radius: 12px;
-      }
-
-      .zoom-card--main {
-        width: 42vw;
-        height: 34vh;
-        min-width: 158px;
-        min-height: 240px;
-      }
-
-      .zoom-card--1 {
-        width: 30vw;
-        height: 18vh;
-        top: 16%;
-        left: 6%;
-      }
-
-      .zoom-card--2 {
-        width: 24vw;
-        height: 26vh;
-        top: 20%;
-        left: 67%;
-      }
-
-      .zoom-card--4 {
-        width: 25vw;
-        height: 15vh;
-        top: 66%;
-        left: 8%;
-      }
-
-      .zoom-card--5 {
-        width: 30vw;
-        height: 16vh;
-        top: 65%;
-        left: 60%;
-      }
-
-      .zoom-card--6 {
-        width: 18vw;
-        height: 11vh;
-        top: 12%;
-        left: 43%;
-      }
+      .text-scroll-block { width: min(92vw, 640px); gap: 0.16em; transform: translateY(0); }
+      .ghost-line, .fill-line { gap: 0.14em; }
+      .reveal-line { font-size: clamp(1.18rem, 5.4vw, 2.35rem); line-height: 1.04; }
+      .zoom-card { border-radius: 12px; }
+      .zoom-card--main { width: 42vw; height: 34vh; min-width: 158px; min-height: 240px; }
+      .zoom-card--1 { width: 30vw; height: 18vh; top: 16%; left: 6%; }
+      .zoom-card--2 { width: 24vw; height: 26vh; top: 20%; left: 67%; }
+      .zoom-card--4 { width: 25vw; height: 15vh; top: 66%; left: 8%; }
+      .zoom-card--5 { width: 30vw; height: 16vh; top: 65%; left: 60%; }
+      .zoom-card--6 { width: 18vw; height: 11vh; top: 12%; left: 43%; }
     }
 
     @media (prefers-reduced-motion: reduce) {
       html { scroll-behavior: auto; }
-
       #text-scroll-overlay,
       .reveal-line,
       .fill-line .word,
@@ -440,7 +326,6 @@
   </style>
 </head>
 <body>
-
 <div id="preloader" aria-hidden="true">
   <div class="cp-bg cp-bg-top"></div>
   <div class="cp-bg cp-bg-bottom"></div>
@@ -461,65 +346,22 @@
   <div id="text-scroll-overlay" aria-hidden="true">
     <div class="text-scroll-inner">
       <div class="text-scroll-block">
-        <div class="reveal-line" data-line="0">
-          <div class="ghost-line"></div>
-          <div class="fill-line"></div>
-        </div>
-        <div class="reveal-line" data-line="1">
-          <div class="ghost-line"></div>
-          <div class="fill-line"></div>
-        </div>
-        <div class="reveal-line" data-line="2">
-          <div class="ghost-line"></div>
-          <div class="fill-line"></div>
-        </div>
-        <div class="reveal-line" data-line="3">
-          <div class="ghost-line"></div>
-          <div class="fill-line"></div>
-        </div>
+        <div class="reveal-line" data-line="0"><div class="ghost-line"></div><div class="fill-line"></div></div>
+        <div class="reveal-line" data-line="1"><div class="ghost-line"></div><div class="fill-line"></div></div>
+        <div class="reveal-line" data-line="2"><div class="ghost-line"></div><div class="fill-line"></div></div>
+        <div class="reveal-line" data-line="3"><div class="ghost-line"></div><div class="fill-line"></div></div>
       </div>
     </div>
   </div>
 
-  <!-- NUOVO BLOCCO ZOOM PARALLAX -->
   <div id="zoom-parallax-overlay" aria-hidden="true">
     <div class="zoom-parallax-sticky">
-      <div class="zoom-layer" data-layer="0">
-        <div class="zoom-card zoom-card--1">
-          <img src="spatial-carousel/photo-1.jpg" alt="Foto 1">
-        </div>
-      </div>
-
-      <div class="zoom-layer" data-layer="1">
-        <div class="zoom-card zoom-card--2">
-          <img src="spatial-carousel/photo-2.jpg" alt="Foto 2">
-        </div>
-      </div>
-
-      <div class="zoom-layer" data-layer="2">
-        <div class="zoom-card zoom-card--main">
-          <img src="spatial-carousel/photo-3.jpg" alt="Foto 3">
-        </div>
-      </div>
-
-      <div class="zoom-layer" data-layer="3">
-        <div class="zoom-card zoom-card--4">
-          <img src="spatial-carousel/photo-4.jpg" alt="Foto 4">
-        </div>
-      </div>
-
-      <div class="zoom-layer" data-layer="4">
-        <div class="zoom-card zoom-card--5">
-          <img src="spatial-carousel/photo-5.jpg" alt="Foto 5">
-        </div>
-      </div>
-
-      <div class="zoom-layer" data-layer="5">
-        <div class="zoom-card zoom-card--6">
-          <img src="spatial-carousel/photo-6.jpg" alt="Foto 6">
-        </div>
-      </div>
-
+      <div class="zoom-layer" data-layer="0"><div class="zoom-card zoom-card--1"><img src="spatial-carousel/photo-1.jpg" alt="Foto 1"></div></div>
+      <div class="zoom-layer" data-layer="1"><div class="zoom-card zoom-card--2"><img src="spatial-carousel/photo-2.jpg" alt="Foto 2"></div></div>
+      <div class="zoom-layer" data-layer="2"><div class="zoom-card zoom-card--main"><img src="spatial-carousel/photo-3.jpg" alt="Foto 3"></div></div>
+      <div class="zoom-layer" data-layer="3"><div class="zoom-card zoom-card--4"><img src="spatial-carousel/photo-4.jpg" alt="Foto 4"></div></div>
+      <div class="zoom-layer" data-layer="4"><div class="zoom-card zoom-card--5"><img src="spatial-carousel/photo-5.jpg" alt="Foto 5"></div></div>
+      <div class="zoom-layer" data-layer="5"><div class="zoom-card zoom-card--6"><img src="spatial-carousel/photo-6.jpg" alt="Foto 6"></div></div>
       <div class="zoom-vignette"></div>
       <div class="zoom-grain"></div>
     </div>
@@ -531,28 +373,34 @@
 <script>
   const FRAME_COUNT = 127;
   const FRAME_OFFSET = 1;
-  const PX_PER_FRAME = window.innerWidth <= 768 ? 30 : 24;
-  const FADE_PX = 420;
-  const STARFIELD_PX = window.innerWidth <= 768 ? 3200 : 4200;
+  const IS_MOBILE = window.innerWidth <= 768;
 
-  // nuovo blocco finale
-  const ZOOM_PX = window.innerWidth <= 768 ? 2600 : 3200;
+  const PX_PER_FRAME = IS_MOBILE ? 34 : 28;
+  const FADE_PX = 420;
+  const STARFIELD_PX = IS_MOBILE ? 3200 : 4200;
+  const ZOOM_PX = IS_MOBILE ? 2600 : 3200;
+
+  const SEQ_FRAME_STEP = IS_MOBILE ? 2 : 1;
+  const MAX_DRAW_FPS = IS_MOBILE ? 24 : 30;
+  const FRAME_BUDGET_MS = 1000 / MAX_DRAW_FPS;
+  const INITIAL_PRELOAD = IS_MOBILE ? 3 : 4;
+  const WARM_RANGE_SLOW = IS_MOBILE ? 2 : 3;
+  const WARM_RANGE_FAST = IS_MOBILE ? 4 : 6;
+  const BACKGROUND_BATCH = IS_MOBILE ? 1 : 2;
 
   const S_SEQ_END  = (FRAME_COUNT - 1) * PX_PER_FRAME;
   const S_FADE_END = S_SEQ_END + FADE_PX;
   const S_STAR_END = S_FADE_END + STARFIELD_PX;
-
   const TEXT_VISIBLE_END = S_FADE_END + Math.min(3000, STARFIELD_PX * 0.9);
   const S_ZOOM_START = TEXT_VISIBLE_END + 260;
   const S_ZOOM_END = S_ZOOM_START + ZOOM_PX;
-
   const TOTAL_PX = S_ZOOM_END;
 
   const TEXT_LINES = [
-    "questa è la sezione delle foto",
-    "scorrendo troverai",
-    "la mia descrizione",
-    "lascia un feedback se ti piace il sito."
+    'questa è la sezione delle foto',
+    'scorrendo troverai',
+    'la mia descrizione',
+    'lascia un feedback se ti piace il sito.'
   ];
 
   const frameSrc = i => `img-sequence/compressed_${String(i + FRAME_OFFSET).padStart(3, '0')}.webp`;
@@ -562,7 +410,7 @@
   const preloader = document.getElementById('preloader');
 
   const canvas = document.getElementById('seq-canvas');
-  const ctx = canvas.getContext('2d', { alpha: false });
+  const ctx = canvas.getContext('2d', { alpha: false, desynchronized: true });
 
   const textOverlay = document.getElementById('text-scroll-overlay');
   const revealLineEls = [...document.querySelectorAll('.reveal-line')];
@@ -571,13 +419,7 @@
   const zoomLayers = [...document.querySelectorAll('.zoom-layer')];
 
   const cpTextEl = document.getElementById('cp-text');
-
-  const cpPhrases = [
-    'Welcome',
-    'I am',
-    'GABRIELE',
-    'this is my portfolio'
-  ];
+  const cpPhrases = ['Welcome', 'I am', 'GABRIELE', 'this is my portfolio'];
 
   let cpStep = 0;
   let cpTimer = null;
@@ -594,31 +436,25 @@
   function triggerPreloaderSplit() {
     if (!preloader || preloader.classList.contains('is-splitting')) return;
     preloader.classList.add('is-splitting');
-    setTimeout(() => {
-      preloader.classList.add('is-hidden');
-    }, 1500);
+    setTimeout(() => preloader.classList.add('is-hidden'), 1500);
   }
 
   function startCinematicLoader() {
     if (!cpTextEl || !cpPhrases.length) return;
-
     cpStep = 0;
     cpTextEl.textContent = cpPhrases[cpStep];
     cpTextEl.classList.add('is-visible');
 
     const WORD_DELAY = 950;
-    const LAST_HOLD  = 1300;
+    const LAST_HOLD = 1300;
 
     function advance() {
       cpStep += 1;
-
       if (cpStep < cpPhrases.length) {
         showPhrase(cpStep);
         cpTimer = setTimeout(advance, WORD_DELAY);
       } else {
-        setTimeout(() => {
-          triggerPreloaderSplit();
-        }, LAST_HOLD);
+        setTimeout(triggerPreloaderSplit, LAST_HOLD);
       }
     }
 
@@ -636,23 +472,22 @@
   const norm = (v, a, b) => clamp((v - a) / (b - a), 0, 1);
 
   function frameIndexFor(scrollY) {
-    if (scrollY >= S_SEQ_END) return FRAME_COUNT - 1;
     const progress = clamp(scrollY / S_SEQ_END, 0, 1);
-    return Math.floor(progress * (FRAME_COUNT - 1));
+    let idx = Math.floor(progress * (FRAME_COUNT - 1));
+    idx = Math.round(idx / SEQ_FRAME_STEP) * SEQ_FRAME_STEP;
+    return clamp(idx, 0, FRAME_COUNT - 1);
   }
 
   function splitWords(text) {
-    return text.split(' ').map(word => word.trim()).filter(Boolean);
+    return text.split(' ').map(w => w.trim()).filter(Boolean);
   }
 
   function buildTextReveal() {
     revealLineEls.forEach((lineEl, lineIndex) => {
       const text = TEXT_LINES[lineIndex] || '';
       const words = splitWords(text);
-
       const ghost = lineEl.querySelector('.ghost-line');
       const fill = lineEl.querySelector('.fill-line');
-
       ghost.innerHTML = '';
       fill.innerHTML = '';
 
@@ -671,16 +506,11 @@
       });
     });
   }
-
   buildTextReveal();
 
-  const frames = Array.from({ length: FRAME_COUNT }, () => ({
-    status: 0,
-    img: null,
-    promise: null
-  }));
+  const frames = Array.from({ length: FRAME_COUNT }, () => ({ status: 0, img: null, promise: null }));
 
-  let dpr = Math.min(window.devicePixelRatio || 1, 2);
+  let dpr = Math.min(window.devicePixelRatio || 1, IS_MOBILE ? 1.5 : 2);
   let targetScrollY = window.scrollY || document.documentElement.scrollTop || 0;
   let currentScrollY = targetScrollY;
   let running = false;
@@ -689,25 +519,23 @@
   let lastRenderedScrollY = targetScrollY;
   let sequenceActivated = false;
   let backgroundPumpStarted = false;
+  let backgroundCursor = INITIAL_PRELOAD;
+  let lastDrawAt = 0;
+  let lastTargetFrame = -1;
 
   function resizeCanvas() {
-    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    dpr = Math.min(window.devicePixelRatio || 1, IS_MOBILE ? 1.5 : 2);
     const width = Math.round(window.innerWidth * dpr);
     const height = Math.round(window.innerHeight * dpr);
-
     canvas.width = width;
     canvas.height = height;
     canvas.style.width = window.innerWidth + 'px';
     canvas.style.height = window.innerHeight + 'px';
-
-    if (shownFrame >= 0 && frames[shownFrame]?.img) {
-      drawCover(frames[shownFrame].img);
-    }
+    if (shownFrame >= 0 && frames[shownFrame]?.img) drawCover(frames[shownFrame].img);
   }
 
   function drawCover(img) {
     if (!img) return;
-
     const cw = canvas.width;
     const ch = canvas.height;
     const iw = img.naturalWidth || img.width;
@@ -719,40 +547,30 @@
     const dh = ih * scale;
     const dx = (cw - dw) * 0.5;
     const dy = (ch - dh) * 0.5;
-
     ctx.clearRect(0, 0, cw, ch);
     ctx.drawImage(img, dx, dy, dw, dh);
   }
 
   function ensureFrame(index, priority = 'auto') {
     if (index < 0 || index >= FRAME_COUNT) return Promise.resolve(null);
-
     const item = frames[index];
     if (item.status === 2 && item.img) return Promise.resolve(item.img);
     if (item.promise) return item.promise;
     if (item.status === 3) return Promise.resolve(null);
 
     item.status = 1;
-
     const img = new Image();
     img.decoding = 'async';
-
-    try {
-      img.fetchPriority = priority;
-    } catch (e) {}
-
+    try { img.fetchPriority = priority; } catch (e) {}
     img.src = frameSrc(index);
 
     item.promise = new Promise(resolve => {
       img.onload = async () => {
-        try {
-          if (img.decode) await img.decode();
-        } catch (e) {}
+        try { if (img.decode) await img.decode(); } catch (e) {}
         item.status = 2;
         item.img = img;
         resolve(img);
       };
-
       img.onerror = () => {
         item.status = 3;
         item.img = null;
@@ -767,101 +585,96 @@
   }
 
   function preloadInitialFrames() {
-    for (let i = 0; i < Math.min(6, FRAME_COUNT); i++) {
+    for (let i = 0; i < Math.min(INITIAL_PRELOAD, FRAME_COUNT); i++) {
       ensureFrame(i, i < 2 ? 'high' : 'auto').catch(() => {});
     }
   }
 
-  function findNearestReadyFrame(index, maxDistance = 12) {
+  function findNearestReadyFrame(index, maxDistance = 10) {
     if (frames[index]?.status === 2 && frames[index]?.img) return index;
-
     for (let d = 1; d <= maxDistance; d++) {
       const left = index - d;
       const right = index + d;
-
       if (left >= 0 && frames[left]?.status === 2 && frames[left]?.img) return left;
       if (right < FRAME_COUNT && frames[right]?.status === 2 && frames[right]?.img) return right;
     }
-
     return shownFrame >= 0 ? shownFrame : -1;
   }
 
   function warmFrames(center) {
     const speed = Math.abs(targetScrollY - lastRenderedScrollY);
-    const range = speed > 180 ? 10 : speed > 90 ? 7 : 5;
+    const range = speed > 150 ? WARM_RANGE_FAST : WARM_RANGE_SLOW;
 
-    for (let d = 0; d <= range; d++) {
-      ensureFrame(center + d, d <= 2 ? 'high' : 'auto');
-      ensureFrame(center - d, d <= 2 ? 'high' : 'auto');
+    ensureFrame(center, 'high');
+    for (let d = 1; d <= range; d++) {
+      ensureFrame(center + d * SEQ_FRAME_STEP, d <= 2 ? 'high' : 'auto');
+      ensureFrame(center - d * SEQ_FRAME_STEP, d <= 2 ? 'high' : 'auto');
     }
   }
 
-  function drawFrame(index) {
+  function drawFrame(index, now) {
     if (index < 0 || index >= FRAME_COUNT) return;
     const item = frames[index];
     if (!item || item.status !== 2 || !item.img) return;
+    if (shownFrame === index) return;
+    if (now - lastDrawAt < FRAME_BUDGET_MS && Math.abs(index - shownFrame) < SEQ_FRAME_STEP + 1) return;
     drawCover(item.img);
     shownFrame = index;
+    lastDrawAt = now;
   }
 
   function activateSequenceIfNeeded() {
     if (sequenceActivated) return;
     sequenceActivated = true;
-
     preloadInitialFrames();
-
-    ensureFrame(0, 'high')
-      .then(img => {
-        if (img) {
-          drawCover(img);
-          shownFrame = 0;
-          wantedFrame = 0;
-        }
-      })
-      .catch(() => {});
+    ensureFrame(0, 'high').then(img => {
+      if (img) {
+        drawCover(img);
+        shownFrame = 0;
+        wantedFrame = 0;
+        lastTargetFrame = 0;
+      }
+    }).catch(() => {});
   }
 
   function startBackgroundPump() {
     if (backgroundPumpStarted) return;
     backgroundPumpStarted = true;
 
-    let cursor = 6;
-
     function pump(deadline) {
       let count = 0;
-
-      if (targetScrollY < S_SEQ_END * 0.18) {
+      if (targetScrollY < S_SEQ_END * 0.22) {
         backgroundPumpStarted = false;
         return;
       }
 
       if (deadline && typeof deadline.timeRemaining === 'function') {
-        while (cursor < FRAME_COUNT && deadline.timeRemaining() > 8 && count < 2) {
-          ensureFrame(cursor, 'auto').catch(() => {});
-          cursor++;
+        while (backgroundCursor < FRAME_COUNT && deadline.timeRemaining() > 8 && count < BACKGROUND_BATCH) {
+          ensureFrame(backgroundCursor, 'auto').catch(() => {});
+          backgroundCursor += SEQ_FRAME_STEP;
           count++;
         }
       } else {
-        while (cursor < FRAME_COUNT && count < 2) {
-          ensureFrame(cursor, 'auto').catch(() => {});
-          cursor++;
+        while (backgroundCursor < FRAME_COUNT && count < BACKGROUND_BATCH) {
+          ensureFrame(backgroundCursor, 'auto').catch(() => {});
+          backgroundCursor += SEQ_FRAME_STEP;
           count++;
         }
       }
 
-      if (cursor < FRAME_COUNT) {
+      if (backgroundCursor < FRAME_COUNT) {
         if ('requestIdleCallback' in window) {
-          requestIdleCallback(pump, { timeout: 180 });
+          requestIdleCallback(pump, { timeout: 220 });
         } else {
-          setTimeout(() => pump(), 120);
+          setTimeout(() => pump(), 160);
         }
       }
     }
 
     if ('requestIdleCallback' in window) {
-      requestIdleCallback(pump, { timeout: 180 });
+      requestIdleCallback(pump, { timeout: 220 });
     } else {
-      setTimeout(() => pump(), 120);
+      setTimeout(() => pump(), 160);
     }
   }
 
@@ -878,7 +691,6 @@
     revealLineEls.forEach((lineEl, lineIndex) => {
       const fillWords = [...lineEl.querySelectorAll('.fill-line .word')];
       const total = fillWords.length;
-
       const linesCount = revealLineEls.length;
       const lineStart = lineIndex / linesCount;
       const lineEnd = (lineIndex + 1) / linesCount;
@@ -889,11 +701,9 @@
         const wordStart = wordIndex * wordSpan;
         const wordEnd = wordStart + wordSpan * 0.72;
         const t = clamp((lineProgress - wordStart) / (wordEnd - wordStart), 0, 1);
-
         const gray = 78;
         const white = 255;
         const ch = Math.round(gray + (white - gray) * t);
-
         wordEl.style.color = `rgb(${ch}, ${ch}, ${ch})`;
         wordEl.style.opacity = String(0.18 + t * 0.82);
         wordEl.style.filter = `blur(${(1 - t) * 1.55}px)`;
@@ -913,35 +723,23 @@
     zoomOverlay.classList.toggle('is-visible', visible);
 
     const t = norm(scrollY, S_ZOOM_START, S_ZOOM_END);
-    const isMobile = window.innerWidth <= 768;
-
     const scalesDesktop = [4.0, 5.0, 6.6, 5.2, 5.8, 7.2];
     const scalesMobile  = [3.0, 3.8, 4.8, 4.0, 4.4, 5.2];
-    const scales = isMobile ? scalesMobile : scalesDesktop;
+    const scales = IS_MOBILE ? scalesMobile : scalesDesktop;
 
-    const fades = [
-      [0.00, 0.92],
-      [0.04, 0.94],
-      [0.00, 1.00],
-      [0.10, 0.96],
-      [0.06, 0.95],
-      [0.14, 0.98]
-    ];
+    const fades = [[0.00, 0.92],[0.04, 0.94],[0.00, 1.00],[0.10, 0.96],[0.06, 0.95],[0.14, 0.98]];
 
     zoomLayers.forEach((layer, i) => {
       const startFade = fades[i][0];
       const endFade = fades[i][1];
-
       const localOpacity =
         t < startFade ? 0 :
         t > endFade ? Math.max(0, 1 - (t - endFade) / (1 - endFade || 0.0001)) :
         1;
 
       const scale = 1 + (scales[i] - 1) * t;
-
       let translateY = 0;
       let translateX = 0;
-
       if (i === 0) { translateY = -18 * t; translateX = -12 * t; }
       if (i === 1) { translateY = -10 * t; translateX = 14 * t; }
       if (i === 2) { translateY = -4 * t;  translateX = 0; }
@@ -950,29 +748,27 @@
       if (i === 5) { translateY = -16 * t; translateX = 8 * t; }
 
       layer.style.opacity = localOpacity.toFixed(3);
-      layer.style.transform =
-        `translate3d(${translateX.toFixed(2)}px, ${translateY.toFixed(2)}px, 0) scale(${scale.toFixed(4)})`;
+      layer.style.transform = `translate3d(${translateX.toFixed(2)}px, ${translateY.toFixed(2)}px, 0) scale(${scale.toFixed(4)})`;
     });
   }
 
-  function render(scrollY) {
-    if (scrollY < S_SEQ_END + 240) {
-      activateSequenceIfNeeded();
-    }
+  function render(scrollY, now = performance.now()) {
+    if (scrollY < S_SEQ_END + 200) activateSequenceIfNeeded();
 
     if (sequenceActivated) {
       const frameIdx = frameIndexFor(scrollY);
       wantedFrame = frameIdx;
-      warmFrames(frameIdx);
 
-      const bestIndex = findNearestReadyFrame(frameIdx, 12);
-      if (bestIndex >= 0 && bestIndex !== shownFrame) {
-        drawFrame(bestIndex);
+      if (frameIdx !== lastTargetFrame) {
+        warmFrames(frameIdx);
+        lastTargetFrame = frameIdx;
       }
 
-      if (scrollY > S_SEQ_END * 0.18) {
-        startBackgroundPump();
-      }
+      const maxDistance = IS_MOBILE ? 8 : 10;
+      const bestIndex = findNearestReadyFrame(frameIdx, maxDistance);
+      if (bestIndex >= 0) drawFrame(bestIndex, now);
+
+      if (scrollY > S_SEQ_END * 0.22) startBackgroundPump();
     }
 
     if (scrollY < S_SEQ_END) {
@@ -993,13 +789,12 @@
 
     updateTextReveal(scrollY);
     updateZoomParallax(scrollY);
-
     lastRenderedScrollY = scrollY;
   }
 
-  function loop() {
+  function loop(now) {
     const delta = targetScrollY - currentScrollY;
-    const ease = Math.abs(delta) > 140 ? 0.115 : 0.135;
+    const ease = Math.abs(delta) > 140 ? 0.14 : 0.18;
 
     if (Math.abs(delta) > 0.1) {
       currentScrollY += delta * ease;
@@ -1007,7 +802,7 @@
       currentScrollY = targetScrollY;
     }
 
-    render(currentScrollY);
+    render(currentScrollY, now);
 
     const stillMoving = Math.abs(targetScrollY - currentScrollY) > 0.1;
     const waitingForFrame = sequenceActivated && frames[wantedFrame]?.status !== 2;
@@ -1016,7 +811,7 @@
       requestAnimationFrame(loop);
     } else {
       running = false;
-      render(targetScrollY);
+      render(targetScrollY, performance.now());
     }
   }
 
@@ -1035,11 +830,9 @@
     setScrollHeight();
     buildTextReveal();
     resizeCanvas();
-
     targetScrollY = window.scrollY || document.documentElement.scrollTop || 0;
     currentScrollY = targetScrollY;
-
-    render(currentScrollY);
+    render(currentScrollY, performance.now());
     startLoop();
   }, { passive: true });
 
@@ -1052,27 +845,21 @@
       seqObserver.disconnect();
       break;
     }
-  }, {
-    root: null,
-    rootMargin: '300px 0px',
-    threshold: 0.01
-  });
+  }, { root: null, rootMargin: '300px 0px', threshold: 0.01 });
 
   seqObserver.observe(document.getElementById('stage'));
 
-  ensureFrame(0, 'high')
-    .then(img => {
-      if (img && shownFrame < 0) {
-        drawCover(img);
-        shownFrame = 0;
-        wantedFrame = 0;
-      }
-      render(currentScrollY);
-    })
-    .catch(() => {
-      render(currentScrollY);
-    });
+  ensureFrame(0, 'high').then(img => {
+    if (img && shownFrame < 0) {
+      drawCover(img);
+      shownFrame = 0;
+      wantedFrame = 0;
+      lastTargetFrame = 0;
+    }
+    render(currentScrollY, performance.now());
+  }).catch(() => {
+    render(currentScrollY, performance.now());
+  });
 </script>
-
 </body>
 </html>
