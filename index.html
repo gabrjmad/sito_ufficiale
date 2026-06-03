@@ -10,496 +10,381 @@
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@900&display=swap" rel="stylesheet">
 
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    *{margin:0;padding:0;box-sizing:border-box}
 
-    html, body {
-      background: #000;
-      overscroll-behavior: none;
+    html,body{
+      background:#000;
+      overscroll-behavior:none;
     }
 
-    body {
-      min-height: 100vh;
-      color: #fff;
-      font-family: "Playfair Display", Georgia, serif;
+    body{
+      min-height:100vh;
+      color:#fff;
+      font-family:"Playfair Display",Georgia,serif;
     }
 
-    #scroll-space {}
+    #scroll-space{}
 
-    #stage {
-      position: fixed;
-      inset: 0;
-      width: 100vw;
-      height: 100vh;
-      background: #000;
-      overflow: hidden;
+    #stage{
+      position:fixed;
+      inset:0;
+      width:100vw;
+      height:100vh;
+      background:#000;
+      overflow:hidden;
     }
 
-    .seq-layer {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      object-position: center center;
-      background: #000;
-      pointer-events: none;
-      opacity: 0;
-      will-change: opacity;
-      backface-visibility: hidden;
-      transform: translateZ(0);
-      z-index: 2;
+    .seq-layer{
+      position:absolute;
+      inset:0;
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      object-position:center center;
+      background:#000;
+      pointer-events:none;
+      opacity:0;
+      will-change:opacity;
+      backface-visibility:hidden;
+      transform:translateZ(0);
+      z-index:2;
     }
 
-    .seq-layer.active {
-      opacity: 1;
-    }
+    .seq-layer.active{opacity:1}
+    .seq-layer.hidden-after-fade{opacity:0!important;visibility:hidden}
 
-    .seq-layer.hidden-after-fade {
-      opacity: 0 !important;
-      visibility: hidden;
-    }
-
-    #fade-overlay {
-      position: absolute;
-      inset: 0;
-      background: #000;
-      opacity: 0;
-      pointer-events: none;
-      will-change: opacity;
-      z-index: 5;
+    #fade-overlay{
+      position:absolute;
+      inset:0;
+      background:#000;
+      opacity:0;
+      pointer-events:none;
+      will-change:opacity;
+      z-index:5;
     }
 
     /* TEXT REVEAL */
 
-    #text-scroll-overlay {
-      position: absolute;
-      inset: 0;
-      z-index: 6;
-      pointer-events: none;
-      opacity: 0;
-      transition: opacity 300ms linear;
+    #text-scroll-overlay{
+      position:absolute;
+      inset:0;
+      z-index:6;
+      pointer-events:none;
+      opacity:0;
+      transition:opacity 300ms linear;
+    }
+    #text-scroll-overlay.is-visible{opacity:1}
+
+    .text-scroll-inner{
+      position:absolute;
+      inset:0;
+      display:grid;
+      place-items:center;
+      padding:7vw;
     }
 
-    #text-scroll-overlay.is-visible {
-      opacity: 1;
+    .text-scroll-block{
+      width:min(860px,84vw);
+      display:flex;
+      flex-direction:column;
+      gap:.12em;
+      align-items:center;
+      text-align:center;
+      transform:translateY(-1vh);
     }
 
-    .text-scroll-inner {
-      position: absolute;
-      inset: 0;
-      display: grid;
-      place-items: center;
-      padding: 7vw;
+    .reveal-line{
+      position:relative;
+      display:block;
+      width:100%;
+      font-family:"Playfair Display",Georgia,serif;
+      font-weight:900;
+      font-size:clamp(1.3rem,3.2vw,3.1rem);
+      line-height:1.01;
+      letter-spacing:-.022em;
+      transition:transform 180ms linear,opacity 180ms linear;
     }
 
-    .text-scroll-block {
-      width: min(860px, 84vw);
-      display: flex;
-      flex-direction: column;
-      gap: 0.12em;
-      align-items: center;
-      text-align: center;
-      transform: translateY(-1vh);
+    .ghost-line,.fill-line{
+      display:flex;
+      justify-content:center;
+      flex-wrap:wrap;
+      gap:.18em;
+    }
+    .ghost-line{color:rgba(255,255,255,.1)}
+    .fill-line{
+      position:absolute;
+      inset:0;
+      color:#fff;
     }
 
-    .reveal-line {
-      position: relative;
-      display: block;
-      width: 100%;
-      font-family: "Playfair Display", Georgia, serif;
-      font-weight: 900;
-      font-size: clamp(1.3rem, 3.2vw, 3.1rem);
-      line-height: 1.01;
-      letter-spacing: -0.022em;
-      transition: transform 180ms linear, opacity 180ms linear;
+    .word{
+      display:inline-block;
+      white-space:pre;
     }
-
-    .ghost-line,
-    .fill-line {
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-      gap: 0.18em;
-    }
-
-    .ghost-line {
-      color: rgba(255, 255, 255, 0.1);
-    }
-
-    .fill-line {
-      position: absolute;
-      inset: 0;
-      color: #fff;
-    }
-
-    .word {
-      display: inline-block;
-      white-space: pre;
-    }
-
-    .ghost-line .word {
-      color: rgba(255,255,255,0.11);
-    }
-
-    .fill-line .word {
-      color: rgb(255,255,255);
-      opacity: 1;
-      filter: blur(0px);
-      will-change: color, opacity, filter, transform;
-      transition: color 100ms linear, opacity 100ms linear, filter 100ms linear, transform 100ms linear;
+    .ghost-line .word{color:rgba(255,255,255,.11)}
+    .fill-line .word{
+      color:#fff;
+      opacity:1;
+      filter:blur(0);
+      will-change:color,opacity,filter,transform;
+      transition:color 100ms linear,opacity 100ms linear,filter 100ms linear,transform 100ms linear;
     }
 
     /* PRELOADER */
 
-    #preloader {
-      position: fixed;
-      inset: 0;
-      z-index: 9999;
-      background: radial-gradient(circle at 20% 0%, #18151f 0%, #050509 42%, #020104 90%);
-      display: block;
-      opacity: 1;
-      visibility: visible;
-      overflow: hidden;
-      pointer-events: auto;
+    #preloader{
+      position:fixed;
+      inset:0;
+      z-index:9999;
+      background:radial-gradient(circle at 20% 0%,#18151f 0%,#050509 42%,#020104 90%);
+      display:block;
+      opacity:1;
+      visibility:visible;
+      overflow:hidden;
+      pointer-events:auto;
+    }
+    #preloader.is-hidden{display:none}
+
+    .cp-bg{
+      position:absolute;
+      inset:0;
+      background:#020108;
+      will-change:transform;
+      transform:translate3d(0,0,0);
+      pointer-events:none;
+    }
+    .cp-bg-top{clip-path:inset(0 0 50% 0);transform-origin:50% 0}
+    .cp-bg-bottom{clip-path:inset(50% 0 0 0);transform-origin:50% 100%}
+
+    .cp-content{
+      position:absolute;
+      inset:0;
+      display:grid;
+      place-items:center;
+      padding:4vw;
+      text-align:center;
+      z-index:2;
+      will-change:opacity,transform;
     }
 
-    #preloader.is-hidden {
-      display: none;
+    .cp-inner{display:flex;flex-direction:column;align-items:center}
+    .cp-words{
+      position:relative;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      text-transform:uppercase;
+      letter-spacing:.18em;
+      white-space:nowrap;
     }
 
-    .cp-bg {
-      position: absolute;
-      inset: 0;
-      background: #020108;
-      will-change: transform;
-      transform: translate3d(0,0,0);
-      pointer-events: none;
+    #cp-text{
+      font-size:clamp(1.1rem,1rem + .9vw,1.8rem);
+      font-weight:600;
+      color:rgba(255,255,255,.9);
+      opacity:0;
+      transform:translateY(.9em);
+      transition:opacity 520ms ease-out,transform 520ms ease-out,color 520ms ease-out;
+      will-change:opacity,transform;
+    }
+    #cp-text.is-visible{opacity:1;transform:translateY(0)}
+
+    #preloader.is-splitting .cp-bg-top{animation:cpSplitTop 1400ms cubic-bezier(.22,.8,.25,1) forwards}
+    #preloader.is-splitting .cp-bg-bottom{animation:cpSplitBottom 1400ms cubic-bezier(.22,.8,.25,1) forwards}
+    #preloader.is-splitting .cp-content{
+      opacity:0;
+      transform:translateY(-12px);
+      transition:opacity 600ms ease-out,transform 600ms ease-out;
     }
 
-    .cp-bg-top {
-      clip-path: inset(0 0 50% 0);
-      transform-origin: 50% 0%;
+    @keyframes cpSplitTop{0%{transform:translateY(0)}100%{transform:translateY(-100%)}}
+    @keyframes cpSplitBottom{0%{transform:translateY(0)}100%{transform:translateY(100%)}}
+
+    /* SMOOTH SCROLL HERO (clip-path) */
+
+    #hero-wrapper{
+      position:absolute;
+      inset:0;
+      z-index:1;
+      pointer-events:none;
     }
 
-    .cp-bg-bottom {
-      clip-path: inset(50% 0 0 0);
-      transform-origin: 50% 100%;
+    .hero-rail{
+      position:relative;
+      width:100%;
+      height:calc(var(--hero-height,1500px) + 100vh);
     }
 
-    .cp-content {
-      position: absolute;
-      inset: 0;
-      display: grid;
-      place-items: center;
-      padding: 4vw;
-      text-align: center;
-      z-index: 2;
-      will-change: opacity, transform;
+    .hero-sticky{
+      position:sticky;
+      top:0;
+      height:100vh;
+      background:#000;
+      overflow:hidden;
     }
 
-    .cp-inner {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+    .hero-bg{
+      position:absolute;
+      inset:0;
+      background-position:center;
+      background-repeat:no-repeat;
+      background-size:170%;
+      will-change:transform,opacity,clip-path,background-size;
     }
 
-    .cp-words {
-      position: relative;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-transform: uppercase;
-      letter-spacing: 0.18em;
-      white-space: nowrap;
-    }
+    .hero-bg-desktop{display:none}
+    .hero-bg-mobile{display:block}
 
-    #cp-text {
-      font-size: clamp(1.1rem, 1.0rem + 0.9vw, 1.8rem);
-      font-weight: 600;
-      color: rgba(255,255,255,0.9);
-      opacity: 0;
-      transform: translateY(0.9em);
-      transition:
-        opacity 520ms ease-out,
-        transform 520ms ease-out,
-        color 520ms ease-out;
-      will-change: opacity, transform;
-    }
-
-    #cp-text.is-visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    #preloader.is-splitting .cp-bg-top {
-      animation: cpSplitTop 1400ms cubic-bezier(0.22, 0.8, 0.25, 1) forwards;
-    }
-
-    #preloader.is-splitting .cp-bg-bottom {
-      animation: cpSplitBottom 1400ms cubic-bezier(0.22, 0.8, 0.25, 1) forwards;
-    }
-
-    #preloader.is-splitting .cp-content {
-      opacity: 0;
-      transform: translateY(-12px);
-      transition:
-        opacity 600ms ease-out,
-        transform 600ms ease-out;
-    }
-
-    @keyframes cpSplitTop {
-      0%   { transform: translateY(0); }
-      100% { transform: translateY(-100%); }
-    }
-
-    @keyframes cpSplitBottom {
-      0%   { transform: translateY(0); }
-      100% { transform: translateY(100%); }
+    @media (min-width:768px){
+      .hero-bg-desktop{display:block}
+      .hero-bg-mobile{display:none}
     }
 
     /* ZOOM PARALLAX GRID */
 
-    #zoom-parallax-overlay {
-      position: absolute;
-      inset: 0;
-      z-index: 7;
-      pointer-events: none;
-      opacity: 0;
-      transition: opacity 260ms linear;
-      contain: layout paint style;
+    #zoom-parallax-overlay{
+      position:absolute;
+      inset:0;
+      z-index:7;
+      pointer-events:none;
+      opacity:0;
+      transition:opacity 260ms linear;
+      contain:layout paint style;
+    }
+    #zoom-parallax-overlay.is-visible{opacity:1}
+
+    .zoom-parallax-rail{
+      position:relative;
+      height:260vh;
+      width:100%;
+    }
+    .zoom-sticky{
+      position:sticky;
+      top:0;
+      height:100vh;
+      overflow:hidden;
+    }
+    .zoom-stage{
+      position:absolute;
+      inset:0;
+      overflow:hidden;
+    }
+    .zoom-grid{
+      position:absolute;
+      inset:0;
     }
 
-    #zoom-parallax-overlay.is-visible {
-      opacity: 1;
+    .zoom-layer{
+      position:absolute;
+      width:100%;
+      height:100%;
+      will-change:transform,opacity;
+      pointer-events:none;
     }
 
-    .zoom-parallax-rail {
-      position: relative;
-      height: 260vh; /* altezza della sezione scroll */
-      width: 100%;
+    .zoom-card{
+      position:absolute;
+      overflow:hidden;
+      background:#111;
+      border-radius:18px;
+      box-shadow:0 14px 40px rgba(0,0,0,.45),0 32px 80px rgba(0,0,0,.7);
+    }
+    .zoom-card img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      object-position:center;
+      display:block;
+      user-select:none;
+      -webkit-user-drag:none;
+      transform:scale(1.01);
     }
 
-    .zoom-sticky {
-      position: sticky;
-      top: 0;
-      height: 100vh;
-      overflow: hidden;
+    /* layout griglia (7 card, ispirato alla demo) */
+
+    .zoom-card--1{width:20vw;height:40vh;left:8vw;top:8vh;}
+    .zoom-card--2{width:22vw;height:30vh;left:40vw;top:4vh;}
+    .zoom-card--3{width:18vw;height:26vh;right:8vw;top:10vh;}
+    .zoom-card--4{width:26vw;height:30vh;left:12vw;top:46vh;}
+    .zoom-card--5{width:20vw;height:24vh;left:42vw;top:46vh;}
+    .zoom-card--6{width:22vw;height:32vh;right:12vw;top:40vh;}
+    .zoom-card--7{width:28vw;height:22vh;left:36vw;top:74vh;}
+
+    .zoom-hero{
+      position:absolute;
+      inset:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      pointer-events:none;
+    }
+    .zoom-hero-card{
+      width:min(38vw,520px);
+      height:min(52vh,540px);
+      border-radius:22px;
+      overflow:hidden;
+      background:#111;
+      box-shadow:0 30px 80px rgba(0,0,0,.55),0 60px 160px rgba(0,0,0,.85);
+      transform-origin:center center;
+      will-change:transform,opacity;
+    }
+    .zoom-hero-card img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      object-position:center;
+      transform:scale(1.01);
+    }
+    .zoom-vignette{
+      position:absolute;
+      inset:0;
+      pointer-events:none;
+      background:radial-gradient(circle at center,rgba(0,0,0,0) 40%,rgba(0,0,0,.2) 78%,rgba(0,0,0,.32) 100%);
     }
 
-    .zoom-stage {
-      position: absolute;
-      inset: 0;
-      overflow: hidden;
+    /* CONTATTAMI */
+
+    #contact-section{
+      position:relative;
+      width:100%;
+      background:#000;
+      color:#fff;
+      padding:16vh 8vw 18vh;
+      z-index:10;
+    }
+    #contact-section h2{
+      font-size:clamp(2rem,4vw,3rem);
+      letter-spacing:.12em;
+      text-transform:uppercase;
+      text-align:center;
     }
 
-    .zoom-grid {
-      position: absolute;
-      inset: 0;
-      display: block;
-    }
-
-    .zoom-layer {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      will-change: transform, opacity;
-      pointer-events: none;
-    }
-
-    .zoom-card {
-      position: absolute;
-      overflow: hidden;
-      background: #111;
-      border-radius: 18px;
-      box-shadow:
-        0 14px 40px rgba(0,0,0,0.45),
-        0 32px 80px rgba(0,0,0,0.7);
-    }
-
-    .zoom-card img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      object-position: center;
-      display: block;
-      user-select: none;
-      -webkit-user-drag: none;
-      transform: scale(1.01);
-    }
-
-    /* layout griglia desktop (tutte quadrate / rettangolari, nessuna sovrapposizione) */
-
-    .zoom-card--1 {
-      width: 22vw;
-      height: 30vh;
-      left: 12vw;
-      top: 10vh;
-    }
-
-    .zoom-card--2 {
-      width: 24vw;
-      height: 32vh;
-      right: 12vw;
-      top: 8vh;
-    }
-
-    .zoom-card--3 {
-      width: 30vw;
-      height: 34vh;
-      left: 35vw;
-      top: 26vh;
-    }
-
-    .zoom-card--4 {
-      width: 22vw;
-      height: 24vh;
-      left: 10vw;
-      bottom: 12vh;
-    }
-
-    .zoom-card--5 {
-      width: 26vw;
-      height: 22vh;
-      right: 12vw;
-      bottom: 13vh;
-    }
-
-    .zoom-card--6 {
-      width: 18vw;
-      height: 26vh;
-      right: 18vw;
-      top: 42vh;
-    }
-
-    .zoom-hero {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      pointer-events: none;
-    }
-
-    .zoom-hero-card {
-      width: min(38vw, 520px);
-      height: min(52vh, 540px);
-      border-radius: 22px;
-      overflow: hidden;
-      background: #111;
-      box-shadow:
-        0 30px 80px rgba(0,0,0,0.55),
-        0 60px 160px rgba(0,0,0,0.85);
-      transform-origin: center center;
-      will-change: transform, opacity;
-    }
-
-    .zoom-hero-card img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      object-position: center;
-      transform: scale(1.01);
-    }
-
-    .zoom-vignette {
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-      background:
-        radial-gradient(circle at center, rgba(0,0,0,0) 40%, rgba(0,0,0,0.2) 78%, rgba(0,0,0,0.32) 100%);
-      mix-blend-mode: normal;
-    }
-
-    /* sez. CONTATTAMI */
-
-    #contact-section {
-      position: relative;
-      width: 100%;
-      background: #000;
-      color: #fff;
-      padding: 16vh 8vw 18vh;
-      z-index: 10;
-    }
-
-    #contact-section h2 {
-      font-size: clamp(2rem, 4vw, 3rem);
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      text-align: center;
-    }
-
-    @media (max-width: 768px) {
-      .text-scroll-block {
-        width: min(92vw, 640px);
-        gap: 0.16em;
-        transform: translateY(0);
+    @media (max-width:768px){
+      .text-scroll-block{
+        width:min(92vw,640px);
+        gap:.16em;
+        transform:translateY(0);
+      }
+      .ghost-line,.fill-line{gap:.14em}
+      .reveal-line{
+        font-size:clamp(1.18rem,5.4vw,2.35rem);
+        line-height:1.04;
       }
 
-      .ghost-line,
-      .fill-line {
-        gap: 0.14em;
-      }
-
-      .reveal-line {
-        font-size: clamp(1.18rem, 5.4vw, 2.35rem);
-        line-height: 1.04;
-      }
-
-      .zoom-card {
-        border-radius: 12px;
-      }
-
-      .zoom-card--1 {
-        width: 38vw;
-        height: 28vh;
-        left: 6vw;
-        top: 10vh;
-      }
-
-      .zoom-card--2 {
-        width: 42vw;
-        height: 26vh;
-        right: 4vw;
-        top: 12vh;
-      }
-
-      .zoom-card--3 {
-        width: 60vw;
-        height: 32vh;
-        left: 20vw;
-        top: 32vh;
-      }
-
-      .zoom-card--4 {
-        width: 36vw;
-        height: 20vh;
-        left: 8vw;
-        bottom: 14vh;
-      }
-
-      .zoom-card--5 {
-        width: 40vw;
-        height: 18vh;
-        right: 5vw;
-        bottom: 16vh;
-      }
-
-      .zoom-card--6 {
-        width: 28vw;
-        height: 22vh;
-        right: 10vw;
-        top: 45vh;
-      }
-
-      .zoom-hero-card {
-        width: 68vw;
-        height: 44vh;
-      }
+      .zoom-card{border-radius:12px}
+      .zoom-card--1{width:46vw;height:26vh;left:4vw;top:8vh;}
+      .zoom-card--2{width:42vw;height:22vh;right:4vw;top:12vh;}
+      .zoom-card--3{width:42vw;height:24vh;left:10vw;top:34vh;}
+      .zoom-card--4{width:42vw;height:22vh;right:6vw;top:34vh;}
+      .zoom-card--5{width:44vw;height:20vh;left:6vw;top:60vh;}
+      .zoom-card--6{width:38vw;height:24vh;right:4vw;top:58vh;}
+      .zoom-card--7{width:60vw;height:20vh;left:20vw;top:82vh;}
+      .zoom-hero-card{width:68vw;height:44vh;}
     }
 
-    @media (prefers-reduced-motion: reduce) {
-      html { scroll-behavior: auto; }
-
+    @media (prefers-reduced-motion:reduce){
+      html{scroll-behavior:auto}
       #text-scroll-overlay,
       .reveal-line,
       .fill-line .word,
@@ -509,9 +394,10 @@
       #cp-text,
       .cp-content,
       .cp-bg-top,
-      .cp-bg-bottom {
-        transition: none !important;
-        animation: none !important;
+      .cp-bg-bottom,
+      .hero-bg{
+        transition:none!important;
+        animation:none!important;
       }
     }
   </style>
@@ -534,7 +420,26 @@
   <div id="scroll-space"></div>
 
   <div id="stage">
-    <!-- IMG SEQUENCE ORIGINALE -->
+
+    <!-- HERO CLIP-PATH PRIMA DELL'IMG-SEQUENCE -->
+    <div id="hero-wrapper">
+      <div class="hero-rail" style="--hero-height:1500px">
+        <div class="hero-sticky">
+          <div
+            class="hero-bg hero-bg-mobile"
+            id="hero-bg-mobile"
+            style="background-image:url('spatial-carousel/photo-3.jpg');"
+          ></div>
+          <div
+            class="hero-bg hero-bg-desktop"
+            id="hero-bg-desktop"
+            style="background-image:url('spatial-carousel/photo-3.jpg');"
+          ></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- IMG SEQUENCE -->
     <img id="seq-a" class="seq-layer active" alt="" decoding="async" fetchpriority="high">
     <img id="seq-b" class="seq-layer" alt="" decoding="async">
 
@@ -542,22 +447,10 @@
     <div id="text-scroll-overlay" aria-hidden="true">
       <div class="text-scroll-inner">
         <div class="text-scroll-block">
-          <div class="reveal-line" data-line="0">
-            <div class="ghost-line"></div>
-            <div class="fill-line"></div>
-          </div>
-          <div class="reveal-line" data-line="1">
-            <div class="ghost-line"></div>
-            <div class="fill-line"></div>
-          </div>
-          <div class="reveal-line" data-line="2">
-            <div class="ghost-line"></div>
-            <div class="fill-line"></div>
-          </div>
-          <div class="reveal-line" data-line="3">
-            <div class="ghost-line"></div>
-            <div class="fill-line"></div>
-          </div>
+          <div class="reveal-line" data-line="0"><div class="ghost-line"></div><div class="fill-line"></div></div>
+          <div class="reveal-line" data-line="1"><div class="ghost-line"></div><div class="fill-line"></div></div>
+          <div class="reveal-line" data-line="2"><div class="ghost-line"></div><div class="fill-line"></div></div>
+          <div class="reveal-line" data-line="3"><div class="ghost-line"></div><div class="fill-line"></div></div>
         </div>
       </div>
     </div>
@@ -568,45 +461,43 @@
         <div class="zoom-sticky">
           <div class="zoom-stage">
             <div class="zoom-grid">
-              <!-- layer 1 -->
               <div class="zoom-layer" data-layer="0">
                 <div class="zoom-card zoom-card--1">
                   <img src="spatial-carousel/photo-1.jpg" alt="Foto 1">
                 </div>
               </div>
-              <!-- layer 2 -->
               <div class="zoom-layer" data-layer="1">
                 <div class="zoom-card zoom-card--2">
                   <img src="spatial-carousel/photo-2.jpg" alt="Foto 2">
                 </div>
               </div>
-              <!-- layer 3 (hero nel layout griglia) -->
               <div class="zoom-layer" data-layer="2">
                 <div class="zoom-card zoom-card--3">
                   <img src="spatial-carousel/photo-3.jpg" alt="Foto 3">
                 </div>
               </div>
-              <!-- layer 4 -->
               <div class="zoom-layer" data-layer="3">
                 <div class="zoom-card zoom-card--4">
                   <img src="spatial-carousel/photo-4.jpg" alt="Foto 4">
                 </div>
               </div>
-              <!-- layer 5 -->
               <div class="zoom-layer" data-layer="4">
                 <div class="zoom-card zoom-card--5">
                   <img src="spatial-carousel/photo-5.jpg" alt="Foto 5">
                 </div>
               </div>
-              <!-- layer 6 -->
               <div class="zoom-layer" data-layer="5">
                 <div class="zoom-card zoom-card--6">
                   <img src="spatial-carousel/photo-6.jpg" alt="Foto 6">
                 </div>
               </div>
+              <div class="zoom-layer" data-layer="6">
+                <div class="zoom-card zoom-card--7">
+                  <img src="spatial-carousel/photo-7.jpg" alt="Foto 7">
+                </div>
+              </div>
             </div>
 
-            <!-- HERO FULL-SCREEN (stessa foto 3) -->
             <div class="zoom-hero">
               <div class="zoom-hero-card" id="zoom-hero-card">
                 <img src="spatial-carousel/photo-3.jpg" alt="Hero Foto 3">
@@ -627,21 +518,24 @@
   </section>
 
   <script>
-    const FRAME_COUNT = 127;
-    const PX_PER_FRAME = window.innerWidth <= 768 ? 30 : 24;
-    const FADE_PX = 420;
-    const STARFIELD_PX = window.innerWidth <= 768 ? 3200 : 4200;
-
-    const S_SEQ_END  = (FRAME_COUNT - 1) * PX_PER_FRAME;
-    const S_FADE_END = S_SEQ_END + FADE_PX;
-    const S_STAR_END = S_FADE_END + STARFIELD_PX;
-    const TEXT_VISIBLE_END = S_FADE_END + Math.min(3000, STARFIELD_PX * 0.9);
-
+    /* CONFIG GENERALE */
+    const HERO_PX       = 1500;   // altezza hero come nella demo
+    const FRAME_COUNT   = 127;
+    const PX_PER_FRAME  = window.innerWidth <= 768 ? 30 : 24;
+    const FADE_PX       = 420;
+    const STARFIELD_PX  = window.innerWidth <= 768 ? 3200 : 4200;
     const ZOOM_SECTION_LEN = window.innerWidth <= 768 ? 2600 : 3200;
+
+    /* RANGE SEQUENZA (parte dopo l'hero) */
+    const S_SEQ_END   = (FRAME_COUNT - 1) * PX_PER_FRAME;
+    const S_FADE_END  = S_SEQ_END + FADE_PX;
+    const S_STAR_END  = S_FADE_END + STARFIELD_PX;
+    const TEXT_VISIBLE_END = S_FADE_END + Math.min(3000, STARFIELD_PX * 0.9);
     const S_ZOOM_START = TEXT_VISIBLE_END + 220;
     const S_ZOOM_END   = S_ZOOM_START + ZOOM_SECTION_LEN;
 
-    const TOTAL_PX = S_ZOOM_END + 1200; // spazio extra per CONTATTAMI
+    const TOTAL_SEQ_PX = S_ZOOM_END + 1200; // seq + testo + zoom + margine
+    const TOTAL_PX     = HERO_PX + TOTAL_SEQ_PX;
 
     const TEXT_LINES = [
       "questa è la sezione delle foto",
@@ -661,143 +555,148 @@
     const textOverlay = document.getElementById('text-scroll-overlay');
     const revealLineEls = [...document.querySelectorAll('.reveal-line')];
 
-    const zoomOverlay = document.getElementById('zoom-parallax-overlay');
-    const zoomLayers = [...document.querySelectorAll('.zoom-layer')];
-    const zoomHeroCard = document.getElementById('zoom-hero-card');
+    const heroBgDesktop = document.getElementById('hero-bg-desktop');
+    const heroBgMobile  = document.getElementById('hero-bg-mobile');
 
-    const cpTextEl = document.getElementById('cp-text');
+    const zoomOverlay   = document.getElementById('zoom-parallax-overlay');
+    const zoomLayers    = [...document.querySelectorAll('.zoom-layer')];
+    const zoomHeroCard  = document.getElementById('zoom-hero-card');
+
+    const cpTextEl  = document.getElementById('cp-text');
     const cpPhrases = ['Welcome','I am','GABRIELE','this is my portfolio'];
     let cpStep = 0;
     let cpTimer = null;
 
-    function showPhrase(index) {
-      if (!cpTextEl) return;
-      cpTextEl.classList.remove('is-visible');
-      setTimeout(() => {
-        cpTextEl.textContent = cpPhrases[index];
-        cpTextEl.classList.add('is-visible');
-      }, 80);
-    }
-
-    function triggerPreloaderSplit() {
-      if (!preloader || preloader.classList.contains('is-splitting')) return;
-      preloader.classList.add('is-splitting');
-      setTimeout(() => {
-        preloader.classList.add('is-hidden');
-      }, 1500);
-    }
-
-    function startCinematicLoader() {
-      if (!cpTextEl || !cpPhrases.length) return;
-      cpStep = 0;
-      cpTextEl.textContent = cpPhrases[cpStep];
-      cpTextEl.classList.add('is-visible');
-
-      const WORD_DELAY = 950;
-      const LAST_HOLD  = 1300;
-
-      function advance() {
-        cpStep += 1;
-        if (cpStep < cpPhrases.length) {
-          showPhrase(cpStep);
-          cpTimer = setTimeout(advance, WORD_DELAY);
-        } else {
-          setTimeout(triggerPreloaderSplit, LAST_HOLD);
-        }
-      }
-
-      cpTimer = setTimeout(advance, WORD_DELAY);
-    }
-
-    startCinematicLoader();
-
-    function setScrollHeight() {
+    function setScrollHeight(){
       scrollSpace.style.height = (TOTAL_PX + window.innerHeight) + 'px';
     }
     setScrollHeight();
 
     const clamp = (v,a,b)=>v<a?a:v>b?b:v;
-    const norm = (v,a,b)=>clamp((v-a)/(b-a),0,1);
+    const norm  = (v,a,b)=>clamp((v-a)/(b-a),0,1);
 
-    function frameIndexFor(scrollY) {
-      if (scrollY >= S_SEQ_END) return FRAME_COUNT - 1;
-      const progress = clamp(scrollY / S_SEQ_END, 0, 1);
+    /* HERO CLIP-PATH + ZOOM */
+    function updateHero(scrollY){
+      const t = norm(scrollY,0,HERO_PX); // 0-1
+      const initialClip = 25;
+      const finalClip   = 75;
+
+      const clipStart = initialClip * (1 - t);
+      const clipEnd   = finalClip   + (100 - finalClip) * t;
+
+      const clipPath = `polygon(${clipStart}% ${clipStart}%, ${clipEnd}% ${clipStart}%, ${clipEnd}% ${clipEnd}%, ${clipStart}% ${clipEnd}%)`;
+
+      const bgSize = 170 - 70 * t; // 170% → 100%
+
+      [heroBgDesktop, heroBgMobile].forEach(el=>{
+        if(!el) return;
+        el.style.clipPath = clipPath;
+        el.style.backgroundSize = `${bgSize}%`;
+      });
+    }
+
+    /* IMG SEQUENCE: scroll relativo (dopo HERO) */
+    function seqScrollY(scrollY){
+      return Math.max(scrollY - HERO_PX, 0);
+    }
+
+    function frameIndexFor(localScroll){
+      if(localScroll >= S_SEQ_END) return FRAME_COUNT - 1;
+      const progress = clamp(localScroll / S_SEQ_END, 0, 1);
       return Math.round(progress * (FRAME_COUNT - 1));
     }
 
-    function splitWords(text) {
-      return text.split(' ').map(w=>w.trim()).filter(Boolean);
-    }
+    function splitWords(text){return text.split(' ').map(w=>w.trim()).filter(Boolean)}
 
-    function buildTextReveal() {
+    function buildTextReveal(){
       revealLineEls.forEach((lineEl,lineIndex)=>{
-        const text = TEXT_LINES[lineIndex] || '';
+        const text  = TEXT_LINES[lineIndex] || '';
         const words = splitWords(text);
-
         const ghost = lineEl.querySelector('.ghost-line');
         const fill  = lineEl.querySelector('.fill-line');
-        ghost.innerHTML = '';
-        fill.innerHTML  = '';
+        ghost.innerHTML='';fill.innerHTML='';
 
         words.forEach((word,wordIndex)=>{
-          const gw = document.createElement('span');
-          gw.className = 'word';
-          gw.textContent = word;
-          ghost.appendChild(gw);
-
-          const fw = document.createElement('span');
-          fw.className = 'word';
-          fw.textContent = word;
-          fw.dataset.index = String(wordIndex);
-          fw.dataset.line  = String(lineIndex);
+          const gw=document.createElement('span');
+          gw.className='word';gw.textContent=word;ghost.appendChild(gw);
+          const fw=document.createElement('span');
+          fw.className='word';fw.textContent=word;
+          fw.dataset.index=String(wordIndex);
+          fw.dataset.line =String(lineIndex);
           fill.appendChild(fw);
         });
       });
     }
-
     buildTextReveal();
 
-    const frames = Array.from({length:FRAME_COUNT},()=>({status:0,img:null,promise:null}));
-    let activeLayer = layerA;
-    let hiddenLayer = layerB;
-    let shownFrame = -1;
-    let wantedFrame = 0;
+    /* PRELOADER */
+    function showPhrase(index){
+      if(!cpTextEl)return;
+      cpTextEl.classList.remove('is-visible');
+      setTimeout(()=>{
+        cpTextEl.textContent=cpPhrases[index];
+        cpTextEl.classList.add('is-visible');
+      },80);
+    }
+    function triggerPreloaderSplit(){
+      if(!preloader||preloader.classList.contains('is-splitting'))return;
+      preloader.classList.add('is-splitting');
+      setTimeout(()=>preloader.classList.add('is-hidden'),1500);
+    }
+    function startCinematicLoader(){
+      if(!cpTextEl||!cpPhrases.length)return;
+      cpStep=0;
+      cpTextEl.textContent=cpPhrases[cpStep];
+      cpTextEl.classList.add('is-visible');
+      const WORD_DELAY=950, LAST_HOLD=1300;
+      function advance(){
+        cpStep+=1;
+        if(cpStep<cpPhrases.length){
+          showPhrase(cpStep);
+          cpTimer=setTimeout(advance,WORD_DELAY);
+        }else{
+          setTimeout(triggerPreloaderSplit,LAST_HOLD);
+        }
+      }
+      cpTimer=setTimeout(advance,WORD_DELAY);
+    }
+    startCinematicLoader();
 
-    function swapTo(src) {
-      if (hiddenLayer.src !== src) hiddenLayer.src = src;
+    /* IMG-SEQUENCE LOADING */
+    const frames = Array.from({length:FRAME_COUNT},()=>({status:0,img:null,promise:null}));
+    let activeLayer=layerA;
+    let hiddenLayer=layerB;
+    let shownFrame=-1;
+    let wantedFrame=0;
+
+    function swapTo(src){
+      if(hiddenLayer.src!==src)hiddenLayer.src=src;
       hiddenLayer.classList.add('active');
       activeLayer.classList.remove('active');
-      const tmp = activeLayer;
-      activeLayer = hiddenLayer;
-      hiddenLayer = tmp;
+      const tmp=activeLayer;activeLayer=hiddenLayer;hiddenLayer=tmp;
     }
 
-    function ensureFrame(index, priority='auto') {
-      if (index<0 || index>=FRAME_COUNT) return Promise.resolve(null);
-      const item = frames[index];
-      if (item.status===2) return Promise.resolve(item.img);
-      if (item.promise)   return item.promise;
+    function ensureFrame(index,priority='auto'){
+      if(index<0||index>=FRAME_COUNT)return Promise.resolve(null);
+      const item=frames[index];
+      if(item.status===2)return Promise.resolve(item.img);
+      if(item.promise)return item.promise;
 
-      item.status = 1;
-      const img = new Image();
-      img.decoding = 'async';
-      img.fetchPriority = priority;
-      img.src = frameSrc(index);
+      item.status=1;
+      const img=new Image();
+      img.decoding='async';
+      img.fetchPriority=priority;
+      img.src=frameSrc(index);
 
-      item.promise = new Promise((resolve,reject)=>{
-        img.onload = async ()=>{
-          try { if(img.decode) await img.decode(); } catch(e){}
-          item.status = 2;
-          item.img = img;
-          resolve(img);
+      item.promise=new Promise((resolve,reject)=>{
+        img.onload=async()=>{
+          try{if(img.decode)await img.decode();}catch(e){}
+          item.status=2;item.img=img;resolve(img);
         };
-        img.onerror = ()=>{
-          item.status = 3;
-          reject(new Error('Frame non trovato'));
-        };
+        img.onerror=()=>{item.status=3;reject(new Error('frame error'));};
       }).finally(()=>{
-        item.promise = null;
-        if (wantedFrame === index && frames[index].status===2) startLoop();
+        item.promise=null;
+        if(wantedFrame===index&&frames[index].status===2)startLoop();
       });
 
       return item.promise;
@@ -815,121 +714,121 @@
 
     function showFrame(index){
       index = clamp(index,0,FRAME_COUNT-1);
-      wantedFrame = index;
+      wantedFrame=index;
       warmFrames(index);
-      const item = frames[index];
-      if (item.status!==2 || !item.img) return;
-      if (shownFrame===index) return;
-      shownFrame = index;
-      swapTo(item.img.currentSrc || item.img.src);
+      const item=frames[index];
+      if(item.status!==2||!item.img)return;
+      if(shownFrame===index)return;
+      shownFrame=index;
+      swapTo(item.img.currentSrc||item.img.src);
     }
 
     function preloadInitial(){
       for(let i=0;i<Math.min(18,FRAME_COUNT);i++){
         ensureFrame(i,'high').catch(()=>{});
       }
-      let cursor = 18;
+      let cursor=18;
       function pump(){
         let count=0;
         while(cursor<FRAME_COUNT && count<4){
           ensureFrame(cursor,'auto').catch(()=>{});
-          cursor++; count++;
+          cursor++;count++;
         }
         if(cursor<FRAME_COUNT){
           if('requestIdleCallback' in window){
             requestIdleCallback(pump,{timeout:120});
-          } else {
-            setTimeout(pump,40);
-          }
+          }else setTimeout(pump,40);
         }
       }
       setTimeout(pump,80);
     }
+    preloadInitial();
 
-    function updateTextReveal(scrollY){
+    /* TEXT REVEAL (usa scroll relativo alla sequenza) */
+    function updateTextReveal(localScroll){
       const overlayIn  = S_FADE_END + 60;
       const overlayOut = TEXT_VISIBLE_END;
-      const overlayVisible = scrollY>=overlayIn && scrollY<=overlayOut;
+      const overlayVisible = localScroll>=overlayIn && localScroll<=overlayOut;
       textOverlay.classList.toggle('is-visible',overlayVisible);
 
       const revealStart = S_FADE_END + 120;
       const revealEnd   = TEXT_VISIBLE_END;
-      const globalProgress = norm(scrollY,revealStart,revealEnd);
+      const globalProgress = norm(localScroll,revealStart,revealEnd);
 
       revealLineEls.forEach((lineEl,lineIndex)=>{
         const fillWords = [...lineEl.querySelectorAll('.fill-line .word')];
         const total = fillWords.length;
         const linesCount = revealLineEls.length;
-        const lineStart  = lineIndex / linesCount;
-        const lineEnd    = (lineIndex+1) / linesCount;
-        const lineProgress = clamp((globalProgress - lineStart)/(lineEnd-lineStart),0,1);
+        const lineStart = lineIndex / linesCount;
+        const lineEnd   = (lineIndex+1)/linesCount;
+        const lineProgress = clamp((globalProgress-lineStart)/(lineEnd-lineStart),0,1);
 
-        fillWords.forEach((wordEl, wordIndex)=>{
+        fillWords.forEach((wordEl,wordIndex)=>{
           const wordSpan = 1/total;
-          const wordStart = wordIndex * wordSpan;
-          const wordEnd   = wordStart + wordSpan*0.72;
-          const t = clamp((lineProgress - wordStart)/(wordEnd-wordStart),0,1);
-          const gray = 78, white = 255;
-          const ch = Math.round(gray + (white-gray)*t);
-          wordEl.style.color   = `rgb(${ch},${ch},${ch})`;
-          wordEl.style.opacity = String(0.18 + t*0.82);
-          wordEl.style.filter  = `blur(${(1-t)*1.55}px)`;
+          const wordStart= wordIndex*wordSpan;
+          const wordEnd  = wordStart+wordSpan*0.72;
+          const t        = clamp((lineProgress-wordStart)/(wordEnd-wordStart),0,1);
+          const gray=78,white=255;
+          const ch=Math.round(gray+(white-gray)*t);
+          wordEl.style.color   =`rgb(${ch},${ch},${ch})`;
+          wordEl.style.opacity =String(0.18+t*0.82);
+          wordEl.style.filter  =`blur(${(1-t)*1.55}px)`;
           wordEl.style.transform=`translateY(${(1-t)*5}px)`;
         });
 
-        const lineShown = lineProgress>0.01;
-        lineEl.style.opacity  = String(lineShown?(0.28 + lineProgress*0.72):0.2);
-        lineEl.style.transform=`translateY(${Math.max(0,12 - lineProgress*12)}px)`;
+        const lineShown=lineProgress>0.01;
+        lineEl.style.opacity  =String(lineShown?(0.28+lineProgress*0.72):0.2);
+        lineEl.style.transform=`translateY(${Math.max(0,12-lineProgress*12)}px)`;
       });
     }
 
-    function updateZoomParallax(scrollY){
+    /* ZOOM PARALLAX (usa scroll relativo sequenza) */
+    function updateZoomParallax(localScroll){
       const visibleIn  = S_ZOOM_START - 60;
       const visibleOut = S_ZOOM_END + 120;
-      const visible = scrollY>=visibleIn && scrollY<=visibleOut;
+      const visible    = localScroll>=visibleIn && localScroll<=visibleOut;
       zoomOverlay.classList.toggle('is-visible',visible);
 
-      const t  = norm(scrollY, S_ZOOM_START, S_ZOOM_END);      // 0 → 1
-      const tIn  = clamp(t*1.5,0,1);                          // ingresso griglia
-      const tOut = clamp((t-0.55)/0.45,0,1);                  // focus hero
+      const t  = norm(localScroll,S_ZOOM_START,S_ZOOM_END);
+      const tIn  = clamp(t*1.5,0,1);
+      const tOut = clamp((t-0.55)/0.45,0,1);
 
-      // griglia: sale dal basso e si stabilizza
-      const enterTranslate = (1 - tIn) * 40; // px verso il basso
+      const enterTranslate = (1 - tIn) * 40;
       const enterOpacity   = tIn;
 
       zoomLayers.forEach((layer,i)=>{
-        layer.style.opacity = (enterOpacity * (1 - 0.25*tOut)).toFixed(3);
-        layer.style.transform =
-          `translate3d(0, ${enterTranslate.toFixed(1)}px, 0) scale(${1 + 0.05*tIn})`;
+        layer.style.opacity  = (enterOpacity*(1-0.25*tOut)).toFixed(3);
+        layer.style.transform=`translate3d(0,${enterTranslate.toFixed(1)}px,0) scale(${1+0.05*tIn})`;
       });
 
-      // hero centrale: prima coincide con griglia (tOut=0), poi cresce verso full-screen
-      const heroScale = 1 + 1.6 * tOut;
+      const heroScale      = 1 + 1.6 * tOut;
       const heroTranslateY = -12 * tOut;
-
-      zoomHeroCard.style.opacity =
-        (tOut <= 0.02 ? 0 : tOut).toFixed(3);
-      zoomHeroCard.style.transform =
-        `translate3d(0, ${heroTranslateY.toFixed(1)}px, 0) scale(${heroScale.toFixed(3)})`;
+      zoomHeroCard.style.opacity  = (tOut<=0.02?0:tOut).toFixed(3);
+      zoomHeroCard.style.transform=`translate3d(0,${heroTranslateY.toFixed(1)}px,0) scale(${heroScale.toFixed(3)})`;
     }
 
+    /* MAIN LOOP */
     let targetScrollY = window.scrollY || document.documentElement.scrollTop || 0;
     let currentScrollY = targetScrollY;
     let running = false;
     let rafId   = 0;
 
     function render(scrollY){
-      const frameIdx = frameIndexFor(scrollY);
+      updateHero(scrollY);
+
+      const local = seqScrollY(scrollY); // tutta la parte dopo l'hero
+
+      const frameIdx = frameIndexFor(local);
       showFrame(frameIdx);
 
-      if(scrollY < S_SEQ_END){
+      if(local < S_SEQ_END){
         overlay.style.opacity = '0';
         layerA.classList.remove('hidden-after-fade');
         layerB.classList.remove('hidden-after-fade');
         textOverlay.classList.remove('is-visible');
         zoomOverlay.classList.remove('is-visible');
-      } else if(scrollY < S_FADE_END){
-        const fadeT = norm(scrollY, S_SEQ_END, S_FADE_END);
+      } else if(local < S_FADE_END){
+        const fadeT = norm(local,S_SEQ_END,S_FADE_END);
         overlay.style.opacity = fadeT.toFixed(3);
         textOverlay.classList.remove('is-visible');
         zoomOverlay.classList.remove('is-visible');
@@ -939,66 +838,58 @@
         layerB.classList.add('hidden-after-fade');
       }
 
-      updateTextReveal(scrollY);
-      updateZoomParallax(scrollY);
+      updateTextReveal(local);
+      updateZoomParallax(local);
     }
 
     function loop(){
       const delta = targetScrollY - currentScrollY;
       const ease  = Math.abs(delta)>140 ? 0.115 : 0.135;
-
       if(Math.abs(delta)>0.1){
         currentScrollY += delta*ease;
-      } else {
+      }else{
         currentScrollY = targetScrollY;
       }
-
       render(currentScrollY);
-
-      const stillMoving    = Math.abs(targetScrollY - currentScrollY)>0.1;
-      const waitingForFrame= frames[wantedFrame]?.status !== 2;
-
+      const stillMoving = Math.abs(targetScrollY - currentScrollY)>0.1;
+      const waitingForFrame = frames[wantedFrame]?.status !== 2;
       if(stillMoving || waitingForFrame){
         rafId = requestAnimationFrame(loop);
-      } else {
-        running = false;
-        rafId = 0;
+      }else{
+        running=false;
+        rafId=0;
         render(targetScrollY);
       }
     }
 
     function startLoop(){
-      if(running) return;
-      running = true;
-      rafId = requestAnimationFrame(loop);
+      if(running)return;
+      running=true;
+      rafId=requestAnimationFrame(loop);
     }
 
-    window.addEventListener('scroll', ()=>{
+    window.addEventListener('scroll',()=>{
       targetScrollY = window.scrollY || document.documentElement.scrollTop || 0;
       startLoop();
-    }, {passive:true});
+    },{passive:true});
 
-    window.addEventListener('resize', ()=>{
+    window.addEventListener('resize',()=>{
       setScrollHeight();
       buildTextReveal();
       targetScrollY = window.scrollY || document.documentElement.scrollTop || 0;
       currentScrollY = targetScrollY;
       render(currentScrollY);
       startLoop();
-    }, {passive:true});
+    },{passive:true});
 
-    preloadInitial();
-
-    ensureFrame(0,'high')
-      .then(img=>{
-        layerA.src = img.currentSrc || img.src;
-        shownFrame = 0;
-        wantedFrame= 0;
-        render(currentScrollY);
-      })
-      .catch(()=>{
-        render(currentScrollY);
-      });
+    ensureFrame(0,'high').then(img=>{
+      layerA.src = img.currentSrc || img.src;
+      shownFrame = 0;
+      wantedFrame= 0;
+      render(currentScrollY);
+    }).catch(()=>{
+      render(currentScrollY);
+    });
   </script>
 </body>
 </html>
