@@ -4,9 +4,14 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Gabriele Madeo</title>
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@900&display=swap" rel="stylesheet">
+
+  <!-- preload solo del primissimo frame reale -->
+  <link rel="preload" as="image" href="img-sequence/compressed_001.webp" fetchpriority="high">
+
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -32,40 +37,22 @@
       overflow: hidden;
     }
 
-    /* RIMOSSO: #starfield-bg (canvas sfondo interattivo)
-    #starfield-bg {
+    #seq-canvas {
       position: absolute;
       inset: 0;
       width: 100%;
       height: 100%;
       display: block;
-      z-index: 1;
-      pointer-events: none;
       background: #000;
-    }
-    */
-
-    .seq-layer {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      object-position: center center;
-      background: #000;
-      pointer-events: none;
-      opacity: 0;
-      will-change: opacity;
-      backface-visibility: hidden;
-      transform: translateZ(0);
       z-index: 2;
-    }
-
-    .seq-layer.active {
+      pointer-events: none;
       opacity: 1;
+      will-change: opacity;
+      transform: translateZ(0);
+      backface-visibility: hidden;
     }
 
-    .seq-layer.hidden-after-fade {
+    #seq-canvas.hidden-after-fade {
       opacity: 0 !important;
       visibility: hidden;
     }
@@ -79,8 +66,6 @@
       will-change: opacity;
       z-index: 5;
     }
-
-    /* ───────────────── TEXT REVEAL OVERLAY ───────────────── */
 
     #text-scroll-overlay {
       position: absolute;
@@ -159,8 +144,6 @@
       will-change: color, opacity, filter, transform;
       transition: color 100ms linear, opacity 100ms linear, filter 100ms linear, transform 100ms linear;
     }
-
-    /* ───────────────── CINEMATIC PAGELOADER ───────────────── */
 
     #preloader {
       position: fixed;
@@ -267,8 +250,6 @@
       0%   { transform: translateY(0); }
       100% { transform: translateY(100%); }
     }
-
-    /* ───────────────── STACK SHOWCASE (ex spatial carousel) ───────────────── */
 
     #spatial-carousel-overlay {
       position: absolute;
@@ -416,11 +397,28 @@
         top: 68%;
       }
     }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+
+      #text-scroll-overlay,
+      .reveal-line,
+      .fill-line .word,
+      #spatial-carousel-overlay,
+      .spatial-card,
+      .spatial-card-shadow,
+      #cp-text,
+      .cp-content,
+      .cp-bg-top,
+      .cp-bg-bottom {
+        transition: none !important;
+        animation: none !important;
+      }
+    }
   </style>
 </head>
 <body>
 
-<!-- Preloader cinematico -->
 <div id="preloader" aria-hidden="true">
   <div class="cp-bg cp-bg-top"></div>
   <div class="cp-bg cp-bg-bottom"></div>
@@ -436,11 +434,7 @@
 <div id="scroll-space"></div>
 
 <div id="stage">
-  <!-- RIMOSSO: canvas starfield-bg -->
-  <!-- <canvas id="starfield-bg" aria-hidden="true"></canvas> -->
-
-  <img id="seq-a" class="seq-layer active" alt="" decoding="async" fetchpriority="high">
-  <img id="seq-b" class="seq-layer" alt="" decoding="async">
+  <canvas id="seq-canvas" aria-hidden="true"></canvas>
 
   <div id="text-scroll-overlay" aria-hidden="true">
     <div class="text-scroll-inner">
@@ -465,7 +459,6 @@
     </div>
   </div>
 
-  <!-- Stack tipo StudioShowcase -->
   <div id="spatial-carousel-overlay" aria-hidden="true">
     <div class="spatial-carousel-inner">
       <div class="spatial-carousel-track" id="spatial-carousel-track">
@@ -491,6 +484,7 @@
 
 <script>
   const FRAME_COUNT = 127;
+  const FRAME_OFFSET = 1; // compressed_001.webp, compressed_002.webp, ...
   const PX_PER_FRAME = window.innerWidth <= 768 ? 30 : 24;
   const FADE_PX = 420;
   const STARFIELD_PX = window.innerWidth <= 768 ? 3200 : 4200;
@@ -506,27 +500,23 @@
   const TEXT_VISIBLE_END = S_FADE_END + Math.min(3000, STARFIELD_PX * 0.9);
   const S_SPATIAL_START = TEXT_VISIBLE_END + 280;
   const S_SPATIAL_END = S_SPATIAL_START + SPATIAL_PX;
-
   const TOTAL_PX = S_SPATIAL_END;
 
   const TEXT_LINES = [
     "questa è la sezione delle foto",
     "scorrendo troverai",
-    "la mi adescrizione",
+    "la mia descrizione",
     "lascia un feedback se ti piace il sito."
   ];
 
-  const frameSrc = i => `img-sequence/compressed_${String(i + 2).padStart(3, '0')}.webp`;
+  const frameSrc = i => `img-sequence/compressed_${String(i + FRAME_OFFSET).padStart(3, '0')}.webp`;
 
   const scrollSpace = document.getElementById('scroll-space');
-  const layerA = document.getElementById('seq-a');
-  const layerB = document.getElementById('seq-b');
   const overlay = document.getElementById('fade-overlay');
   const preloader = document.getElementById('preloader');
 
-  // RIMOSSO: riferimenti al canvas starfield
-  // const starCanvas = document.getElementById('starfield-bg');
-  // const starCtx = starCanvas.getContext('2d', { alpha: false });
+  const canvas = document.getElementById('seq-canvas');
+  const ctx = canvas.getContext('2d', { alpha: false });
 
   const textOverlay = document.getElementById('text-scroll-overlay');
   const revealLineEls = [...document.querySelectorAll('.reveal-line')];
@@ -534,8 +524,6 @@
   const spatialOverlay = document.getElementById('spatial-carousel-overlay');
   const spatialCards = [...document.querySelectorAll('.spatial-card')];
   const spatialShadows = [...document.querySelectorAll('.spatial-card-shadow')];
-
-  /* ───────────── Cinematic PageLoader logic ───────────── */
 
   const cpTextEl = document.getElementById('cp-text');
 
@@ -594,10 +582,7 @@
     cpTimer = setTimeout(advance, WORD_DELAY);
   }
 
-  // Parte subito all'esecuzione dello script (niente schermo nero intermedio)
   startCinematicLoader();
-
-  /* ───────────── resto: scroll, stack ───────────── */
 
   function setScrollHeight() {
     scrollSpace.style.height = (TOTAL_PX + window.innerHeight) + 'px';
@@ -610,7 +595,7 @@
   function frameIndexFor(scrollY) {
     if (scrollY >= S_SEQ_END) return FRAME_COUNT - 1;
     const progress = clamp(scrollY / S_SEQ_END, 0, 1);
-    return Math.round(progress * (FRAME_COUNT - 1));
+    return Math.floor(progress * (FRAME_COUNT - 1));
   }
 
   function splitWords(text) {
@@ -647,114 +632,199 @@
   buildTextReveal();
 
   const frames = Array.from({ length: FRAME_COUNT }, () => ({
-    status: 0,
+    status: 0, // 0 idle, 1 loading, 2 ready, 3 error
     img: null,
     promise: null
   }));
 
-  let activeLayer = layerA;
-  let hiddenLayer = layerB;
+  let dpr = Math.min(window.devicePixelRatio || 1, 2);
+  let targetScrollY = window.scrollY || document.documentElement.scrollTop || 0;
+  let currentScrollY = targetScrollY;
+  let running = false;
+  let rafId = 0;
   let shownFrame = -1;
   let wantedFrame = 0;
+  let lastRenderedScrollY = targetScrollY;
+  let sequenceActivated = false;
+  let backgroundPumpStarted = false;
 
-  function swapTo(src) {
-    if (hiddenLayer.src !== src) hiddenLayer.src = src;
-    hiddenLayer.classList.add('active');
-    activeLayer.classList.remove('active');
-    const tmp = activeLayer;
-    activeLayer = hiddenLayer;
-    hiddenLayer = tmp;
+  function resizeCanvas() {
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const width = Math.round(window.innerWidth * dpr);
+    const height = Math.round(window.innerHeight * dpr);
+
+    canvas.width = width;
+    canvas.height = height;
+    canvas.style.width = window.innerWidth + 'px';
+    canvas.style.height = window.innerHeight + 'px';
+
+    if (shownFrame >= 0 && frames[shownFrame]?.img) {
+      drawCover(frames[shownFrame].img);
+    }
+  }
+
+  function drawCover(img) {
+    if (!img) return;
+
+    const cw = canvas.width;
+    const ch = canvas.height;
+    const iw = img.naturalWidth || img.width;
+    const ih = img.naturalHeight || img.height;
+
+    if (!iw || !ih) return;
+
+    const scale = Math.max(cw / iw, ch / ih);
+    const dw = iw * scale;
+    const dh = ih * scale;
+    const dx = (cw - dw) * 0.5;
+    const dy = (ch - dh) * 0.5;
+
+    ctx.clearRect(0, 0, cw, ch);
+    ctx.drawImage(img, dx, dy, dw, dh);
   }
 
   function ensureFrame(index, priority = 'auto') {
     if (index < 0 || index >= FRAME_COUNT) return Promise.resolve(null);
+
     const item = frames[index];
-    if (item.status === 2) return Promise.resolve(item.img);
+    if (item.status === 2 && item.img) return Promise.resolve(item.img);
     if (item.promise) return item.promise;
+    if (item.status === 3) return Promise.resolve(null);
 
     item.status = 1;
+
     const img = new Image();
     img.decoding = 'async';
-    img.fetchPriority = priority;
+
+    try {
+      img.fetchPriority = priority;
+    } catch (e) {}
+
     img.src = frameSrc(index);
 
-    item.promise = new Promise((resolve, reject) => {
+    item.promise = new Promise(resolve => {
       img.onload = async () => {
-        try { if (img.decode) await img.decode(); } catch (e) {}
+        try {
+          if (img.decode) await img.decode();
+        } catch (e) {}
+
         item.status = 2;
         item.img = img;
         resolve(img);
       };
+
       img.onerror = () => {
         item.status = 3;
-        reject(new Error(`Frame non trovato: ${frameSrc(index)}`));
+        item.img = null;
+        resolve(null);
       };
     }).finally(() => {
       item.promise = null;
-      if (wantedFrame === index && frames[index].status === 2) {
-        startLoop();
-      }
+      if (wantedFrame === index) startLoop();
     });
 
     return item.promise;
   }
 
-  function warmFrames(center) {
-    ensureFrame(center, 'high');
-    ensureFrame(center + 1, 'high');
-    ensureFrame(center - 1, 'high');
-    ensureFrame(center + 2, 'auto');
-    ensureFrame(center - 2, 'auto');
-    ensureFrame(center + 3, 'auto');
-    ensureFrame(center - 3, 'auto');
-  }
-
-  function showFrame(index) {
-    index = clamp(index, 0, FRAME_COUNT - 1);
-    wantedFrame = index;
-    warmFrames(index);
-
-    const item = frames[index];
-    if (item.status !== 2 || !item.img) return;
-    if (shownFrame === index) return;
-
-    shownFrame = index;
-    swapTo(item.img.currentSrc || item.img.src);
-  }
-
-  function preloadInitial() {
-    for (let i = 0; i < Math.min(18, FRAME_COUNT); i++) {
-      ensureFrame(i, 'high').catch(() => {});
+  function preloadInitialFrames() {
+    for (let i = 0; i < Math.min(6, FRAME_COUNT); i++) {
+      ensureFrame(i, i < 2 ? 'high' : 'auto').catch(() => {});
     }
-    let cursor = 18;
-    function pump() {
+  }
+
+  function findNearestReadyFrame(index, maxDistance = 12) {
+    if (frames[index]?.status === 2 && frames[index]?.img) return index;
+
+    for (let d = 1; d <= maxDistance; d++) {
+      const left = index - d;
+      const right = index + d;
+
+      if (left >= 0 && frames[left]?.status === 2 && frames[left]?.img) return left;
+      if (right < FRAME_COUNT && frames[right]?.status === 2 && frames[right]?.img) return right;
+    }
+
+    return shownFrame >= 0 ? shownFrame : -1;
+  }
+
+  function warmFrames(center) {
+    const speed = Math.abs(targetScrollY - lastRenderedScrollY);
+    const range = speed > 180 ? 10 : speed > 90 ? 7 : 5;
+
+    for (let d = 0; d <= range; d++) {
+      ensureFrame(center + d, d <= 2 ? 'high' : 'auto');
+      ensureFrame(center - d, d <= 2 ? 'high' : 'auto');
+    }
+  }
+
+  function drawFrame(index) {
+    if (index < 0 || index >= FRAME_COUNT) return;
+    const item = frames[index];
+    if (!item || item.status !== 2 || !item.img) return;
+
+    drawCover(item.img);
+    shownFrame = index;
+  }
+
+  function activateSequenceIfNeeded() {
+    if (sequenceActivated) return;
+    sequenceActivated = true;
+
+    preloadInitialFrames();
+
+    ensureFrame(0, 'high')
+      .then(img => {
+        if (img) {
+          drawCover(img);
+          shownFrame = 0;
+          wantedFrame = 0;
+        }
+      })
+      .catch(() => {});
+  }
+
+  function startBackgroundPump() {
+    if (backgroundPumpStarted) return;
+    backgroundPumpStarted = true;
+
+    let cursor = 6;
+
+    function pump(deadline) {
       let count = 0;
-      while (cursor < FRAME_COUNT && count < 4) {
-        ensureFrame(cursor, 'auto').catch(() => {});
-        cursor++;
-        count++;
+
+      if (targetScrollY < S_SEQ_END * 0.18) {
+        backgroundPumpStarted = false;
+        return;
       }
+
+      if (deadline && typeof deadline.timeRemaining === 'function') {
+        while (cursor < FRAME_COUNT && deadline.timeRemaining() > 8 && count < 2) {
+          ensureFrame(cursor, 'auto').catch(() => {});
+          cursor++;
+          count++;
+        }
+      } else {
+        while (cursor < FRAME_COUNT && count < 2) {
+          ensureFrame(cursor, 'auto').catch(() => {});
+          cursor++;
+          count++;
+        }
+      }
+
       if (cursor < FRAME_COUNT) {
         if ('requestIdleCallback' in window) {
-          requestIdleCallback(pump, { timeout: 120 });
+          requestIdleCallback(pump, { timeout: 180 });
         } else {
-          setTimeout(pump, 40);
+          setTimeout(() => pump(), 120);
         }
       }
     }
-    setTimeout(pump, 80);
-  }
 
-  // RIMOSSA TUTTA LA LOGICA STARFIELD: stato, init, resize, pointer, draw
-  /*
-  const starState = { ... };
-  function createStar(...) { ... }
-  function resetStar(...) { ... }
-  function initStars() { ... }
-  function resizeStarfield() { ... }
-  function updatePointer(...) { ... }
-  function drawStarfield(now) { ... }
-  */
+    if ('requestIdleCallback' in window) {
+      requestIdleCallback(pump, { timeout: 180 });
+    } else {
+      setTimeout(() => pump(), 120);
+    }
+  }
 
   function updateTextReveal(scrollY) {
     const overlayIn = S_FADE_END + 60;
@@ -797,7 +867,6 @@
     });
   }
 
-  // Stack stile StudioShowcase
   function updateSpatialCarousel(scrollY) {
     const visibleIn = S_SPATIAL_START + 10;
     const visibleOut = S_SPATIAL_END + 140;
@@ -816,12 +885,10 @@
       const delta = i - activeIndex;
       const abs = Math.abs(delta);
       const d = Math.min(abs, maxDepth);
-
       const direction = delta >= 0 ? 1 : -1;
 
       const y = d * gapY * direction;
       const x = delta * gapX;
-
       const scale = 1 - d * 0.06;
       const opacity = Math.max(0, 1 - d * 0.21);
       const blur = d * 0.7;
@@ -843,7 +910,6 @@
       const x = delta * (isMobile ? 5 : 8);
       const y = d * (isMobile ? 8 : 10);
       const shadowOpacity = Math.max(0, 0.35 - d * 0.08);
-
       const scale = 1 - d * 0.09;
 
       shadow.style.opacity = shadowOpacity.toFixed(3);
@@ -852,34 +918,45 @@
     });
   }
 
-  let targetScrollY = window.scrollY || document.documentElement.scrollTop || 0;
-  let currentScrollY = targetScrollY;
-  let running = false;
-  let rafId = 0;
-
   function render(scrollY) {
-    const frameIdx = frameIndexFor(scrollY);
-    showFrame(frameIdx);
+    if (scrollY < S_SEQ_END + 240) {
+      activateSequenceIfNeeded();
+    }
+
+    if (sequenceActivated) {
+      const frameIdx = frameIndexFor(scrollY);
+      wantedFrame = frameIdx;
+      warmFrames(frameIdx);
+
+      const bestIndex = findNearestReadyFrame(frameIdx, 12);
+      if (bestIndex >= 0 && bestIndex !== shownFrame) {
+        drawFrame(bestIndex);
+      }
+
+      if (scrollY > S_SEQ_END * 0.18) {
+        startBackgroundPump();
+      }
+    }
 
     if (scrollY < S_SEQ_END) {
       overlay.style.opacity = '0';
-      layerA.classList.remove('hidden-after-fade');
-      layerB.classList.remove('hidden-after-fade');
+      canvas.classList.remove('hidden-after-fade');
       textOverlay.classList.remove('is-visible');
       spatialOverlay.classList.remove('is-visible');
     } else if (scrollY < S_FADE_END) {
       const fadeT = norm(scrollY, S_SEQ_END, S_FADE_END);
       overlay.style.opacity = fadeT.toFixed(3);
+      canvas.classList.remove('hidden-after-fade');
       textOverlay.classList.remove('is-visible');
       spatialOverlay.classList.remove('is-visible');
     } else {
       overlay.style.opacity = '0';
-      layerA.classList.add('hidden-after-fade');
-      layerB.classList.add('hidden-after-fade');
+      canvas.classList.add('hidden-after-fade');
     }
 
     updateTextReveal(scrollY);
     updateSpatialCarousel(scrollY);
+    lastRenderedScrollY = scrollY;
   }
 
   function loop() {
@@ -895,7 +972,7 @@
     render(currentScrollY);
 
     const stillMoving = Math.abs(targetScrollY - currentScrollY) > 0.1;
-    const waitingForFrame = frames[wantedFrame]?.status !== 2;
+    const waitingForFrame = sequenceActivated && frames[wantedFrame]?.status !== 2;
 
     if (stillMoving || waitingForFrame) {
       rafId = requestAnimationFrame(loop);
@@ -920,50 +997,43 @@
   window.addEventListener('resize', () => {
     setScrollHeight();
     buildTextReveal();
+    resizeCanvas();
     targetScrollY = window.scrollY || document.documentElement.scrollTop || 0;
     currentScrollY = targetScrollY;
-
-    // RIMOSSO: resizeStarfield();
     render(currentScrollY);
     startLoop();
   }, { passive: true });
 
-  // RIMOSSI gli handler mouse/touch per lo starfield
-  /*
-  window.addEventListener('mousemove', e => {
-    updatePointer(e.clientX, e.clientY);
-  }, { passive: true });
+  resizeCanvas();
 
-  window.addEventListener('touchmove', e => {
-    if (!e.touches[0]) return;
-    updatePointer(e.touches[0].clientX, e.touches[0].clientY);
-  }, { passive: true });
-
-  window.addEventListener('mouseleave', () => {
-    starState.tx = starState.baseCx;
-    starState.ty = starState.baseCy;
-    starState.driftX = 0;
-    starState.driftY = 0;
-    starState.mouseSpeedFactor = 1;
+  const seqObserver = new IntersectionObserver((entries) => {
+    for (const entry of entries) {
+      if (!entry.isIntersecting) continue;
+      activateSequenceIfNeeded();
+      seqObserver.disconnect();
+      break;
+    }
+  }, {
+    root: null,
+    rootMargin: '300px 0px',
+    threshold: 0.01
   });
-  */
 
-  preloadInitial();
+  seqObserver.observe(document.getElementById('stage'));
 
+  // fallback: primo frame molto presto, ma non tutta la sequenza
   ensureFrame(0, 'high')
     .then(img => {
-      layerA.src = img.currentSrc || img.src;
-      shownFrame = 0;
-      wantedFrame = 0;
+      if (img && shownFrame < 0) {
+        drawCover(img);
+        shownFrame = 0;
+        wantedFrame = 0;
+      }
       render(currentScrollY);
     })
     .catch(() => {
       render(currentScrollY);
     });
-
-  // RIMOSSI: resizeStarfield() e drawStarfield
-  // resizeStarfield();
-  // requestAnimationFrame(drawStarfield);
 </script>
 
 </body>
