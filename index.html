@@ -9,7 +9,6 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@900&display=swap" rel="stylesheet">
 
-  <!-- preload solo del primissimo frame reale -->
   <link rel="preload" as="image" href="img-sequence/compressed_001.webp" fetchpriority="high">
 
   <style>
@@ -251,150 +250,174 @@
       100% { transform: translateY(100%); }
     }
 
-    #spatial-carousel-overlay {
+    /* ───────────────── ZOOM PARALLAX ───────────────── */
+
+    #zoom-parallax-overlay {
       position: absolute;
       inset: 0;
       z-index: 7;
       pointer-events: none;
       opacity: 0;
-      transition: opacity 220ms linear;
+      transition: opacity 260ms linear;
       contain: layout paint style;
     }
 
-    #spatial-carousel-overlay.is-visible {
+    #zoom-parallax-overlay.is-visible {
       opacity: 1;
     }
 
-    .spatial-carousel-inner {
+    .zoom-parallax-sticky {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      background: #000;
+    }
+
+    .zoom-layer {
       position: absolute;
       inset: 0;
       display: grid;
       place-items: center;
-      overflow: hidden;
-      padding: 4vw;
-      contain: layout paint style;
-    }
-
-    .spatial-carousel-track {
-      position: relative;
-      width: min(840px, 88vw);
-      height: min(620px, 82vh);
-      pointer-events: none;
-      contain: layout paint style;
-    }
-
-    .spatial-card {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      width: min(540px, 72vw);
-      aspect-ratio: 4 / 3;
-      border-radius: 28px;
-      overflow: hidden;
-      background: rgba(10,10,12,0.95);
-      border: 1px solid rgba(255,255,255,0.10);
-      box-shadow:
-        0 18px 40px rgba(0,0,0,0.45),
-        0 40px 120px rgba(0,0,0,0.75);
+      will-change: transform, opacity;
       transform-origin: center center;
-      will-change: transform, opacity, filter;
       backface-visibility: hidden;
-      contain: layout paint style;
-      transition:
-        transform 260ms cubic-bezier(0.22,0.8,0.25,1),
-        opacity 220ms ease-out,
-        filter 220ms ease-out;
-    }
-
-    .spatial-card::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      border-radius: inherit;
-      background:
-        linear-gradient(180deg, rgba(255,255,255,0.105), rgba(255,255,255,0.02) 26%, rgba(0,0,0,0.16) 100%);
       pointer-events: none;
-      z-index: 2;
     }
 
-    .spatial-card::after {
-      content: "";
+    .zoom-card {
       position: absolute;
-      inset: 0;
-      border-radius: inherit;
+      overflow: hidden;
+      border-radius: 18px;
+      background: #111;
       box-shadow:
-        inset 0 1px 0 rgba(255,255,255,0.16),
-        inset 0 -20px 40px rgba(0,0,0,0.28);
-      pointer-events: none;
-      z-index: 2;
+        0 20px 60px rgba(0,0,0,0.35),
+        0 40px 120px rgba(0,0,0,0.55);
     }
 
-    .spatial-card img {
-      position: absolute;
-      inset: 0;
+    .zoom-card img {
       width: 100%;
       height: 100%;
+      display: block;
       object-fit: cover;
       object-position: center center;
-      display: block;
+      transform: scale(1.01);
       user-select: none;
       -webkit-user-drag: none;
-      transform: translateZ(0);
-      filter: saturate(1.02) contrast(1.02);
     }
 
-    .spatial-card-shadow {
+    .zoom-vignette {
       position: absolute;
-      left: 50%;
-      top: 64%;
-      width: min(380px, 58vw);
-      height: clamp(26px, 4.2vh, 40px);
-      border-radius: 999px;
-      background: radial-gradient(circle, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.24) 45%, rgba(0,0,0,0) 78%);
-      transform: translateX(-50%);
-      filter: blur(12px);
-      opacity: 0;
-      will-change: transform, opacity;
+      inset: 0;
+      z-index: 2;
       pointer-events: none;
-      transition:
-        transform 260ms cubic-bezier(0.22,0.8,0.25,1),
-        opacity 220ms ease-out;
+      background:
+        radial-gradient(circle at center, rgba(0,0,0,0) 42%, rgba(0,0,0,0.08) 62%, rgba(0,0,0,0.22) 100%);
+      mix-blend-mode: normal;
+    }
+
+    .zoom-grain {
+      position: absolute;
+      inset: 0;
+      z-index: 3;
+      pointer-events: none;
+      opacity: 0.045;
+      background-image:
+        radial-gradient(circle at 20% 20%, rgba(255,255,255,0.45) 0.6px, transparent 0.8px),
+        radial-gradient(circle at 80% 30%, rgba(255,255,255,0.35) 0.6px, transparent 0.8px),
+        radial-gradient(circle at 40% 80%, rgba(255,255,255,0.25) 0.6px, transparent 0.8px);
+      background-size: 18px 18px, 22px 22px, 26px 26px;
+    }
+
+    /* Layout desktop: photo-3 principale */
+    .zoom-card--main {
+      width: min(34vw, 420px);
+      height: min(48vh, 520px);
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 10;
+    }
+
+    .zoom-card--1 {
+      width: min(24vw, 300px);
+      height: min(30vh, 300px);
+      top: 11%;
+      left: 7%;
+    }
+
+    .zoom-card--2 {
+      width: min(19vw, 240px);
+      height: min(42vh, 400px);
+      top: 18%;
+      left: 64%;
+    }
+
+    .zoom-card--4 {
+      width: min(19vw, 240px);
+      height: min(26vh, 240px);
+      top: 64%;
+      left: 12%;
+    }
+
+    .zoom-card--5 {
+      width: min(24vw, 300px);
+      height: min(24vh, 240px);
+      top: 62%;
+      left: 58%;
+    }
+
+    .zoom-card--6 {
+      width: min(14vw, 180px);
+      height: min(18vh, 180px);
+      top: 9%;
+      left: 42%;
     }
 
     @media (max-width: 768px) {
-      .text-scroll-block {
-        width: min(92vw, 640px);
-        gap: 0.16em;
-        transform: translateY(0);
+      .zoom-card {
+        border-radius: 12px;
       }
 
-      .ghost-line,
-      .fill-line {
-        gap: 0.14em;
+      .zoom-card--main {
+        width: 42vw;
+        height: 34vh;
+        min-width: 158px;
+        min-height: 240px;
       }
 
-      .reveal-line {
-        font-size: clamp(1.18rem, 5.4vw, 2.35rem);
-        line-height: 1.04;
+      .zoom-card--1 {
+        width: 30vw;
+        height: 18vh;
+        top: 16%;
+        left: 6%;
       }
 
-      .spatial-carousel-inner {
-        padding: 6vw;
+      .zoom-card--2 {
+        width: 24vw;
+        height: 26vh;
+        top: 20%;
+        left: 67%;
       }
 
-      .spatial-carousel-track {
-        width: 100%;
-        height: 82vh;
+      .zoom-card--4 {
+        width: 25vw;
+        height: 15vh;
+        top: 66%;
+        left: 8%;
       }
 
-      .spatial-card {
-        width: min(88vw, 520px);
-        border-radius: 22px;
+      .zoom-card--5 {
+        width: 30vw;
+        height: 16vh;
+        top: 65%;
+        left: 60%;
       }
 
-      .spatial-card-shadow {
-        width: min(72vw, 360px);
-        top: 68%;
+      .zoom-card--6 {
+        width: 18vw;
+        height: 11vh;
+        top: 12%;
+        left: 43%;
       }
     }
 
@@ -404,9 +427,8 @@
       #text-scroll-overlay,
       .reveal-line,
       .fill-line .word,
-      #spatial-carousel-overlay,
-      .spatial-card,
-      .spatial-card-shadow,
+      #zoom-parallax-overlay,
+      .zoom-layer,
       #cp-text,
       .cp-content,
       .cp-bg-top,
@@ -459,23 +481,47 @@
     </div>
   </div>
 
-  <div id="spatial-carousel-overlay" aria-hidden="true">
-    <div class="spatial-carousel-inner">
-      <div class="spatial-carousel-track" id="spatial-carousel-track">
-        <div class="spatial-card-shadow" data-shadow="0"></div>
-        <div class="spatial-card-shadow" data-shadow="1"></div>
-        <div class="spatial-card-shadow" data-shadow="2"></div>
-        <div class="spatial-card-shadow" data-shadow="3"></div>
-        <div class="spatial-card-shadow" data-shadow="4"></div>
-        <div class="spatial-card-shadow" data-shadow="5"></div>
-
-        <div class="spatial-card" data-card="0"><img src="spatial-carousel/photo-1.jpg" alt=""></div>
-        <div class="spatial-card" data-card="1"><img src="spatial-carousel/photo-2.jpg" alt=""></div>
-        <div class="spatial-card" data-card="2"><img src="spatial-carousel/photo-3.jpg" alt=""></div>
-        <div class="spatial-card" data-card="3"><img src="spatial-carousel/photo-4.jpg" alt=""></div>
-        <div class="spatial-card" data-card="4"><img src="spatial-carousel/photo-5.jpg" alt=""></div>
-        <div class="spatial-card" data-card="5"><img src="spatial-carousel/photo-6.jpg" alt=""></div>
+  <!-- NUOVO BLOCCO ZOOM PARALLAX -->
+  <div id="zoom-parallax-overlay" aria-hidden="true">
+    <div class="zoom-parallax-sticky">
+      <div class="zoom-layer" data-layer="0">
+        <div class="zoom-card zoom-card--1">
+          <img src="spatial-carousel/photo-1.jpg" alt="Foto 1">
+        </div>
       </div>
+
+      <div class="zoom-layer" data-layer="1">
+        <div class="zoom-card zoom-card--2">
+          <img src="spatial-carousel/photo-2.jpg" alt="Foto 2">
+        </div>
+      </div>
+
+      <div class="zoom-layer" data-layer="2">
+        <div class="zoom-card zoom-card--main">
+          <img src="spatial-carousel/photo-3.jpg" alt="Foto 3">
+        </div>
+      </div>
+
+      <div class="zoom-layer" data-layer="3">
+        <div class="zoom-card zoom-card--4">
+          <img src="spatial-carousel/photo-4.jpg" alt="Foto 4">
+        </div>
+      </div>
+
+      <div class="zoom-layer" data-layer="4">
+        <div class="zoom-card zoom-card--5">
+          <img src="spatial-carousel/photo-5.jpg" alt="Foto 5">
+        </div>
+      </div>
+
+      <div class="zoom-layer" data-layer="5">
+        <div class="zoom-card zoom-card--6">
+          <img src="spatial-carousel/photo-6.jpg" alt="Foto 6">
+        </div>
+      </div>
+
+      <div class="zoom-vignette"></div>
+      <div class="zoom-grain"></div>
     </div>
   </div>
 
@@ -484,23 +530,23 @@
 
 <script>
   const FRAME_COUNT = 127;
-  const FRAME_OFFSET = 1; // compressed_001.webp, compressed_002.webp, ...
+  const FRAME_OFFSET = 1;
   const PX_PER_FRAME = window.innerWidth <= 768 ? 30 : 24;
   const FADE_PX = 420;
   const STARFIELD_PX = window.innerWidth <= 768 ? 3200 : 4200;
 
-  const SPATIAL_ITEM_COUNT = 6;
-  const SPATIAL_STEP_PX = window.innerWidth <= 768 ? 700 : 860;
-  const SPATIAL_PX = SPATIAL_STEP_PX * (SPATIAL_ITEM_COUNT + 1.2);
+  // nuovo blocco finale
+  const ZOOM_PX = window.innerWidth <= 768 ? 2600 : 3200;
 
   const S_SEQ_END  = (FRAME_COUNT - 1) * PX_PER_FRAME;
   const S_FADE_END = S_SEQ_END + FADE_PX;
   const S_STAR_END = S_FADE_END + STARFIELD_PX;
 
   const TEXT_VISIBLE_END = S_FADE_END + Math.min(3000, STARFIELD_PX * 0.9);
-  const S_SPATIAL_START = TEXT_VISIBLE_END + 280;
-  const S_SPATIAL_END = S_SPATIAL_START + SPATIAL_PX;
-  const TOTAL_PX = S_SPATIAL_END;
+  const S_ZOOM_START = TEXT_VISIBLE_END + 260;
+  const S_ZOOM_END = S_ZOOM_START + ZOOM_PX;
+
+  const TOTAL_PX = S_ZOOM_END;
 
   const TEXT_LINES = [
     "questa è la sezione delle foto",
@@ -521,9 +567,8 @@
   const textOverlay = document.getElementById('text-scroll-overlay');
   const revealLineEls = [...document.querySelectorAll('.reveal-line')];
 
-  const spatialOverlay = document.getElementById('spatial-carousel-overlay');
-  const spatialCards = [...document.querySelectorAll('.spatial-card')];
-  const spatialShadows = [...document.querySelectorAll('.spatial-card-shadow')];
+  const zoomOverlay = document.getElementById('zoom-parallax-overlay');
+  const zoomLayers = [...document.querySelectorAll('.zoom-layer')];
 
   const cpTextEl = document.getElementById('cp-text');
 
@@ -548,9 +593,7 @@
 
   function triggerPreloaderSplit() {
     if (!preloader || preloader.classList.contains('is-splitting')) return;
-
     preloader.classList.add('is-splitting');
-
     setTimeout(() => {
       preloader.classList.add('is-hidden');
     }, 1500);
@@ -632,7 +675,7 @@
   buildTextReveal();
 
   const frames = Array.from({ length: FRAME_COUNT }, () => ({
-    status: 0, // 0 idle, 1 loading, 2 ready, 3 error
+    status: 0,
     img: null,
     promise: null
   }));
@@ -641,7 +684,6 @@
   let targetScrollY = window.scrollY || document.documentElement.scrollTop || 0;
   let currentScrollY = targetScrollY;
   let running = false;
-  let rafId = 0;
   let shownFrame = -1;
   let wantedFrame = 0;
   let lastRenderedScrollY = targetScrollY;
@@ -670,7 +712,6 @@
     const ch = canvas.height;
     const iw = img.naturalWidth || img.width;
     const ih = img.naturalHeight || img.height;
-
     if (!iw || !ih) return;
 
     const scale = Math.max(cw / iw, ch / ih);
@@ -707,7 +748,6 @@
         try {
           if (img.decode) await img.decode();
         } catch (e) {}
-
         item.status = 2;
         item.img = img;
         resolve(img);
@@ -760,7 +800,6 @@
     if (index < 0 || index >= FRAME_COUNT) return;
     const item = frames[index];
     if (!item || item.status !== 2 || !item.img) return;
-
     drawCover(item.img);
     shownFrame = index;
   }
@@ -867,54 +906,52 @@
     });
   }
 
-  function updateSpatialCarousel(scrollY) {
-    const visibleIn = S_SPATIAL_START + 10;
-    const visibleOut = S_SPATIAL_END + 140;
+  function updateZoomParallax(scrollY) {
+    const visibleIn = S_ZOOM_START + 10;
+    const visibleOut = S_ZOOM_END + 120;
     const visible = scrollY >= visibleIn && scrollY <= visibleOut;
-    spatialOverlay.classList.toggle('is-visible', visible);
+    zoomOverlay.classList.toggle('is-visible', visible);
 
-    const t = norm(scrollY, S_SPATIAL_START, S_SPATIAL_END);
-    const activeIndex = t * (SPATIAL_ITEM_COUNT - 1);
+    const t = norm(scrollY, S_ZOOM_START, S_ZOOM_END);
     const isMobile = window.innerWidth <= 768;
 
-    const gapY = isMobile ? 32 : 40;
-    const gapX = isMobile ? 6 : 10;
-    const maxDepth = 3.5;
+    const scalesDesktop = [4.0, 5.0, 6.6, 5.2, 5.8, 7.2];
+    const scalesMobile  = [3.0, 3.8, 4.8, 4.0, 4.4, 5.2];
+    const scales = isMobile ? scalesMobile : scalesDesktop;
 
-    spatialCards.forEach((card, i) => {
-      const delta = i - activeIndex;
-      const abs = Math.abs(delta);
-      const d = Math.min(abs, maxDepth);
-      const direction = delta >= 0 ? 1 : -1;
+    const fades = [
+      [0.00, 0.92],
+      [0.04, 0.94],
+      [0.00, 1.00],
+      [0.10, 0.96],
+      [0.06, 0.95],
+      [0.14, 0.98]
+    ];
 
-      const y = d * gapY * direction;
-      const x = delta * gapX;
-      const scale = 1 - d * 0.06;
-      const opacity = Math.max(0, 1 - d * 0.21);
-      const blur = d * 0.7;
-      const rotate = delta * (isMobile ? -1.8 : -1.4);
+    zoomLayers.forEach((layer, i) => {
+      const startFade = fades[i][0];
+      const endFade = fades[i][1];
 
-      card.style.zIndex = String(2000 + Math.round((maxDepth - d) * 20));
-      card.style.opacity = opacity.toFixed(3);
-      card.style.filter = `blur(${blur.toFixed(2)}px)`;
-      card.style.transform =
-        `translate3d(-50%, -50%, 0) translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0) ` +
-        `scale(${scale.toFixed(3)}) rotate(${rotate.toFixed(1)}deg)`;
-    });
+      const localOpacity =
+        t < startFade ? 0 :
+        t > endFade ? Math.max(0, 1 - (t - endFade) / (1 - endFade || 0.0001)) :
+        1;
 
-    spatialShadows.forEach((shadow, i) => {
-      const delta = i - activeIndex;
-      const abs = Math.abs(delta);
-      const d = Math.min(abs, maxDepth);
+      const scale = 1 + (scales[i] - 1) * t;
 
-      const x = delta * (isMobile ? 5 : 8);
-      const y = d * (isMobile ? 8 : 10);
-      const shadowOpacity = Math.max(0, 0.35 - d * 0.08);
-      const scale = 1 - d * 0.09;
+      let translateY = 0;
+      let translateX = 0;
 
-      shadow.style.opacity = shadowOpacity.toFixed(3);
-      shadow.style.transform =
-        `translateX(calc(-50% + ${x.toFixed(1)}px)) translateY(${y.toFixed(1)}px) scale(${scale.toFixed(3)})`;
+      if (i === 0) { translateY = -18 * t; translateX = -12 * t; }
+      if (i === 1) { translateY = -10 * t; translateX = 14 * t; }
+      if (i === 2) { translateY = -4 * t;  translateX = 0; }
+      if (i === 3) { translateY = 14 * t;  translateX = -10 * t; }
+      if (i === 4) { translateY = 18 * t;  translateX = 14 * t; }
+      if (i === 5) { translateY = -16 * t; translateX = 8 * t; }
+
+      layer.style.opacity = localOpacity.toFixed(3);
+      layer.style.transform =
+        `translate3d(${translateX.toFixed(2)}px, ${translateY.toFixed(2)}px, 0) scale(${scale.toFixed(4)})`;
     });
   }
 
@@ -942,20 +979,21 @@
       overlay.style.opacity = '0';
       canvas.classList.remove('hidden-after-fade');
       textOverlay.classList.remove('is-visible');
-      spatialOverlay.classList.remove('is-visible');
+      zoomOverlay.classList.remove('is-visible');
     } else if (scrollY < S_FADE_END) {
       const fadeT = norm(scrollY, S_SEQ_END, S_FADE_END);
       overlay.style.opacity = fadeT.toFixed(3);
       canvas.classList.remove('hidden-after-fade');
       textOverlay.classList.remove('is-visible');
-      spatialOverlay.classList.remove('is-visible');
+      zoomOverlay.classList.remove('is-visible');
     } else {
       overlay.style.opacity = '0';
       canvas.classList.add('hidden-after-fade');
     }
 
     updateTextReveal(scrollY);
-    updateSpatialCarousel(scrollY);
+    updateZoomParallax(scrollY);
+
     lastRenderedScrollY = scrollY;
   }
 
@@ -975,10 +1013,9 @@
     const waitingForFrame = sequenceActivated && frames[wantedFrame]?.status !== 2;
 
     if (stillMoving || waitingForFrame) {
-      rafId = requestAnimationFrame(loop);
+      requestAnimationFrame(loop);
     } else {
       running = false;
-      rafId = 0;
       render(targetScrollY);
     }
   }
@@ -986,7 +1023,7 @@
   function startLoop() {
     if (running) return;
     running = true;
-    rafId = requestAnimationFrame(loop);
+    requestAnimationFrame(loop);
   }
 
   window.addEventListener('scroll', () => {
@@ -998,8 +1035,10 @@
     setScrollHeight();
     buildTextReveal();
     resizeCanvas();
+
     targetScrollY = window.scrollY || document.documentElement.scrollTop || 0;
     currentScrollY = targetScrollY;
+
     render(currentScrollY);
     startLoop();
   }, { passive: true });
@@ -1021,7 +1060,6 @@
 
   seqObserver.observe(document.getElementById('stage'));
 
-  // fallback: primo frame molto presto, ma non tutta la sequenza
   ensureFrame(0, 'high')
     .then(img => {
       if (img && shownFrame < 0) {
