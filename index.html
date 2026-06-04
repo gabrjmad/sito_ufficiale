@@ -9,37 +9,24 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@900&display=swap" rel="stylesheet">
 
-  <!-- ══════════════════════════════════════════
-       CDN: Lenis smooth scroll + GSAP + ScrollTrigger
-       Caricati PRIMA di qualsiasi script custom
-  ═════════════════════════════════════════════ -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.css" />
+  <!-- CDN: GSAP + ScrollTrigger + Lenis -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js" defer></script>
 
   <style>
-    /* ───────────────────────────────────────────────
-       RESET & BASE
-    ─────────────────────────────────────────────── */
-    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
 
     html, body {
       background: #000;
       overscroll-behavior: none;
     }
-
     body {
       min-height: 100vh;
       color: #fff;
       font-family: "Playfair Display", Georgia, serif;
     }
 
-    /* ───────────────────────────────────────────────
-       STAGE FISSO (img sequence + text reveal)
-       Nota: NON interferisce più con Lenis/ScrollTrigger.
-       Il body scorre normalmente; lo stage è separato.
-    ─────────────────────────────────────────────── */
     #stage {
       position: fixed;
       inset: 0;
@@ -50,14 +37,10 @@
       z-index: 2;
     }
 
-    /* ───────────────────────────────────────────────
-       IMG SEQUENCE
-    ─────────────────────────────────────────────── */
     .seq-layer {
       position: absolute;
       inset: 0;
-      width: 100%;
-      height: 100%;
+      width: 100%; height: 100%;
       object-fit: cover;
       object-position: center;
       pointer-events: none;
@@ -67,7 +50,7 @@
       transform: translateZ(0);
       z-index: 2;
     }
-    .seq-layer.active  { opacity: 1; }
+    .seq-layer.active { opacity: 1; }
     .seq-layer.hidden-after-fade { opacity: 0 !important; visibility: hidden; }
 
     #fade-overlay {
@@ -80,9 +63,6 @@
       z-index: 5;
     }
 
-    /* ───────────────────────────────────────────────
-       TEXT REVEAL
-    ─────────────────────────────────────────────── */
     #text-scroll-overlay {
       position: absolute;
       inset: 0;
@@ -94,133 +74,76 @@
     #text-scroll-overlay.is-visible { opacity: 1; }
 
     .text-scroll-inner {
-      position: absolute;
-      inset: 0;
-      display: grid;
-      place-items: center;
-      padding: 7vw;
+      position: absolute; inset: 0;
+      display: grid; place-items: center; padding: 7vw;
     }
-
     .text-scroll-block {
       width: min(860px, 84vw);
-      display: flex;
-      flex-direction: column;
-      gap: .12em;
-      align-items: center;
-      text-align: center;
+      display: flex; flex-direction: column;
+      gap: .12em; align-items: center; text-align: center;
     }
-
     .reveal-line {
-      position: relative;
-      display: block;
-      width: 100%;
+      position: relative; display: block; width: 100%;
       font-family: "Playfair Display", Georgia, serif;
       font-weight: 900;
       font-size: clamp(1.3rem, 3.2vw, 3.1rem);
-      line-height: 1.01;
-      letter-spacing: -.022em;
+      line-height: 1.01; letter-spacing: -.022em;
       transition: transform 180ms linear, opacity 180ms linear;
     }
     .ghost-line, .fill-line {
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-      gap: .18em;
+      display: flex; justify-content: center; flex-wrap: wrap; gap: .18em;
     }
     .ghost-line { color: rgba(255,255,255,.1); }
     .fill-line  { position: absolute; inset: 0; color: #fff; }
-
     .word { display: inline-block; white-space: pre; }
     .ghost-line .word { color: rgba(255,255,255,.11); }
     .fill-line  .word {
-      color: #fff;
-      opacity: 1;
-      filter: blur(0);
+      color: #fff; opacity: 1; filter: blur(0);
       will-change: color, opacity, filter, transform;
       transition: color 100ms linear, opacity 100ms linear,
                   filter 100ms linear, transform 100ms linear;
     }
 
-    /* ───────────────────────────────────────────────
-       PRELOADER
-    ─────────────────────────────────────────────── */
     #preloader {
-      position: fixed;
-      inset: 0;
-      z-index: 9999;
+      position: fixed; inset: 0; z-index: 9999;
       background: radial-gradient(circle at 20% 0%, #18151f 0%, #050509 42%, #020104 90%);
-      opacity: 1;
-      visibility: visible;
-      overflow: hidden;
-      pointer-events: auto;
+      opacity: 1; visibility: visible; overflow: hidden; pointer-events: auto;
     }
     #preloader.is-hidden { display: none; }
-
     .cp-bg {
-      position: absolute;
-      inset: 0;
-      background: #020108;
-      will-change: transform;
-      transform: translate3d(0,0,0);
-      pointer-events: none;
+      position: absolute; inset: 0; background: #020108;
+      will-change: transform; transform: translate3d(0,0,0); pointer-events: none;
     }
     .cp-bg-top    { clip-path: inset(0 0 50% 0); transform-origin: 50% 0; }
     .cp-bg-bottom { clip-path: inset(50% 0 0 0); transform-origin: 50% 100%; }
-
     .cp-content {
-      position: absolute;
-      inset: 0;
-      display: grid;
-      place-items: center;
-      padding: 4vw;
-      text-align: center;
-      z-index: 2;
+      position: absolute; inset: 0; display: grid; place-items: center;
+      padding: 4vw; text-align: center; z-index: 2;
       will-change: opacity, transform;
     }
     .cp-inner  { display: flex; flex-direction: column; align-items: center; }
     .cp-words  {
-      position: relative;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-transform: uppercase;
-      letter-spacing: .18em;
-      white-space: nowrap;
+      display: flex; align-items: center; justify-content: center;
+      text-transform: uppercase; letter-spacing: .18em; white-space: nowrap;
     }
     #cp-text {
       font-size: clamp(1.1rem, 1rem + .9vw, 1.8rem);
-      font-weight: 600;
-      color: rgba(255,255,255,.9);
-      opacity: 0;
-      transform: translateY(.9em);
-      transition: opacity 520ms ease-out, transform 520ms ease-out, color 520ms ease-out;
+      font-weight: 600; color: rgba(255,255,255,.9);
+      opacity: 0; transform: translateY(.9em);
+      transition: opacity 520ms ease-out, transform 520ms ease-out;
       will-change: opacity, transform;
     }
     #cp-text.is-visible { opacity: 1; transform: translateY(0); }
-
-    #preloader.is-splitting .cp-bg-top    { animation: cpSplitTop    1400ms cubic-bezier(.22,.8,.25,1) forwards; }
+    #preloader.is-splitting .cp-bg-top    { animation: cpSplitTop 1400ms cubic-bezier(.22,.8,.25,1) forwards; }
     #preloader.is-splitting .cp-bg-bottom { animation: cpSplitBottom 1400ms cubic-bezier(.22,.8,.25,1) forwards; }
     #preloader.is-splitting .cp-content   { opacity:0; transform:translateY(-12px); transition:opacity 600ms ease-out,transform 600ms ease-out; }
+    @keyframes cpSplitTop    { to { transform: translateY(-100%); } }
+    @keyframes cpSplitBottom { to { transform: translateY(100%);  } }
 
-    @keyframes cpSplitTop    { 0%{transform:translateY(0)} 100%{transform:translateY(-100%)} }
-    @keyframes cpSplitBottom { 0%{transform:translateY(0)} 100%{transform:translateY(100%)} }
-
-    /* ═══════════════════════════════════════════════
-       ZOOM PARALLAX — struttura identica all'originale
-       Olivier Larose / 21st.dev efferd component:
-       • sezione alta 300vh (spazio di scroll)
-       • sticky container 100vh che rimane in viewport
-       • card posizionate in absolute, ognuna con scala
-         iniziale grande che zoom-out a 1 su scroll
-       • hero card appare nella seconda metà
-    ═════════════════════════════════════════════ */
     #zp-section {
       position: relative;
       width: 100%;
-      /* 300vh = lunghezza dello scroll dedicato alla sezione */
       height: 300vh;
-      background: #000;
-      /* z-index sopra lo #stage fisso */
       z-index: 10;
     }
 
@@ -233,44 +156,28 @@
       background: #000;
     }
 
-    /* Griglia delle card (background layers) */
     #zp-grid {
       position: absolute;
       inset: 0;
+      transform-origin: center center;
+      will-change: transform;
     }
 
-    /* Ogni layer GSAP animerà scale e opacity */
-    .zp-layer {
-      position: absolute;
-      inset: 0;
-      will-change: transform, opacity;
-      pointer-events: none;
-    }
-
-    /* Singola card (immagine) */
     .zp-card {
       position: absolute;
       overflow: hidden;
       background: #111;
-      border-radius: 18px;
-      box-shadow:
-        0 14px 40px rgba(0,0,0,.45),
-        0 32px 80px rgba(0,0,0,.7);
+      border-radius: 0;
     }
     .zp-card img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      object-position: center;
+      width: 100%; height: 100%;
+      object-fit: cover; object-position: center;
       display: block;
-      user-select: none;
-      -webkit-user-drag: none;
+      user-select: none; -webkit-user-drag: none;
       backface-visibility: hidden;
-      transform: translateZ(0) scale(1.01); /* micro-scale anti-aliasing */
+      transform: translateZ(0);
     }
 
-    /* ─── Posizioni card — fedeli al layout demo 21st.dev ─── */
-    /* Desktop */
     .zp-card--1 { width: 20vw; height: 40vh; left:  8vw; top:  8vh; }
     .zp-card--2 { width: 22vw; height: 30vh; left: 40vw; top:  4vh; }
     .zp-card--3 { width: 18vw; height: 26vh; right: 8vw; top: 10vh; }
@@ -279,51 +186,35 @@
     .zp-card--6 { width: 22vw; height: 32vh; right:12vw; top: 40vh; }
     .zp-card--7 { width: 28vw; height: 22vh; left: 36vw; top: 74vh; }
 
-    /* Hero card centrale — appare nella seconda metà */
-    #zp-hero-wrapper {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      pointer-events: none;
-      z-index: 3;
-    }
     #zp-hero-card {
-      width: min(38vw, 520px);
+      position: absolute;
+      left: 50%;
+      top:  50%;
+      transform: translate(-50%, -50%);
+      width:  min(38vw, 520px);
       height: min(52vh, 540px);
-      border-radius: 22px;
       overflow: hidden;
       background: #111;
-      box-shadow:
-        0 30px 80px  rgba(0,0,0,.55),
-        0 60px 160px rgba(0,0,0,.85);
-      will-change: transform, opacity;
+      border-radius: 0;
+      will-change: transform;
+      z-index: 5;
     }
     #zp-hero-card img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      object-position: center;
+      width: 100%; height: 100%;
+      object-fit: cover; object-position: center;
+      display: block;
     }
 
-    /* Vignette radiale sopra tutto */
     .zp-vignette {
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-      z-index: 4;
+      position: absolute; inset: 0; pointer-events: none; z-index: 6;
       background: radial-gradient(
         circle at center,
-        rgba(0,0,0,0)   40%,
-        rgba(0,0,0,.2)  78%,
-        rgba(0,0,0,.32) 100%
+        rgba(0,0,0,0)   35%,
+        rgba(0,0,0,.15) 70%,
+        rgba(0,0,0,.28) 100%
       );
     }
 
-    /* ───────────────────────────────────────────────
-       SEZIONE CONTATTAMI
-    ─────────────────────────────────────────────── */
     #contact-section {
       position: relative;
       width: 100%;
@@ -339,13 +230,11 @@
       text-align: center;
     }
 
-    /* ─── MOBILE ─────────────────────────────────── */
     @media (max-width: 768px) {
       .text-scroll-block { width: min(92vw, 640px); gap: .16em; }
       .ghost-line, .fill-line { gap: .14em; }
       .reveal-line { font-size: clamp(1.18rem, 5.4vw, 2.35rem); line-height: 1.04; }
 
-      .zp-card { border-radius: 12px; }
       .zp-card--1 { width: 46vw; height: 26vh; left:  4vw; top:  8vh; }
       .zp-card--2 { width: 42vw; height: 22vh; right: 4vw; top: 12vh; }
       .zp-card--3 { width: 42vw; height: 24vh; left: 10vw; top: 34vh; }
@@ -359,7 +248,7 @@
     @media (prefers-reduced-motion: reduce) {
       html { scroll-behavior: auto; }
       #text-scroll-overlay, .reveal-line, .fill-line .word,
-      .zp-layer, #zp-hero-card, #cp-text, .cp-content,
+      #zp-grid, #zp-hero-card, #cp-text, .cp-content,
       .cp-bg-top, .cp-bg-bottom {
         transition: none !important;
         animation:  none !important;
@@ -369,31 +258,21 @@
 </head>
 <body>
 
-  <!-- ── PRELOADER ─────────────────────────────── -->
   <div id="preloader" aria-hidden="true">
     <div class="cp-bg cp-bg-top"></div>
     <div class="cp-bg cp-bg-bottom"></div>
     <div class="cp-content">
       <div class="cp-inner">
-        <div class="cp-words">
-          <span id="cp-text">Welcome</span>
-        </div>
+        <div class="cp-words"><span id="cp-text">Welcome</span></div>
       </div>
     </div>
   </div>
 
-  <!-- ══════════════════════════════════════════
-       STAGE: img-sequence + text reveal
-       (position:fixed, z-index:2)
-       Scorre virtualmente tramite #scroll-space
-  ═════════════════════════════════════════════ -->
-
-  <!-- Spazio scroll virtuale per img-sequence + text -->
   <div id="scroll-space"></div>
 
   <div id="stage">
     <img id="seq-a" class="seq-layer active" alt="" decoding="async" fetchpriority="high">
-    <img id="seq-b" class="seq-layer"        alt="" decoding="async">
+    <img id="seq-b" class="seq-layer" alt="" decoding="async">
 
     <div id="text-scroll-overlay" aria-hidden="true">
       <div class="text-scroll-inner">
@@ -409,100 +288,54 @@
     <div id="fade-overlay"></div>
   </div>
 
-  <!-- ══════════════════════════════════════════
-       ZOOM PARALLAX SECTION
-       Posizionata nel flusso normale del documento
-       DOPO lo scroll space, quindi dopo la sequenza.
-       z-index:10 per coprire lo #stage fixed.
-  ═════════════════════════════════════════════ -->
   <section id="zp-section">
     <div id="zp-sticky">
-
-      <!-- Grid delle card di sfondo -->
       <div id="zp-grid">
-
-        <!-- Layer 1 — data-scale-from: quanto è "ingrandita" all'inizio -->
-        <div class="zp-layer" data-scale-from="4" data-scale-to="1">
-          <div class="zp-card zp-card--1">
-            <img src="spatial-carousel/photo-1.jpg" alt="Foto 1" loading="lazy" decoding="async">
-          </div>
+        <div class="zp-card zp-card--1">
+          <img src="spatial-carousel/photo-1.jpg" alt="Foto 1" loading="lazy" decoding="async">
+        </div>
+        <div class="zp-card zp-card--2">
+          <img src="spatial-carousel/photo-2.jpg" alt="Foto 2" loading="lazy" decoding="async">
+        </div>
+        <div class="zp-card zp-card--3">
+          <img src="spatial-carousel/photo-3.jpg" alt="Foto 3" loading="lazy" decoding="async">
+        </div>
+        <div class="zp-card zp-card--4">
+          <img src="spatial-carousel/photo-4.jpg" alt="Foto 4" loading="lazy" decoding="async">
+        </div>
+        <div class="zp-card zp-card--5">
+          <img src="spatial-carousel/photo-5.jpg" alt="Foto 5" loading="lazy" decoding="async">
+        </div>
+        <div class="zp-card zp-card--6">
+          <img src="spatial-carousel/photo-6.jpg" alt="Foto 6" loading="lazy" decoding="async">
+        </div>
+        <div class="zp-card zp-card--7">
+          <img src="spatial-carousel/photo-7.jpg" alt="Foto 7" loading="lazy" decoding="async">
         </div>
 
-        <div class="zp-layer" data-scale-from="5" data-scale-to="1">
-          <div class="zp-card zp-card--2">
-            <img src="spatial-carousel/photo-2.jpg" alt="Foto 2" loading="lazy" decoding="async">
-          </div>
-        </div>
-
-        <div class="zp-layer" data-scale-from="6" data-scale-to="1">
-          <div class="zp-card zp-card--3">
-            <img src="spatial-carousel/photo-3.jpg" alt="Foto 3" loading="lazy" decoding="async">
-          </div>
-        </div>
-
-        <div class="zp-layer" data-scale-from="4" data-scale-to="1">
-          <div class="zp-card zp-card--4">
-            <img src="spatial-carousel/photo-4.jpg" alt="Foto 4" loading="lazy" decoding="async">
-          </div>
-        </div>
-
-        <div class="zp-layer" data-scale-from="5" data-scale-to="1">
-          <div class="zp-card zp-card--5">
-            <img src="spatial-carousel/photo-5.jpg" alt="Foto 5" loading="lazy" decoding="async">
-          </div>
-        </div>
-
-        <div class="zp-layer" data-scale-from="6" data-scale-to="1">
-          <div class="zp-card zp-card--6">
-            <img src="spatial-carousel/photo-6.jpg" alt="Foto 6" loading="lazy" decoding="async">
-          </div>
-        </div>
-
-        <div class="zp-layer" data-scale-from="7" data-scale-to="1">
-          <div class="zp-card zp-card--7">
-            <img src="spatial-carousel/photo-7.jpg" alt="Foto 7" loading="lazy" decoding="async">
-          </div>
-        </div>
-
-      </div><!-- #zp-grid -->
-
-      <!-- Hero card centrale -->
-      <div id="zp-hero-wrapper">
         <div id="zp-hero-card">
           <img src="spatial-carousel/photo-3.jpg" alt="Foto principale" decoding="async">
         </div>
       </div>
 
-      <!-- Vignette -->
       <div class="zp-vignette" aria-hidden="true"></div>
+    </div>
+  </section>
 
-    </div><!-- #zp-sticky -->
-  </section><!-- #zp-section -->
-
-  <!-- ── CONTATTAMI ────────────────────────────── -->
   <section id="contact-section">
     <h2>CONTATTAMI</h2>
   </section>
 
-  <!-- ══════════════════════════════════════════
-       SCRIPT PRINCIPALE — IMG SEQUENCE + TEXT
-  ═════════════════════════════════════════════ -->
   <script>
-    /* ────────────────────────────────────────────────────────
-       COSTANTI DI TIMING
-       (invariate rispetto all'originale)
-    ──────────────────────────────────────────────────────── */
-    const FRAME_COUNT       = 127;
-    const PX_PER_FRAME      = window.innerWidth <= 768 ? 30 : 24;
-    const FADE_PX           = 420;
-    const TEXT_SECTION_PX   = 2600;
+    const FRAME_COUNT      = 127;
+    const PX_PER_FRAME     = window.innerWidth <= 768 ? 30 : 24;
+    const FADE_PX          = 420;
+    const TEXT_SECTION_PX  = 2600;
 
-    const S_SEQ_END         = (FRAME_COUNT - 1) * PX_PER_FRAME;
-    const S_FADE_END        = S_SEQ_END + FADE_PX;
-    const TEXT_VISIBLE_END  = S_FADE_END + TEXT_SECTION_PX;
-    // Lo scroll-space copre solo la parte img-sequence + text;
-    // la sezione zoom-parallax è nel flusso normale (300vh = finestra)
-    const SCROLL_SPACE_PX   = TEXT_VISIBLE_END + 400;
+    const S_SEQ_END        = (FRAME_COUNT - 1) * PX_PER_FRAME;
+    const S_FADE_END       = S_SEQ_END + FADE_PX;
+    const TEXT_VISIBLE_END = S_FADE_END + TEXT_SECTION_PX;
+    const SCROLL_SPACE_PX  = TEXT_VISIBLE_END + 400;
 
     const TEXT_LINES = [
       "questa è la sezione delle foto",
@@ -514,7 +347,6 @@
     const frameSrc = i =>
       `img-sequence/compressed_${String(i + 2).padStart(3, '0')}.webp`;
 
-    /* DOM refs */
     const scrollSpace   = document.getElementById('scroll-space');
     const layerA        = document.getElementById('seq-a');
     const layerB        = document.getElementById('seq-b');
@@ -524,13 +356,11 @@
     const revealLineEls = [...document.querySelectorAll('.reveal-line')];
     const cpTextEl      = document.getElementById('cp-text');
 
-    /* ── scroll-space height (copre solo img-seq + text) ── */
     function setScrollHeight() {
       scrollSpace.style.height = (SCROLL_SPACE_PX + window.innerHeight) + 'px';
     }
     setScrollHeight();
 
-    /* ── helpers ── */
     const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
     const norm  = (v, a, b) => clamp((v - a) / (b - a), 0, 1);
 
@@ -539,7 +369,6 @@
       return Math.round(clamp(scrollY / S_SEQ_END, 0, 1) * (FRAME_COUNT - 1));
     }
 
-    /* ── text reveal build ── */
     function buildTextReveal() {
       revealLineEls.forEach((lineEl, lineIndex) => {
         const text  = TEXT_LINES[lineIndex] || '';
@@ -547,31 +376,24 @@
         const ghost = lineEl.querySelector('.ghost-line');
         const fill  = lineEl.querySelector('.fill-line');
         ghost.innerHTML = ''; fill.innerHTML = '';
-
         words.forEach((word, wordIndex) => {
           const gw = document.createElement('span');
           gw.className = 'word'; gw.textContent = word; ghost.appendChild(gw);
           const fw = document.createElement('span');
           fw.className = 'word'; fw.textContent = word;
-          fw.dataset.index = String(wordIndex);
-          fw.dataset.line  = String(lineIndex);
+          fw.dataset.index = String(wordIndex); fw.dataset.line = String(lineIndex);
           fill.appendChild(fw);
         });
       });
     }
     buildTextReveal();
 
-    /* ── preloader cinematico ── */
     const cpPhrases = ['Welcome','I am','GABRIELE','this is my portfolio'];
     let cpStep = 0;
-
     function showPhrase(index) {
       if (!cpTextEl) return;
       cpTextEl.classList.remove('is-visible');
-      setTimeout(() => {
-        cpTextEl.textContent = cpPhrases[index];
-        cpTextEl.classList.add('is-visible');
-      }, 80);
+      setTimeout(() => { cpTextEl.textContent = cpPhrases[index]; cpTextEl.classList.add('is-visible'); }, 80);
     }
     function triggerPreloaderSplit() {
       if (!preloader || preloader.classList.contains('is-splitting')) return;
@@ -580,111 +402,73 @@
     }
     function startCinematicLoader() {
       if (!cpTextEl || !cpPhrases.length) return;
-      cpStep = 0;
-      cpTextEl.textContent = cpPhrases[cpStep];
-      cpTextEl.classList.add('is-visible');
+      cpTextEl.textContent = cpPhrases[0]; cpTextEl.classList.add('is-visible');
       const WORD_DELAY = 950, LAST_HOLD = 1300;
       function advance() {
         cpStep += 1;
-        if (cpStep < cpPhrases.length) {
-          showPhrase(cpStep);
-          setTimeout(advance, WORD_DELAY);
-        } else {
-          setTimeout(triggerPreloaderSplit, LAST_HOLD);
-        }
+        if (cpStep < cpPhrases.length) { showPhrase(cpStep); setTimeout(advance, WORD_DELAY); }
+        else setTimeout(triggerPreloaderSplit, LAST_HOLD);
       }
       setTimeout(advance, WORD_DELAY);
     }
     startCinematicLoader();
 
-    /* ── frame loader ── */
-    const frames = Array.from({ length: FRAME_COUNT }, () =>
-      ({ status: 0, img: null, promise: null })
-    );
+    const frames = Array.from({ length: FRAME_COUNT }, () => ({ status: 0, img: null, promise: null }));
     let activeLayer = layerA, hiddenLayer = layerB;
     let shownFrame = -1, wantedFrame = 0;
 
     function swapTo(src) {
       if (hiddenLayer.src !== src) hiddenLayer.src = src;
-      hiddenLayer.classList.add('active');
-      activeLayer.classList.remove('active');
+      hiddenLayer.classList.add('active'); activeLayer.classList.remove('active');
       const tmp = activeLayer; activeLayer = hiddenLayer; hiddenLayer = tmp;
     }
-
     function ensureFrame(index, priority = 'auto') {
       if (index < 0 || index >= FRAME_COUNT) return Promise.resolve(null);
       const item = frames[index];
       if (item.status === 2) return Promise.resolve(item.img);
       if (item.promise) return item.promise;
       item.status = 1;
-      const img = new Image();
-      img.decoding = 'async'; img.fetchPriority = priority;
-      img.src = frameSrc(index);
+      const img = new Image(); img.decoding = 'async'; img.fetchPriority = priority; img.src = frameSrc(index);
       item.promise = new Promise((resolve, reject) => {
-        img.onload = async () => {
-          try { if (img.decode) await img.decode(); } catch(e) {}
-          item.status = 2; item.img = img; resolve(img);
-        };
+        img.onload = async () => { try { if (img.decode) await img.decode(); } catch(e) {} item.status = 2; item.img = img; resolve(img); };
         img.onerror = () => { item.status = 3; reject(); };
-      }).finally(() => {
-        item.promise = null;
-        if (wantedFrame === index && frames[index].status === 2) startLoop();
-      });
+      }).finally(() => { item.promise = null; if (wantedFrame === index && frames[index].status === 2) startLoop(); });
       return item.promise;
     }
-
-    function warmFrames(c) {
-      [-3,-2,-1,0,1,2,3].forEach(d => ensureFrame(c + d, d === 0 ? 'high' : 'auto'));
-    }
+    function warmFrames(c) { [-3,-2,-1,0,1,2,3].forEach(d => ensureFrame(c + d, d === 0 ? 'high' : 'auto')); }
     function showFrame(index) {
       index = clamp(index, 0, FRAME_COUNT - 1);
       wantedFrame = index; warmFrames(index);
       const item = frames[index];
       if (item.status !== 2 || !item.img || shownFrame === index) return;
-      shownFrame = index;
-      swapTo(item.img.currentSrc || item.img.src);
+      shownFrame = index; swapTo(item.img.currentSrc || item.img.src);
     }
-
     function preloadInitial() {
-      for (let i = 0; i < Math.min(18, FRAME_COUNT); i++)
-        ensureFrame(i, 'high').catch(() => {});
+      for (let i = 0; i < Math.min(18, FRAME_COUNT); i++) ensureFrame(i, 'high').catch(() => {});
       let cursor = 18;
       function pump() {
         let count = 0;
-        while (cursor < FRAME_COUNT && count < 4) {
-          ensureFrame(cursor, 'auto').catch(() => {}); cursor++; count++;
-        }
-        if (cursor < FRAME_COUNT) {
-          'requestIdleCallback' in window
-            ? requestIdleCallback(pump, { timeout: 120 })
-            : setTimeout(pump, 40);
-        }
+        while (cursor < FRAME_COUNT && count < 4) { ensureFrame(cursor, 'auto').catch(() => {}); cursor++; count++; }
+        if (cursor < FRAME_COUNT) { 'requestIdleCallback' in window ? requestIdleCallback(pump, { timeout: 120 }) : setTimeout(pump, 40); }
       }
       setTimeout(pump, 80);
     }
     preloadInitial();
 
-    /* ── text reveal update ── */
     function updateTextReveal(scrollY) {
       const overlayIn  = S_FADE_END + 60;
       const overlayOut = TEXT_VISIBLE_END;
-      textOverlay.classList.toggle('is-visible',
-        scrollY >= overlayIn && scrollY <= overlayOut);
-
-      const revealStart   = S_FADE_END + 120;
-      const globalProgress = norm(scrollY, revealStart, TEXT_VISIBLE_END);
-
+      textOverlay.classList.toggle('is-visible', scrollY >= overlayIn && scrollY <= overlayOut);
+      const globalProgress = norm(scrollY, S_FADE_END + 120, TEXT_VISIBLE_END);
       revealLineEls.forEach((lineEl, lineIndex) => {
         const fillWords  = [...lineEl.querySelectorAll('.fill-line .word')];
         const total      = fillWords.length;
         const linesCount = revealLineEls.length;
         const lineStart  = lineIndex / linesCount;
         const lineEnd    = (lineIndex + 1) / linesCount;
-        const lineProgress = clamp(
-          (globalProgress - lineStart) / (lineEnd - lineStart), 0, 1);
-
+        const lineProgress = clamp((globalProgress - lineStart) / (lineEnd - lineStart), 0, 1);
         fillWords.forEach((wordEl, wordIndex) => {
-          const wordSpan  = 1 / total;
+          const wordSpan = 1 / total;
           const wordStart = wordIndex * wordSpan;
           const wordEnd   = wordStart + wordSpan * 0.72;
           const t = clamp((lineProgress - wordStart) / (wordEnd - wordStart), 0, 1);
@@ -694,73 +478,44 @@
           wordEl.style.filter    = `blur(${(1 - t) * 1.55}px)`;
           wordEl.style.transform = `translateY(${(1 - t) * 5}px)`;
         });
-
-        const lineShown = lineProgress > 0.01;
-        lineEl.style.opacity   = String(lineShown ? (0.28 + lineProgress * 0.72) : 0.2);
+        lineEl.style.opacity   = String(lineProgress > 0.01 ? (0.28 + lineProgress * 0.72) : 0.2);
         lineEl.style.transform = `translateY(${Math.max(0, 12 - lineProgress * 12)}px)`;
       });
     }
 
-    /* ── render img sequence + text ── */
     function render(scrollY) {
-      const frameIdx = frameIndexFor(scrollY);
-      showFrame(frameIdx);
-
+      showFrame(frameIndexFor(scrollY));
       if (scrollY < S_SEQ_END) {
         overlay.style.opacity = '0';
-        layerA.classList.remove('hidden-after-fade');
-        layerB.classList.remove('hidden-after-fade');
+        layerA.classList.remove('hidden-after-fade'); layerB.classList.remove('hidden-after-fade');
         textOverlay.classList.remove('is-visible');
       } else if (scrollY < S_FADE_END) {
         overlay.style.opacity = norm(scrollY, S_SEQ_END, S_FADE_END).toFixed(3);
         textOverlay.classList.remove('is-visible');
       } else {
         overlay.style.opacity = '0';
-        layerA.classList.add('hidden-after-fade');
-        layerB.classList.add('hidden-after-fade');
+        layerA.classList.add('hidden-after-fade'); layerB.classList.add('hidden-after-fade');
       }
-
       updateTextReveal(scrollY);
     }
 
-    /* ── loop scroll per img sequence ── */
-    let targetScrollY  = window.scrollY || 0;
+    let targetScrollY = window.scrollY || 0;
     let currentScrollY = targetScrollY;
     let running = false;
 
     function loop() {
       const delta = targetScrollY - currentScrollY;
       const ease  = Math.abs(delta) > 140 ? 0.115 : 0.135;
-      if (Math.abs(delta) > 0.1) {
-        currentScrollY += delta * ease;
-      } else {
-        currentScrollY = targetScrollY;
-      }
+      if (Math.abs(delta) > 0.1) { currentScrollY += delta * ease; } else { currentScrollY = targetScrollY; }
       render(currentScrollY);
-      const stillMoving      = Math.abs(targetScrollY - currentScrollY) > 0.1;
-      const waitingForFrame  = frames[wantedFrame]?.status !== 2;
-      if (stillMoving || waitingForFrame) {
+      if (Math.abs(targetScrollY - currentScrollY) > 0.1 || frames[wantedFrame]?.status !== 2) {
         requestAnimationFrame(loop);
-      } else {
-        running = false;
-        render(targetScrollY);
-      }
+      } else { running = false; render(targetScrollY); }
     }
-    function startLoop() {
-      if (running) return; running = true; requestAnimationFrame(loop);
-    }
+    function startLoop() { if (running) return; running = true; requestAnimationFrame(loop); }
 
-    /*
-     * IMPORTANTE: lo scroll per img-sequence usa window.scrollY,
-     * ma Lenis (caricato più sotto tramite zoom-parallax.js) prende il
-     * controllo dello scroll nativo per la sezione zoom-parallax.
-     * I due sistemi convivono perché:
-     *  - img-sequence legge window.scrollY PRIMA del punto in cui Lenis è attivo
-     *  - Lenis viene inizializzato DOPO il punto SCROLL_SPACE_PX
-     */
     window.addEventListener('scroll', () => {
       targetScrollY = window.scrollY || 0;
-      // Attiva il loop solo se siamo ancora nella sezione img-sequence
       if (targetScrollY <= SCROLL_SPACE_PX) startLoop();
     }, { passive: true });
 
@@ -772,18 +527,10 @@
 
     ensureFrame(0, 'high').then(img => {
       layerA.src = img.currentSrc || img.src;
-      shownFrame = 0; wantedFrame = 0;
-      render(currentScrollY);
+      shownFrame = 0; wantedFrame = 0; render(currentScrollY);
     }).catch(() => render(currentScrollY));
   </script>
 
-  <!-- ══════════════════════════════════════════
-       ZOOM PARALLAX SCRIPT (caricato dopo i CDN)
-       zoom-parallax.js usa gsap, ScrollTrigger, Lenis
-       che sono stati inclusi come <script defer> in head.
-       Usiamo window.addEventListener('load') per sicurezza.
-  ═════════════════════════════════════════════ -->
   <script src="zoom-parallax.js" defer></script>
-
 </body>
 </html>
