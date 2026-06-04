@@ -15,226 +15,180 @@
 
   <style>
     *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    html, body { background:#000; overscroll-behavior:none; }
+    body { min-height:100vh; color:#fff; font-family:"Playfair Display",Georgia,serif; }
 
-    html, body {
-      background: #000;
-      overscroll-behavior: none;
-    }
-    body {
-      min-height: 100vh;
-      color: #fff;
-      font-family: "Playfair Display", Georgia, serif;
-    }
-
-    /* ─── STAGE FISSO ─── */
+    /* ─── STAGE ─── */
     #stage {
-      position: fixed; inset: 0;
-      width: 100vw; height: 100vh;
-      background: #000; overflow: hidden; z-index: 2;
+      position:fixed; inset:0; width:100vw; height:100vh;
+      background:#000; overflow:hidden; z-index:2;
     }
     .seq-layer {
-      position: absolute; inset: 0;
-      width: 100%; height: 100%;
-      object-fit: cover; object-position: center;
-      pointer-events: none; opacity: 0;
-      will-change: opacity; backface-visibility: hidden;
-      transform: translateZ(0); z-index: 2;
+      position:absolute; inset:0; width:100%; height:100%;
+      object-fit:cover; object-position:center;
+      pointer-events:none; opacity:0;
+      will-change:opacity; backface-visibility:hidden;
+      transform:translateZ(0); z-index:2;
     }
-    .seq-layer.active { opacity: 1; }
-    .seq-layer.hidden-after-fade { opacity: 0 !important; visibility: hidden; }
+    .seq-layer.active { opacity:1; }
+    .seq-layer.hidden-after-fade { opacity:0 !important; visibility:hidden; }
     #fade-overlay {
-      position: absolute; inset: 0;
-      background: #000; opacity: 0;
-      pointer-events: none; will-change: opacity; z-index: 5;
+      position:absolute; inset:0; background:#000; opacity:0;
+      pointer-events:none; will-change:opacity; z-index:5;
     }
 
     /* ─── TEXT REVEAL ─── */
     #text-scroll-overlay {
-      position: absolute; inset: 0;
-      z-index: 6; pointer-events: none;
-      opacity: 0; transition: opacity 300ms linear;
+      position:absolute; inset:0; z-index:6;
+      pointer-events:none; opacity:0; transition:opacity 300ms linear;
     }
-    #text-scroll-overlay.is-visible { opacity: 1; }
+    #text-scroll-overlay.is-visible { opacity:1; }
     .text-scroll-inner {
-      position: absolute; inset: 0;
-      display: grid; place-items: center; padding: 7vw;
+      position:absolute; inset:0;
+      display:grid; place-items:center; padding:7vw;
     }
     .text-scroll-block {
-      width: min(860px, 84vw);
-      display: flex; flex-direction: column;
-      gap: .12em; align-items: center; text-align: center;
+      width:min(860px,84vw); display:flex; flex-direction:column;
+      gap:.12em; align-items:center; text-align:center;
     }
     .reveal-line {
-      position: relative; display: block; width: 100%;
-      font-family: "Playfair Display", Georgia, serif;
-      font-weight: 900;
-      font-size: clamp(1.3rem, 3.2vw, 3.1rem);
-      line-height: 1.01; letter-spacing: -.022em;
-      transition: transform 180ms linear, opacity 180ms linear;
+      position:relative; display:block; width:100%;
+      font-family:"Playfair Display",Georgia,serif; font-weight:900;
+      font-size:clamp(1.3rem,3.2vw,3.1rem);
+      line-height:1.01; letter-spacing:-.022em;
+      transition:transform 180ms linear, opacity 180ms linear;
     }
-    .ghost-line, .fill-line {
-      display: flex; justify-content: center; flex-wrap: wrap; gap: .18em;
-    }
-    .ghost-line { color: rgba(255,255,255,.1); }
-    .fill-line  { position: absolute; inset: 0; color: #fff; }
-    .word { display: inline-block; white-space: pre; }
-    .ghost-line .word { color: rgba(255,255,255,.11); }
+    .ghost-line,.fill-line { display:flex; justify-content:center; flex-wrap:wrap; gap:.18em; }
+    .ghost-line { color:rgba(255,255,255,.1); }
+    .fill-line  { position:absolute; inset:0; color:#fff; }
+    .word { display:inline-block; white-space:pre; }
+    .ghost-line .word { color:rgba(255,255,255,.11); }
     .fill-line  .word {
-      color: #fff; opacity: 1; filter: blur(0);
-      will-change: color, opacity, filter, transform;
-      transition: color 100ms linear, opacity 100ms linear,
-                  filter 100ms linear, transform 100ms linear;
+      color:#fff; opacity:1; filter:blur(0);
+      will-change:color,opacity,filter,transform;
+      transition:color 100ms linear,opacity 100ms linear,
+                 filter 100ms linear,transform 100ms linear;
     }
 
     /* ─── PRELOADER ─── */
     #preloader {
-      position: fixed; inset: 0; z-index: 9999;
-      background: radial-gradient(circle at 20% 0%, #18151f 0%, #050509 42%, #020104 90%);
-      opacity: 1; visibility: visible; overflow: hidden; pointer-events: auto;
+      position:fixed; inset:0; z-index:9999;
+      background:radial-gradient(circle at 20% 0%,#18151f 0%,#050509 42%,#020104 90%);
+      opacity:1; visibility:visible; overflow:hidden; pointer-events:auto;
     }
-    #preloader.is-hidden { display: none; }
+    #preloader.is-hidden { display:none; }
     .cp-bg {
-      position: absolute; inset: 0; background: #020108;
-      will-change: transform; transform: translate3d(0,0,0); pointer-events: none;
+      position:absolute; inset:0; background:#020108;
+      will-change:transform; transform:translate3d(0,0,0); pointer-events:none;
     }
-    .cp-bg-top    { clip-path: inset(0 0 50% 0); transform-origin: 50% 0; }
-    .cp-bg-bottom { clip-path: inset(50% 0 0 0); transform-origin: 50% 100%; }
+    .cp-bg-top    { clip-path:inset(0 0 50% 0); transform-origin:50% 0; }
+    .cp-bg-bottom { clip-path:inset(50% 0 0 0); transform-origin:50% 100%; }
     .cp-content {
-      position: absolute; inset: 0; display: grid; place-items: center;
-      padding: 4vw; text-align: center; z-index: 2; will-change: opacity, transform;
+      position:absolute; inset:0; display:grid; place-items:center;
+      padding:4vw; text-align:center; z-index:2; will-change:opacity,transform;
     }
-    .cp-inner { display: flex; flex-direction: column; align-items: center; }
+    .cp-inner { display:flex; flex-direction:column; align-items:center; }
     .cp-words {
-      display: flex; align-items: center; justify-content: center;
-      text-transform: uppercase; letter-spacing: .18em; white-space: nowrap;
+      display:flex; align-items:center; justify-content:center;
+      text-transform:uppercase; letter-spacing:.18em; white-space:nowrap;
     }
     #cp-text {
-      font-size: clamp(1.1rem, 1rem + .9vw, 1.8rem);
-      font-weight: 600; color: rgba(255,255,255,.9);
-      opacity: 0; transform: translateY(.9em);
-      transition: opacity 520ms ease-out, transform 520ms ease-out;
-      will-change: opacity, transform;
+      font-size:clamp(1.1rem,1rem + .9vw,1.8rem);
+      font-weight:600; color:rgba(255,255,255,.9);
+      opacity:0; transform:translateY(.9em);
+      transition:opacity 520ms ease-out,transform 520ms ease-out;
+      will-change:opacity,transform;
     }
-    #cp-text.is-visible { opacity: 1; transform: translateY(0); }
-    #preloader.is-splitting .cp-bg-top    { animation: cpSplitTop    1400ms cubic-bezier(.22,.8,.25,1) forwards; }
-    #preloader.is-splitting .cp-bg-bottom { animation: cpSplitBottom 1400ms cubic-bezier(.22,.8,.25,1) forwards; }
+    #cp-text.is-visible { opacity:1; transform:translateY(0); }
+    #preloader.is-splitting .cp-bg-top    { animation:cpSplitTop    1400ms cubic-bezier(.22,.8,.25,1) forwards; }
+    #preloader.is-splitting .cp-bg-bottom { animation:cpSplitBottom 1400ms cubic-bezier(.22,.8,.25,1) forwards; }
     #preloader.is-splitting .cp-content   { opacity:0; transform:translateY(-12px); transition:opacity 600ms ease-out,transform 600ms ease-out; }
-    @keyframes cpSplitTop    { to { transform: translateY(-100%); } }
-    @keyframes cpSplitBottom { to { transform: translateY(100%);  } }
+    @keyframes cpSplitTop    { to { transform:translateY(-100%); } }
+    @keyframes cpSplitBottom { to { transform:translateY(100%);  } }
 
     /* ═══════════════════════════════════════════════════════
-       ZOOM PARALLAX
-       Griglia 3×3 — GAP=2vw/vh — CELL=30.67vw/vh
-       [photo-1][photo-2][photo-3]
-       [photo-4][ HERO  ][photo-5]
-       [photo-6][photo-7][  ---  ]
+       ZOOM PARALLAX — LAYOUT "INCASTRO"
+       Gap uniforme 2vw/vh · 3 colonne 30.67vw · altezza totale 100vh
+
+        ┌─────────────┬───────────────────────────────┐
+        │             │        photo-1  (wide)         │ 40vh
+        │  photo-4    ├───────────────┬───────────────┤
+        │  (tall)     │  HERO ph.3   │   photo-5     │ 28vh
+        ├─────────────┴───────────────┼───────────────┤
+        │       photo-6  (wide)       │   photo-7     │ 24vh
+        └─────────────────────────────┴───────────────┘
+
+       Col: C0=2vw  C1=34.67vw  C2=67.33vw
+       Row: R0=2vh  R1=44vh     R2=74vh
     ════════════════════════════════════════════════════════ */
-    #zp-section {
-      position: relative;
-      width: 100%;
-      height: 300vh;
-      z-index: 10;
-    }
-    #zp-sticky {
-      position: sticky;
-      top: 0;
-      height: 100vh;
-      width: 100%;
-      overflow: hidden;
-      background: #000;
-    }
-    #zp-grid {
-      position: absolute;
-      inset: 0;
-      transform-origin: center center;
-      will-change: transform;
-    }
+    #zp-section  { position:relative; width:100%; height:300vh; z-index:10; }
+    #zp-sticky   { position:sticky; top:0; height:100vh; width:100%; overflow:hidden; background:#000; }
+    #zp-grid     { position:absolute; inset:0; transform-origin:center center; will-change:transform; }
+
     .zp-card {
-      position: absolute;
-      overflow: hidden;
-      background: #111;
-      border-radius: 0;
+      position:absolute; overflow:hidden;
+      background:#111; border-radius:0;
     }
     .zp-card img {
-      width: 100%; height: 100%;
-      object-fit: cover; object-position: center;
-      display: block;
-      user-select: none; -webkit-user-drag: none;
-      backface-visibility: hidden; transform: translateZ(0);
+      width:100%; height:100%;
+      object-fit:cover; object-position:center;
+      display:block; user-select:none; -webkit-user-drag:none;
+      backface-visibility:hidden; transform:translateZ(0);
     }
 
-    /* Desktop — griglia 3×3 equidistante, zero sovrapposizioni */
-    .zp-card--1 { width:30.67vw; height:30.67vh; left: 2vw;     top: 2vh;     }
-    .zp-card--2 { width:30.67vw; height:30.67vh; left: 34.67vw; top: 2vh;     }
-    .zp-card--3 { width:30.67vw; height:30.67vh; left: 67.33vw; top: 2vh;     }
-    .zp-card--4 { width:30.67vw; height:30.67vh; left: 2vw;     top: 34.67vh; }
-    .zp-card--5 { width:30.67vw; height:30.67vh; left: 67.33vw; top: 34.67vh; }
-    .zp-card--6 { width:30.67vw; height:30.67vh; left: 2vw;     top: 67.33vh; }
-    .zp-card--7 { width:30.67vw; height:30.67vh; left: 34.67vw; top: 67.33vh; }
+    .zp-card--4 { width:30.67vw; height:70vh;  left:2vw;     top:2vh;  }
+    .zp-card--1 { width:63.33vw; height:40vh;  left:34.67vw; top:2vh;  }
+    .zp-card--2 { width:30.67vw; height:28vh;  left:34.67vw; top:44vh; }
+    .zp-card--5 { width:30.67vw; height:28vh;  left:67.33vw; top:44vh; }
+    .zp-card--6 { width:63.33vw; height:24vh;  left:2vw;     top:74vh; }
+    .zp-card--7 { width:30.67vw; height:24vh;  left:67.33vw; top:74vh; }
 
-    /* Hero card — FUORI da #zp-grid, anti-sgranatura */
     #zp-hero-card {
-      position: absolute;
-      overflow: hidden;
-      background: #111;
-      border-radius: 0;
-      will-change: width, height, left, top;
-      z-index: 8;
-      image-rendering: high-quality;
+      position:absolute; overflow:hidden;
+      background:#111; border-radius:0;
+      will-change:width,height,left,top;
+      z-index:8; image-rendering:high-quality;
     }
     #zp-hero-card img {
-      width: 100%; height: 100%;
-      object-fit: cover;
-      object-position: center center;
-      display: block;
-      user-select: none; -webkit-user-drag: none;
+      width:100%; height:100%;
+      object-fit:cover; object-position:center;
+      display:block; user-select:none; -webkit-user-drag:none;
     }
 
     .zp-vignette {
-      position: absolute; inset: 0; pointer-events: none; z-index: 9;
-      background: radial-gradient(
-        circle at center,
-        rgba(0,0,0,0)   35%,
-        rgba(0,0,0,.13) 70%,
-        rgba(0,0,0,.25) 100%
-      );
+      position:absolute; inset:0; pointer-events:none; z-index:9;
+      background:radial-gradient(circle at center,rgba(0,0,0,0) 35%,rgba(0,0,0,.13) 70%,rgba(0,0,0,.25) 100%);
     }
 
     /* ─── Mobile ─── */
-    @media (max-width: 768px) {
-      .text-scroll-block { width: min(92vw, 640px); gap: .16em; }
-      .ghost-line, .fill-line { gap: .14em; }
-      .reveal-line { font-size: clamp(1.18rem, 5.4vw, 2.35rem); line-height: 1.04; }
+    @media (max-width:768px) {
+      .text-scroll-block { width:min(92vw,640px); gap:.16em; }
+      .ghost-line,.fill-line { gap:.14em; }
+      .reveal-line { font-size:clamp(1.18rem,5.4vw,2.35rem); line-height:1.04; }
 
-      .zp-card--1 { width:30.67vw; height:28vh; left: 2vw;     top: 2vh;   }
-      .zp-card--2 { width:30.67vw; height:28vh; left: 34.67vw; top: 2vh;   }
-      .zp-card--3 { width:30.67vw; height:28vh; left: 67.33vw; top: 2vh;   }
-      .zp-card--4 { width:30.67vw; height:28vh; left: 2vw;     top: 32vh;  }
-      .zp-card--5 { width:30.67vw; height:28vh; left: 67.33vw; top: 32vh;  }
-      .zp-card--6 { width:30.67vw; height:28vh; left: 2vw;     top: 62vh;  }
-      .zp-card--7 { width:30.67vw; height:28vh; left: 34.67vw; top: 62vh;  }
+      .zp-card--4 { width:47vw; height:55vh; left:2vw;  top:2vh;  }
+      .zp-card--1 { width:47vw; height:30vh; left:51vw; top:2vh;  }
+      .zp-card--2 { width:47vw; height:23vh; left:51vw; top:34vh; }
+      .zp-card--5 { width:47vw; height:35vh; left:2vw;  top:59vh; }
+      .zp-card--6 { width:30vw; height:35vh; left:51vw; top:59vh; }
+      .zp-card--7 { width:15vw; height:35vh; left:83vw; top:59vh; }
     }
 
     /* ─── CONTATTAMI ─── */
     #contact-section {
-      position: relative; width: 100%;
-      background: #000; color: #fff;
-      padding: 16vh 8vw 18vh; z-index: 10;
+      position:relative; width:100%; background:#000; color:#fff;
+      padding:16vh 8vw 18vh; z-index:10;
     }
     #contact-section h2 {
-      font-size: clamp(2rem, 4vw, 3rem);
-      letter-spacing: .12em;
-      text-transform: uppercase;
-      text-align: center;
+      font-size:clamp(2rem,4vw,3rem); letter-spacing:.12em;
+      text-transform:uppercase; text-align:center;
     }
 
-    @media (prefers-reduced-motion: reduce) {
-      html { scroll-behavior: auto; }
-      #text-scroll-overlay, .reveal-line, .fill-line .word,
-      #zp-grid, #zp-hero-card, #cp-text, .cp-content,
-      .cp-bg-top, .cp-bg-bottom {
-        transition: none !important; animation: none !important;
-      }
+    @media (prefers-reduced-motion:reduce) {
+      html { scroll-behavior:auto; }
+      #text-scroll-overlay,.reveal-line,.fill-line .word,
+      #zp-grid,#zp-hero-card,#cp-text,.cp-content,
+      .cp-bg-top,.cp-bg-bottom { transition:none !important; animation:none !important; }
     }
   </style>
 </head>
@@ -270,19 +224,16 @@
 
   <section id="zp-section">
     <div id="zp-sticky">
-
       <div id="zp-grid">
+
+        <div class="zp-card zp-card--4">
+          <img src="spatial-carousel/photo-4.jpg" alt="Foto 4" loading="lazy" decoding="async">
+        </div>
         <div class="zp-card zp-card--1">
           <img src="spatial-carousel/photo-1.jpg" alt="Foto 1" loading="lazy" decoding="async">
         </div>
         <div class="zp-card zp-card--2">
           <img src="spatial-carousel/photo-2.jpg" alt="Foto 2" loading="lazy" decoding="async">
-        </div>
-        <div class="zp-card zp-card--3">
-          <img src="spatial-carousel/photo-3.jpg" alt="Foto 3" loading="lazy" decoding="async">
-        </div>
-        <div class="zp-card zp-card--4">
-          <img src="spatial-carousel/photo-4.jpg" alt="Foto 4" loading="lazy" decoding="async">
         </div>
         <div class="zp-card zp-card--5">
           <img src="spatial-carousel/photo-5.jpg" alt="Foto 5" loading="lazy" decoding="async">
@@ -293,6 +244,7 @@
         <div class="zp-card zp-card--7">
           <img src="spatial-carousel/photo-7.jpg" alt="Foto 7" loading="lazy" decoding="async">
         </div>
+
       </div>
 
       <div id="zp-hero-card">
@@ -305,7 +257,6 @@
       </div>
 
       <div class="zp-vignette" aria-hidden="true"></div>
-
     </div>
   </section>
 
