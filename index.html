@@ -90,7 +90,6 @@
       gap:.12em;
       align-items:center;
       text-align:center;
-      transform:translateY(-1vh);
     }
 
     .reveal-line{
@@ -201,47 +200,7 @@
     @keyframes cpSplitTop{0%{transform:translateY(0)}100%{transform:translateY(-100%)}}
     @keyframes cpSplitBottom{0%{transform:translateY(0)}100%{transform:translateY(100%)}}
 
-    /* HERO (clip + zoom di background) */
-
-    #hero-wrapper{
-      position:absolute;
-      inset:0;
-      z-index:1;
-      pointer-events:none;
-    }
-
-    .hero-rail{
-      position:relative;
-      width:100%;
-      height:calc(var(--hero-height,1500px) + 100vh);
-    }
-
-    .hero-sticky{
-      position:sticky;
-      top:0;
-      height:100vh;
-      background:#000;
-      overflow:hidden;
-    }
-
-    .hero-bg{
-      position:absolute;
-      inset:0;
-      background-position:center;
-      background-repeat:no-repeat;
-      background-size:170%;
-      will-change:transform,opacity,clip-path,background-size;
-    }
-
-    .hero-bg-desktop{display:none}
-    .hero-bg-mobile{display:block}
-
-    @media (min-width:768px){
-      .hero-bg-desktop{display:block}
-      .hero-bg-mobile{display:none}
-    }
-
-    /* ZOOM PARALLAX GRID */
+    /* ZOOM PARALLAX GRID (solo sezione foto) */
 
     #zoom-parallax-overlay{
       position:absolute;
@@ -256,20 +215,24 @@
 
     .zoom-parallax-rail{
       position:relative;
-      height:3200px; /* sarà controllata anche via JS */
+      height:3200px;
       width:100%;
     }
+
     .zoom-sticky{
       position:sticky;
       top:0;
       height:100vh;
       overflow:hidden;
     }
+
     .zoom-stage{
       position:absolute;
       inset:0;
       overflow:hidden;
+      background:#000;
     }
+
     .zoom-grid{
       position:absolute;
       inset:0;
@@ -302,7 +265,7 @@
       transform:translateZ(0) scale(1.01);
     }
 
-    /* layout griglia (7 card) */
+    /* layout card (ispirato alla demo) */
 
     .zoom-card--1{width:20vw;height:40vh;left:8vw;top:8vh;}
     .zoom-card--2{width:22vw;height:30vh;left:40vw;top:4vh;}
@@ -365,7 +328,6 @@
       .text-scroll-block{
         width:min(92vw,640px);
         gap:.16em;
-        transform:translateY(0);
       }
       .ghost-line,.fill-line{gap:.14em}
       .reveal-line{
@@ -395,8 +357,7 @@
       #cp-text,
       .cp-content,
       .cp-bg-top,
-      .cp-bg-bottom,
-      .hero-bg{
+      .cp-bg-bottom{
         transition:none!important;
         animation:none!important;
       }
@@ -422,29 +383,11 @@
 
   <div id="stage">
 
-    <!-- HERO CLIP-PATH PRIMA DELL'IMG-SEQUENCE -->
-    <div id="hero-wrapper">
-      <div class="hero-rail" style="--hero-height:1500px">
-        <div class="hero-sticky">
-          <div
-            class="hero-bg hero-bg-mobile"
-            id="hero-bg-mobile"
-            style="background-image:url('spatial-carousel/photo-3.jpg');"
-          ></div>
-          <div
-            class="hero-bg hero-bg-desktop"
-            id="hero-bg-desktop"
-            style="background-image:url('spatial-carousel/photo-3.jpg');"
-          ></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- IMG SEQUENCE -->
+    <!-- IMG SEQUENCE: parte subito, sfondo nero -->
     <img id="seq-a" class="seq-layer active" alt="" decoding="async" fetchpriority="high">
     <img id="seq-b" class="seq-layer" alt="" decoding="async">
 
-    <!-- TEXT REVEAL -->
+    <!-- TEXT REVEAL su sfondo nero -->
     <div id="text-scroll-overlay" aria-hidden="true">
       <div class="text-scroll-inner">
         <div class="text-scroll-block">
@@ -456,7 +399,7 @@
       </div>
     </div>
 
-    <!-- ZOOM PARALLAX GRID -->
+    <!-- ZOOM PARALLAX GRID (sezione foto) -->
     <div id="zoom-parallax-overlay" aria-hidden="true">
       <div class="zoom-parallax-rail">
         <div class="zoom-sticky">
@@ -474,7 +417,6 @@
               </div>
               <div class="zoom-layer" data-layer="2">
                 <div class="zoom-card zoom-card--3">
-                  <!-- foto centrale (4228x5712) -->
                   <img src="spatial-carousel/photo-3.jpg" alt="Foto 3">
                 </div>
               </div>
@@ -520,28 +462,24 @@
   </section>
 
   <script>
-    const HERO_PX       = 1500;
     const FRAME_COUNT   = 127;
     const PX_PER_FRAME  = window.innerWidth <= 768 ? 30 : 24;
     const FADE_PX       = 420;
-    const STARFIELD_PX  = window.innerWidth <= 768 ? 3200 : 4200;
-
+    const TEXT_SECTION_PX = 2600;
     const ZOOM_SECTION_LEN = window.innerWidth <= 768 ? 3200 : 4200;
 
     const S_SEQ_END   = (FRAME_COUNT - 1) * PX_PER_FRAME;
     const S_FADE_END  = S_SEQ_END + FADE_PX;
-    const S_STAR_END  = S_FADE_END + STARFIELD_PX;
-    const TEXT_VISIBLE_END = S_FADE_END + Math.min(3000, STARFIELD_PX * 0.9);
-    const S_ZOOM_START = TEXT_VISIBLE_END + 220;
+    const TEXT_VISIBLE_END = S_FADE_END + TEXT_SECTION_PX;
+    const S_ZOOM_START = TEXT_VISIBLE_END + 200;
     const S_ZOOM_END   = S_ZOOM_START + ZOOM_SECTION_LEN;
 
-    const TOTAL_SEQ_PX = S_ZOOM_END + 1200;
-    const TOTAL_PX     = HERO_PX + TOTAL_SEQ_PX;
+    const TOTAL_PX = S_ZOOM_END + 1200;
 
     const TEXT_LINES = [
       "questa è la sezione delle foto",
       "scorrendo troverai",
-      "la mi adescrizione",
+      "la mia descrizione",
       "lascia un feedback se ti piace il sito."
     ];
 
@@ -555,9 +493,6 @@
 
     const textOverlay = document.getElementById('text-scroll-overlay');
     const revealLineEls = [...document.querySelectorAll('.reveal-line')];
-
-    const heroBgDesktop = document.getElementById('hero-bg-desktop');
-    const heroBgMobile  = document.getElementById('hero-bg-mobile');
 
     const zoomOverlay   = document.getElementById('zoom-parallax-overlay');
     const zoomLayers    = [...document.querySelectorAll('.zoom-layer')];
@@ -576,32 +511,9 @@
     const clamp = (v,a,b)=>v<a?a:v>b?b:v;
     const norm  = (v,a,b)=>clamp((v-a)/(b-a),0,1);
 
-    function updateHero(scrollY){
-      const t = norm(scrollY,0,HERO_PX);
-      const initialClip = 25;
-      const finalClip   = 75;
-
-      const clipStart = initialClip * (1 - t);
-      const clipEnd   = finalClip   + (100 - finalClip) * t;
-
-      const clipPath = `polygon(${clipStart}% ${clipStart}%, ${clipEnd}% ${clipStart}%, ${clipEnd}% ${clipEnd}%, ${clipStart}% ${clipEnd}%)`;
-
-      const bgSize = 170 - 70 * t;
-
-      [heroBgDesktop, heroBgMobile].forEach(el=>{
-        if(!el) return;
-        el.style.clipPath = clipPath;
-        el.style.backgroundSize = `${bgSize}%`;
-      });
-    }
-
-    function seqScrollY(scrollY){
-      return Math.max(scrollY - HERO_PX, 0);
-    }
-
-    function frameIndexFor(localScroll){
-      if(localScroll >= S_SEQ_END) return FRAME_COUNT - 1;
-      const progress = clamp(localScroll / S_SEQ_END, 0, 1);
+    function frameIndexFor(scrollY){
+      if(scrollY >= S_SEQ_END) return FRAME_COUNT - 1;
+      const progress = clamp(scrollY / S_SEQ_END, 0, 1);
       return Math.round(progress * (FRAME_COUNT - 1));
     }
 
@@ -741,15 +653,15 @@
     }
     preloadInitial();
 
-    function updateTextReveal(localScroll){
+    function updateTextReveal(scrollY){
       const overlayIn  = S_FADE_END + 60;
       const overlayOut = TEXT_VISIBLE_END;
-      const overlayVisible = localScroll>=overlayIn && localScroll<=overlayOut;
+      const overlayVisible = scrollY>=overlayIn && scrollY<=overlayOut;
       textOverlay.classList.toggle('is-visible',overlayVisible);
 
       const revealStart = S_FADE_END + 120;
       const revealEnd   = TEXT_VISIBLE_END;
-      const globalProgress = norm(localScroll,revealStart,revealEnd);
+      const globalProgress = norm(scrollY,revealStart,revealEnd);
 
       revealLineEls.forEach((lineEl,lineIndex)=>{
         const fillWords = [...lineEl.querySelectorAll('.fill-line .word')];
@@ -778,13 +690,13 @@
       });
     }
 
-    function updateZoomParallax(localScroll){
+    function updateZoomParallax(scrollY){
       const visibleIn  = S_ZOOM_START - 60;
       const visibleOut = S_ZOOM_END + 120;
-      const visible    = localScroll>=visibleIn && localScroll<=visibleOut;
+      const visible    = scrollY>=visibleIn && scrollY<=visibleOut;
       zoomOverlay.classList.toggle('is-visible',visible);
 
-      const t  = norm(localScroll,S_ZOOM_START,S_ZOOM_END);
+      const t  = norm(scrollY,S_ZOOM_START,S_ZOOM_END);
       const tIn  = clamp(t*1.5,0,1);
       const tOut = clamp((t-0.55)/0.45,0,1);
 
@@ -815,21 +727,17 @@
     let rafId   = 0;
 
     function render(scrollY){
-      updateHero(scrollY);
-
-      const local = seqScrollY(scrollY);
-
-      const frameIdx = frameIndexFor(local);
+      const frameIdx = frameIndexFor(scrollY);
       showFrame(frameIdx);
 
-      if(local < S_SEQ_END){
+      if(scrollY < S_SEQ_END){
         overlay.style.opacity = '0';
         layerA.classList.remove('hidden-after-fade');
         layerB.classList.remove('hidden-after-fade');
         textOverlay.classList.remove('is-visible');
         zoomOverlay.classList.remove('is-visible');
-      } else if(local < S_FADE_END){
-        const fadeT = norm(local,S_SEQ_END,S_FADE_END);
+      } else if(scrollY < S_FADE_END){
+        const fadeT = norm(scrollY,S_SEQ_END,S_FADE_END);
         overlay.style.opacity = fadeT.toFixed(3);
         textOverlay.classList.remove('is-visible');
         zoomOverlay.classList.remove('is-visible');
@@ -839,8 +747,8 @@
         layerB.classList.add('hidden-after-fade');
       }
 
-      updateTextReveal(local);
-      updateZoomParallax(local);
+      updateTextReveal(scrollY);
+      updateZoomParallax(scrollY);
     }
 
     function loop(){
