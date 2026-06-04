@@ -9,7 +9,6 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@900&display=swap" rel="stylesheet">
 
-  <!-- CDN: GSAP + ScrollTrigger + Lenis -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js" defer></script>
@@ -27,52 +26,35 @@
       font-family: "Playfair Display", Georgia, serif;
     }
 
+    /* ─── STAGE FISSO ─── */
     #stage {
-      position: fixed;
-      inset: 0;
-      width: 100vw;
-      height: 100vh;
-      background: #000;
-      overflow: hidden;
-      z-index: 2;
+      position: fixed; inset: 0;
+      width: 100vw; height: 100vh;
+      background: #000; overflow: hidden; z-index: 2;
     }
-
     .seq-layer {
-      position: absolute;
-      inset: 0;
+      position: absolute; inset: 0;
       width: 100%; height: 100%;
-      object-fit: cover;
-      object-position: center;
-      pointer-events: none;
-      opacity: 0;
-      will-change: opacity;
-      backface-visibility: hidden;
-      transform: translateZ(0);
-      z-index: 2;
+      object-fit: cover; object-position: center;
+      pointer-events: none; opacity: 0;
+      will-change: opacity; backface-visibility: hidden;
+      transform: translateZ(0); z-index: 2;
     }
     .seq-layer.active { opacity: 1; }
     .seq-layer.hidden-after-fade { opacity: 0 !important; visibility: hidden; }
-
     #fade-overlay {
-      position: absolute;
-      inset: 0;
-      background: #000;
-      opacity: 0;
-      pointer-events: none;
-      will-change: opacity;
-      z-index: 5;
+      position: absolute; inset: 0;
+      background: #000; opacity: 0;
+      pointer-events: none; will-change: opacity; z-index: 5;
     }
 
+    /* ─── TEXT REVEAL ─── */
     #text-scroll-overlay {
-      position: absolute;
-      inset: 0;
-      z-index: 6;
-      pointer-events: none;
-      opacity: 0;
-      transition: opacity 300ms linear;
+      position: absolute; inset: 0;
+      z-index: 6; pointer-events: none;
+      opacity: 0; transition: opacity 300ms linear;
     }
     #text-scroll-overlay.is-visible { opacity: 1; }
-
     .text-scroll-inner {
       position: absolute; inset: 0;
       display: grid; place-items: center; padding: 7vw;
@@ -104,6 +86,7 @@
                   filter 100ms linear, transform 100ms linear;
     }
 
+    /* ─── PRELOADER ─── */
     #preloader {
       position: fixed; inset: 0; z-index: 9999;
       background: radial-gradient(circle at 20% 0%, #18151f 0%, #050509 42%, #020104 90%);
@@ -118,11 +101,10 @@
     .cp-bg-bottom { clip-path: inset(50% 0 0 0); transform-origin: 50% 100%; }
     .cp-content {
       position: absolute; inset: 0; display: grid; place-items: center;
-      padding: 4vw; text-align: center; z-index: 2;
-      will-change: opacity, transform;
+      padding: 4vw; text-align: center; z-index: 2; will-change: opacity, transform;
     }
-    .cp-inner  { display: flex; flex-direction: column; align-items: center; }
-    .cp-words  {
+    .cp-inner { display: flex; flex-direction: column; align-items: center; }
+    .cp-words {
       display: flex; align-items: center; justify-content: center;
       text-transform: uppercase; letter-spacing: .18em; white-space: nowrap;
     }
@@ -134,19 +116,25 @@
       will-change: opacity, transform;
     }
     #cp-text.is-visible { opacity: 1; transform: translateY(0); }
-    #preloader.is-splitting .cp-bg-top    { animation: cpSplitTop 1400ms cubic-bezier(.22,.8,.25,1) forwards; }
+    #preloader.is-splitting .cp-bg-top    { animation: cpSplitTop    1400ms cubic-bezier(.22,.8,.25,1) forwards; }
     #preloader.is-splitting .cp-bg-bottom { animation: cpSplitBottom 1400ms cubic-bezier(.22,.8,.25,1) forwards; }
     #preloader.is-splitting .cp-content   { opacity:0; transform:translateY(-12px); transition:opacity 600ms ease-out,transform 600ms ease-out; }
     @keyframes cpSplitTop    { to { transform: translateY(-100%); } }
     @keyframes cpSplitBottom { to { transform: translateY(100%);  } }
 
+    /* ═══════════════════════════════════════════════════════
+       ZOOM PARALLAX
+       Griglia 3×3 — GAP=2vw/vh — CELL=30.67vw/vh
+       [photo-1][photo-2][photo-3]
+       [photo-4][ HERO  ][photo-5]
+       [photo-6][photo-7][  ---  ]
+    ════════════════════════════════════════════════════════ */
     #zp-section {
       position: relative;
       width: 100%;
       height: 300vh;
       z-index: 10;
     }
-
     #zp-sticky {
       position: sticky;
       top: 0;
@@ -155,14 +143,12 @@
       overflow: hidden;
       background: #000;
     }
-
     #zp-grid {
       position: absolute;
       inset: 0;
       transform-origin: center center;
       will-change: transform;
     }
-
     .zp-card {
       position: absolute;
       overflow: hidden;
@@ -174,54 +160,66 @@
       object-fit: cover; object-position: center;
       display: block;
       user-select: none; -webkit-user-drag: none;
-      backface-visibility: hidden;
-      transform: translateZ(0);
+      backface-visibility: hidden; transform: translateZ(0);
     }
 
-    .zp-card--1 { width: 20vw; height: 40vh; left:  8vw; top:  8vh; }
-    .zp-card--2 { width: 22vw; height: 30vh; left: 40vw; top:  4vh; }
-    .zp-card--3 { width: 18vw; height: 26vh; right: 8vw; top: 10vh; }
-    .zp-card--4 { width: 26vw; height: 30vh; left: 12vw; top: 46vh; }
-    .zp-card--5 { width: 20vw; height: 24vh; left: 42vw; top: 46vh; }
-    .zp-card--6 { width: 22vw; height: 32vh; right:12vw; top: 40vh; }
-    .zp-card--7 { width: 28vw; height: 22vh; left: 36vw; top: 74vh; }
+    /* Desktop — griglia 3×3 equidistante, zero sovrapposizioni */
+    .zp-card--1 { width:30.67vw; height:30.67vh; left: 2vw;     top: 2vh;     }
+    .zp-card--2 { width:30.67vw; height:30.67vh; left: 34.67vw; top: 2vh;     }
+    .zp-card--3 { width:30.67vw; height:30.67vh; left: 67.33vw; top: 2vh;     }
+    .zp-card--4 { width:30.67vw; height:30.67vh; left: 2vw;     top: 34.67vh; }
+    .zp-card--5 { width:30.67vw; height:30.67vh; left: 67.33vw; top: 34.67vh; }
+    .zp-card--6 { width:30.67vw; height:30.67vh; left: 2vw;     top: 67.33vh; }
+    .zp-card--7 { width:30.67vw; height:30.67vh; left: 34.67vw; top: 67.33vh; }
 
+    /* Hero card — FUORI da #zp-grid, anti-sgranatura */
     #zp-hero-card {
       position: absolute;
-      left: 50%;
-      top:  50%;
-      transform: translate(-50%, -50%);
-      width:  min(38vw, 520px);
-      height: min(52vh, 540px);
       overflow: hidden;
       background: #111;
       border-radius: 0;
-      will-change: transform;
-      z-index: 5;
+      will-change: width, height, left, top;
+      z-index: 8;
+      image-rendering: high-quality;
     }
     #zp-hero-card img {
       width: 100%; height: 100%;
-      object-fit: cover; object-position: center;
+      object-fit: cover;
+      object-position: center center;
       display: block;
+      user-select: none; -webkit-user-drag: none;
     }
 
     .zp-vignette {
-      position: absolute; inset: 0; pointer-events: none; z-index: 6;
+      position: absolute; inset: 0; pointer-events: none; z-index: 9;
       background: radial-gradient(
         circle at center,
         rgba(0,0,0,0)   35%,
-        rgba(0,0,0,.15) 70%,
-        rgba(0,0,0,.28) 100%
+        rgba(0,0,0,.13) 70%,
+        rgba(0,0,0,.25) 100%
       );
     }
 
+    /* ─── Mobile ─── */
+    @media (max-width: 768px) {
+      .text-scroll-block { width: min(92vw, 640px); gap: .16em; }
+      .ghost-line, .fill-line { gap: .14em; }
+      .reveal-line { font-size: clamp(1.18rem, 5.4vw, 2.35rem); line-height: 1.04; }
+
+      .zp-card--1 { width:30.67vw; height:28vh; left: 2vw;     top: 2vh;   }
+      .zp-card--2 { width:30.67vw; height:28vh; left: 34.67vw; top: 2vh;   }
+      .zp-card--3 { width:30.67vw; height:28vh; left: 67.33vw; top: 2vh;   }
+      .zp-card--4 { width:30.67vw; height:28vh; left: 2vw;     top: 32vh;  }
+      .zp-card--5 { width:30.67vw; height:28vh; left: 67.33vw; top: 32vh;  }
+      .zp-card--6 { width:30.67vw; height:28vh; left: 2vw;     top: 62vh;  }
+      .zp-card--7 { width:30.67vw; height:28vh; left: 34.67vw; top: 62vh;  }
+    }
+
+    /* ─── CONTATTAMI ─── */
     #contact-section {
-      position: relative;
-      width: 100%;
-      background: #000;
-      color: #fff;
-      padding: 16vh 8vw 18vh;
-      z-index: 10;
+      position: relative; width: 100%;
+      background: #000; color: #fff;
+      padding: 16vh 8vw 18vh; z-index: 10;
     }
     #contact-section h2 {
       font-size: clamp(2rem, 4vw, 3rem);
@@ -230,28 +228,12 @@
       text-align: center;
     }
 
-    @media (max-width: 768px) {
-      .text-scroll-block { width: min(92vw, 640px); gap: .16em; }
-      .ghost-line, .fill-line { gap: .14em; }
-      .reveal-line { font-size: clamp(1.18rem, 5.4vw, 2.35rem); line-height: 1.04; }
-
-      .zp-card--1 { width: 46vw; height: 26vh; left:  4vw; top:  8vh; }
-      .zp-card--2 { width: 42vw; height: 22vh; right: 4vw; top: 12vh; }
-      .zp-card--3 { width: 42vw; height: 24vh; left: 10vw; top: 34vh; }
-      .zp-card--4 { width: 42vw; height: 22vh; right: 6vw; top: 34vh; }
-      .zp-card--5 { width: 44vw; height: 20vh; left:  6vw; top: 60vh; }
-      .zp-card--6 { width: 38vw; height: 24vh; right: 4vw; top: 58vh; }
-      .zp-card--7 { width: 60vw; height: 20vh; left: 20vw; top: 82vh; }
-      #zp-hero-card { width: 68vw; height: 44vh; }
-    }
-
     @media (prefers-reduced-motion: reduce) {
       html { scroll-behavior: auto; }
       #text-scroll-overlay, .reveal-line, .fill-line .word,
       #zp-grid, #zp-hero-card, #cp-text, .cp-content,
       .cp-bg-top, .cp-bg-bottom {
-        transition: none !important;
-        animation:  none !important;
+        transition: none !important; animation: none !important;
       }
     }
   </style>
@@ -273,7 +255,6 @@
   <div id="stage">
     <img id="seq-a" class="seq-layer active" alt="" decoding="async" fetchpriority="high">
     <img id="seq-b" class="seq-layer" alt="" decoding="async">
-
     <div id="text-scroll-overlay" aria-hidden="true">
       <div class="text-scroll-inner">
         <div class="text-scroll-block">
@@ -284,12 +265,12 @@
         </div>
       </div>
     </div>
-
     <div id="fade-overlay"></div>
   </div>
 
   <section id="zp-section">
     <div id="zp-sticky">
+
       <div id="zp-grid">
         <div class="zp-card zp-card--1">
           <img src="spatial-carousel/photo-1.jpg" alt="Foto 1" loading="lazy" decoding="async">
@@ -312,13 +293,19 @@
         <div class="zp-card zp-card--7">
           <img src="spatial-carousel/photo-7.jpg" alt="Foto 7" loading="lazy" decoding="async">
         </div>
+      </div>
 
-        <div id="zp-hero-card">
-          <img src="spatial-carousel/photo-3.jpg" alt="Foto principale" decoding="async">
-        </div>
+      <div id="zp-hero-card">
+        <img
+          src="spatial-carousel/photo-3.jpg"
+          alt="Foto principale"
+          decoding="async"
+          fetchpriority="high"
+        >
       </div>
 
       <div class="zp-vignette" aria-hidden="true"></div>
+
     </div>
   </section>
 
@@ -532,5 +519,6 @@
   </script>
 
   <script src="zoom-parallax.js" defer></script>
+
 </body>
 </html>
