@@ -5,19 +5,26 @@
  *   - ScrollTrigger     cdnjs.cloudflare.com
  *   - Lenis 1.0.42      cdn.jsdelivr.net
  *
- * LAYOUT: griglia 3×3, cella centrale riservata alla hero.
- * 7 card equidistanti senza sovrapposizioni.
+ * LAYOUT "INCASTRO" — ispirato all'immagine di riferimento:
+ *
+ *  ┌─────────────┬───────────────────────────────┐
+ *  │             │        photo-1 wide            │ 40vh
+ *  │  photo-4    ├───────────────┬───────────────┤
+ *  │   tall      │  [HERO ph.3] │    photo-5    │ 28vh
+ *  ├─────────────┴───────────────┼───────────────┤
+ *  │       photo-6 wide          │    photo-7    │ 24vh
+ *  └─────────────────────────────┴───────────────┘
+ *
+ * Gap uniforme 2vw/vh — altezza totale esatta 100vh.
  *
  * FASI TIMELINE:
- *  1 (0–30%) : tutto fermo, layout visibile
- *  2 (30–65%): zoom camera (#zp-grid scala 3.5×)
- *              + hero card espande width/height → 100vw × 100vh
- *  P (65–85%): STOP — hero a tutto schermo, pausa intenzionale
- *  3 (85–100%): rilascio pin → foto scorre nel flusso normale
+ *  1 (0–30%) : layout fermo
+ *  2 (30–65%): zoom camera (#zp-grid 3.5×) + hero espande → 100vw×100vh
+ *  STOP (65–85%): hero a tutto schermo, pausa
+ *  3 (85–100%): rilascio pin
  *
  * ANTI-SGRANATURA: hero fuori da #zp-grid, animata con
- * width/height reali invece di transform:scale → nessun
- * upscaling GPU su foto 4284×5712.
+ * width/height reali (non transform:scale).
  */
 
 (function () {
@@ -33,7 +40,6 @@
 
     gsap.registerPlugin(ScrollTrigger);
 
-    /* ── Lenis ── */
     const lenis = new Lenis({
       duration:    1.2,
       easing:      (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
@@ -47,28 +53,27 @@
     const vw = () => window.innerWidth;
     const vh = () => window.innerHeight;
 
-    /* Dimensioni iniziali hero (cella centrale della griglia 3×3) */
-    const GAP   = 0.02;
-    const CELL  = (1 - GAP * 4) / 3;
-
-    const heroInitW = () => vw() * CELL;
-    const heroInitH = () => vh() * CELL;
-    const heroInitL = () => vw() * (GAP + CELL + GAP);
-    const heroInitT = () => vh() * (GAP + CELL + GAP);
+    /*
+     * Posizione iniziale hero = cella col1-row1 del layout incastro:
+     * L=34.67%  T=44%  W=30.67%  H=28%
+     */
+    const HERO_L = 0.3467;
+    const HERO_T = 0.4400;
+    const HERO_W = 0.3067;
+    const HERO_H = 0.2800;
 
     function setHeroInitial() {
       gsap.set(heroCard, {
-        width:    heroInitW(),
-        height:   heroInitH(),
-        left:     heroInitL(),
-        top:      heroInitT(),
+        left:     vw() * HERO_L,
+        top:      vh() * HERO_T,
+        width:    vw() * HERO_W,
+        height:   vh() * HERO_H,
         xPercent: 0,
         yPercent: 0,
       });
     }
     setHeroInitial();
 
-    /* ── TIMELINE ── */
     const tl = gsap.timeline({
       scrollTrigger: {
         trigger:       section,
@@ -81,10 +86,10 @@
       }
     });
 
-    /* FASE 1: layout fermo (0% → 30%) */
+    /* FASE 1 */
     tl.to({}, { duration: 0.3 });
 
-    /* FASE 2: zoom camera + espansione hero (30% → 65%) */
+    /* FASE 2: zoom camera + espansione hero */
     tl
       .to(grid, {
         scale:    3.5,
@@ -100,10 +105,10 @@
         ease:     "none",
       }, "<");
 
-    /* STOP (65% → 85%): hero a tutto schermo, zoom fermo */
+    /* STOP: hero a tutto schermo, zoom fermo */
     tl.to({}, { duration: 0.2 });
 
-    /* FASE 3: stabilizzazione finale (85% → 100%) */
+    /* FASE 3: stabilizzazione */
     tl.to({}, { duration: 0.15 });
 
     window.addEventListener("resize", () => {
