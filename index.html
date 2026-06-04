@@ -201,7 +201,7 @@
     @keyframes cpSplitTop{0%{transform:translateY(0)}100%{transform:translateY(-100%)}}
     @keyframes cpSplitBottom{0%{transform:translateY(0)}100%{transform:translateY(100%)}}
 
-    /* SMOOTH SCROLL HERO (clip-path) */
+    /* HERO (clip + zoom di background) */
 
     #hero-wrapper{
       position:absolute;
@@ -256,7 +256,7 @@
 
     .zoom-parallax-rail{
       position:relative;
-      height:260vh;
+      height:3200px; /* sarà controllata anche via JS */
       width:100%;
     }
     .zoom-sticky{
@@ -298,10 +298,11 @@
       display:block;
       user-select:none;
       -webkit-user-drag:none;
-      transform:scale(1.01);
+      backface-visibility:hidden;
+      transform:translateZ(0) scale(1.01);
     }
 
-    /* layout griglia (7 card, ispirato alla demo) */
+    /* layout griglia (7 card) */
 
     .zoom-card--1{width:20vw;height:40vh;left:8vw;top:8vh;}
     .zoom-card--2{width:22vw;height:30vh;left:40vw;top:4vh;}
@@ -473,6 +474,7 @@
               </div>
               <div class="zoom-layer" data-layer="2">
                 <div class="zoom-card zoom-card--3">
+                  <!-- foto centrale (4228x5712) -->
                   <img src="spatial-carousel/photo-3.jpg" alt="Foto 3">
                 </div>
               </div>
@@ -518,15 +520,14 @@
   </section>
 
   <script>
-    /* CONFIG GENERALE */
-    const HERO_PX       = 1500;   // altezza hero come nella demo
+    const HERO_PX       = 1500;
     const FRAME_COUNT   = 127;
     const PX_PER_FRAME  = window.innerWidth <= 768 ? 30 : 24;
     const FADE_PX       = 420;
     const STARFIELD_PX  = window.innerWidth <= 768 ? 3200 : 4200;
-    const ZOOM_SECTION_LEN = window.innerWidth <= 768 ? 2600 : 3200;
 
-    /* RANGE SEQUENZA (parte dopo l'hero) */
+    const ZOOM_SECTION_LEN = window.innerWidth <= 768 ? 3200 : 4200;
+
     const S_SEQ_END   = (FRAME_COUNT - 1) * PX_PER_FRAME;
     const S_FADE_END  = S_SEQ_END + FADE_PX;
     const S_STAR_END  = S_FADE_END + STARFIELD_PX;
@@ -534,7 +535,7 @@
     const S_ZOOM_START = TEXT_VISIBLE_END + 220;
     const S_ZOOM_END   = S_ZOOM_START + ZOOM_SECTION_LEN;
 
-    const TOTAL_SEQ_PX = S_ZOOM_END + 1200; // seq + testo + zoom + margine
+    const TOTAL_SEQ_PX = S_ZOOM_END + 1200;
     const TOTAL_PX     = HERO_PX + TOTAL_SEQ_PX;
 
     const TEXT_LINES = [
@@ -575,9 +576,8 @@
     const clamp = (v,a,b)=>v<a?a:v>b?b:v;
     const norm  = (v,a,b)=>clamp((v-a)/(b-a),0,1);
 
-    /* HERO CLIP-PATH + ZOOM */
     function updateHero(scrollY){
-      const t = norm(scrollY,0,HERO_PX); // 0-1
+      const t = norm(scrollY,0,HERO_PX);
       const initialClip = 25;
       const finalClip   = 75;
 
@@ -586,7 +586,7 @@
 
       const clipPath = `polygon(${clipStart}% ${clipStart}%, ${clipEnd}% ${clipStart}%, ${clipEnd}% ${clipEnd}%, ${clipStart}% ${clipEnd}%)`;
 
-      const bgSize = 170 - 70 * t; // 170% → 100%
+      const bgSize = 170 - 70 * t;
 
       [heroBgDesktop, heroBgMobile].forEach(el=>{
         if(!el) return;
@@ -595,7 +595,6 @@
       });
     }
 
-    /* IMG SEQUENCE: scroll relativo (dopo HERO) */
     function seqScrollY(scrollY){
       return Math.max(scrollY - HERO_PX, 0);
     }
@@ -629,7 +628,6 @@
     }
     buildTextReveal();
 
-    /* PRELOADER */
     function showPhrase(index){
       if(!cpTextEl)return;
       cpTextEl.classList.remove('is-visible');
@@ -662,7 +660,6 @@
     }
     startCinematicLoader();
 
-    /* IMG-SEQUENCE LOADING */
     const frames = Array.from({length:FRAME_COUNT},()=>({status:0,img:null,promise:null}));
     let activeLayer=layerA;
     let hiddenLayer=layerB;
@@ -744,7 +741,6 @@
     }
     preloadInitial();
 
-    /* TEXT REVEAL (usa scroll relativo alla sequenza) */
     function updateTextReveal(localScroll){
       const overlayIn  = S_FADE_END + 60;
       const overlayOut = TEXT_VISIBLE_END;
@@ -782,7 +778,6 @@
       });
     }
 
-    /* ZOOM PARALLAX (usa scroll relativo sequenza) */
     function updateZoomParallax(localScroll){
       const visibleIn  = S_ZOOM_START - 60;
       const visibleOut = S_ZOOM_END + 120;
@@ -796,18 +791,24 @@
       const enterTranslate = (1 - tIn) * 40;
       const enterOpacity   = tIn;
 
+      const layerScales = [4,5,6,5,6,8,9];
+
       zoomLayers.forEach((layer,i)=>{
+        const factor = layerScales[i % layerScales.length];
+        const scale  = 1 + (factor - 1) * t;
+
         layer.style.opacity  = (enterOpacity*(1-0.25*tOut)).toFixed(3);
-        layer.style.transform=`translate3d(0,${enterTranslate.toFixed(1)}px,0) scale(${1+0.05*tIn})`;
+        layer.style.transform =
+          `translate3d(0,${enterTranslate.toFixed(1)}px,0) scale(${scale.toFixed(3)})`;
       });
 
       const heroScale      = 1 + 1.6 * tOut;
       const heroTranslateY = -12 * tOut;
       zoomHeroCard.style.opacity  = (tOut<=0.02?0:tOut).toFixed(3);
-      zoomHeroCard.style.transform=`translate3d(0,${heroTranslateY.toFixed(1)}px,0) scale(${heroScale.toFixed(3)})`;
+      zoomHeroCard.style.transform =
+        `translate3d(0,${heroTranslateY.toFixed(1)}px,0) scale(${heroScale.toFixed(3)})`;
     }
 
-    /* MAIN LOOP */
     let targetScrollY = window.scrollY || document.documentElement.scrollTop || 0;
     let currentScrollY = targetScrollY;
     let running = false;
@@ -816,7 +817,7 @@
     function render(scrollY){
       updateHero(scrollY);
 
-      const local = seqScrollY(scrollY); // tutta la parte dopo l'hero
+      const local = seqScrollY(scrollY);
 
       const frameIdx = frameIndexFor(local);
       showFrame(frameIdx);
