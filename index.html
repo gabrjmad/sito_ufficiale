@@ -3,215 +3,1440 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>Gabriele Madeo</title>
+  <title>Gabriele Madeo — Visual Creator & Spatial Portfolio</title>
+  <meta name="description" content="Portfolio ufficiale di Gabriele Madeo: fotografia cinematografica, creative direction ed esperienze visive spaziali." />
 
+  <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,900;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
 
+  <!-- Core Libraries: GSAP, ScrollTrigger, Lenis -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js" defer></script>
 
   <style>
-    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
-    html, body { background:#000; overscroll-behavior:none; }
-    body { min-height:100vh; color:#fff; font-family:"Playfair Display",Georgia,serif; }
-
-    /* ─── STAGE ─── */
-    #stage {
-      position:fixed; inset:0; width:100vw; height:100vh;
-      background:#000; overflow:hidden; z-index:2;
-    }
-    .seq-layer {
-      position:absolute; inset:0; width:100%; height:100%;
-      object-fit:cover; object-position:center;
-      pointer-events:none; opacity:0;
-      will-change:opacity; backface-visibility:hidden;
-      transform:translateZ(0); z-index:2;
-    }
-    .seq-layer.active { opacity:1; }
-    .seq-layer.hidden-after-fade { opacity:0 !important; visibility:hidden; }
-    #fade-overlay {
-      position:absolute; inset:0; background:#000; opacity:0;
-      pointer-events:none; will-change:opacity; z-index:5;
+    /* ═══════════════════════════════════════════════════════
+       DESIGN SYSTEM & RESET
+       ═══════════════════════════════════════════════════════ */
+    :root {
+      --bg: #050508;
+      --bg-card: rgba(18, 18, 26, 0.75);
+      --bg-card-hover: rgba(28, 28, 40, 0.85);
+      --border-subtle: rgba(255, 255, 255, 0.12);
+      --border-hover: rgba(255, 255, 255, 0.32);
+      --accent: #e6dfd5;
+      --accent-glow: rgba(230, 223, 213, 0.25);
+      --gold: #d4af37;
+      --text: #ffffff;
+      --text-muted: rgba(255, 255, 255, 0.62);
+      --text-dim: rgba(255, 255, 255, 0.38);
+      --font-display: 'Syne', sans-serif;
+      --font-serif: 'Playfair Display', Georgia, serif;
+      --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
     }
 
-    /* ─── TEXT REVEAL ─── */
-    #text-scroll-overlay {
-      position:absolute; inset:0; z-index:6;
-      pointer-events:none; opacity:0; transition:opacity 300ms linear;
-    }
-    #text-scroll-overlay.is-visible { opacity:1; }
-    .text-scroll-inner {
-      position:absolute; inset:0;
-      display:grid; place-items:center; padding:7vw;
-    }
-    .text-scroll-block {
-      width:min(860px,84vw); display:flex; flex-direction:column;
-      gap:.12em; align-items:center; text-align:center;
-    }
-    .reveal-line {
-      position:relative; display:block; width:100%;
-      font-family:"Playfair Display",Georgia,serif; font-weight:900;
-      font-size:clamp(1.3rem,3.2vw,3.1rem);
-      line-height:1.01; letter-spacing:-.022em;
-      transition:transform 180ms linear, opacity 180ms linear;
-    }
-    .ghost-line,.fill-line { display:flex; justify-content:center; flex-wrap:wrap; gap:.18em; }
-    .ghost-line { color:rgba(255,255,255,.1); }
-    .fill-line  { position:absolute; inset:0; color:#fff; }
-    .word { display:inline-block; white-space:pre; }
-    .ghost-line .word { color:rgba(255,255,255,.11); }
-    .fill-line  .word {
-      color:#fff; opacity:1; filter:blur(0);
-      will-change:color,opacity,filter,transform;
-      transition:color 100ms linear,opacity 100ms linear,
-                 filter 100ms linear,transform 100ms linear;
+    *, *::before, *::after {
+      margin: 0; padding: 0; box-sizing: border-box;
+      -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
     }
 
-    /* ─── PRELOADER ─── */
-    #preloader {
-      position:fixed; inset:0; z-index:9999;
-      background:radial-gradient(circle at 20% 0%,#18151f 0%,#050509 42%,#020104 90%);
-      opacity:1; visibility:visible; overflow:hidden; pointer-events:auto;
+    html, body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-sans);
+      overflow-x: hidden;
+      overscroll-behavior: none;
+      scroll-behavior: auto;
     }
-    #preloader.is-hidden { display:none; }
-    .cp-bg {
-      position:absolute; inset:0; background:#020108;
-      will-change:transform; transform:translate3d(0,0,0); pointer-events:none;
+
+    ::selection {
+      background: #ffffff;
+      color: #000000;
     }
-    .cp-bg-top    { clip-path:inset(0 0 50% 0); transform-origin:50% 0; }
-    .cp-bg-bottom { clip-path:inset(50% 0 0 0); transform-origin:50% 100%; }
-    .cp-content {
-      position:absolute; inset:0; display:grid; place-items:center;
-      padding:4vw; text-align:center; z-index:2; will-change:opacity,transform;
+
+    a {
+      color: inherit;
+      text-decoration: none;
     }
-    .cp-inner { display:flex; flex-direction:column; align-items:center; }
-    .cp-words {
-      display:flex; align-items:center; justify-content:center;
-      text-transform:uppercase; letter-spacing:.18em; white-space:nowrap;
+
+    /* ─── CUSTOM CURSOR (DESKTOP) ─── */
+    .custom-cursor {
+      position: fixed;
+      top: 0; left: 0;
+      width: 10px; height: 10px;
+      background: #ffffff;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 99999;
+      transform: translate(-50%, -50%);
+      transition: width 0.25s var(--ease-out), height 0.25s var(--ease-out), background-color 0.25s, opacity 0.25s;
+      mix-blend-mode: difference;
     }
-    #cp-text {
-      font-size:clamp(1.1rem,1rem + .9vw,1.8rem);
-      font-weight:600; color:rgba(255,255,255,.9);
-      opacity:0; transform:translateY(.9em);
-      transition:opacity 520ms ease-out,transform 520ms ease-out;
-      will-change:opacity,transform;
+    .custom-cursor-follower {
+      position: fixed;
+      top: 0; left: 0;
+      width: 36px; height: 36px;
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 99998;
+      transform: translate(-50%, -50%);
+      transition: transform 0.08s ease-out, width 0.25s var(--ease-out), height 0.25s var(--ease-out), border-color 0.25s;
     }
-    #cp-text.is-visible { opacity:1; transform:translateY(0); }
-    #preloader.is-splitting .cp-bg-top    { animation:cpSplitTop    1400ms cubic-bezier(.22,.8,.25,1) forwards; }
-    #preloader.is-splitting .cp-bg-bottom { animation:cpSplitBottom 1400ms cubic-bezier(.22,.8,.25,1) forwards; }
-    #preloader.is-splitting .cp-content   { opacity:0; transform:translateY(-12px); transition:opacity 600ms ease-out,transform 600ms ease-out; }
-    @keyframes cpSplitTop    { to { transform:translateY(-100%); } }
-    @keyframes cpSplitBottom { to { transform:translateY(100%);  } }
+    body.hovering .custom-cursor {
+      width: 24px; height: 24px;
+      background: rgba(255, 255, 255, 0.9);
+    }
+    body.hovering .custom-cursor-follower {
+      width: 60px; height: 60px;
+      border-color: rgba(255, 255, 255, 0.7);
+    }
+    @media (hover: none) and (pointer: coarse) {
+      .custom-cursor, .custom-cursor-follower { display: none !important; }
+    }
 
     /* ═══════════════════════════════════════════════════════
-       ZOOM PARALLAX — LAYOUT "INCASTRO"
-       Gap uniforme 2vw/vh · 3 colonne 30.67vw · altezza totale 100vh
+       PRELOADER CINEMATOGRAFICO
+       ═══════════════════════════════════════════════════════ */
+    #preloader {
+      position: fixed;
+      inset: 0;
+      z-index: 10000;
+      background: #020205;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      pointer-events: auto;
+      transition: opacity 0.8s var(--ease-out), visibility 0.8s;
+    }
+    #preloader.is-hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
 
-        ┌─────────────┬───────────────────────────────┐
-        │             │        photo-1  (wide)         │ 40vh
-        │  photo-4    ├───────────────┬───────────────┤
-        │  (tall)     │  HERO ph.3   │   photo-5     │ 28vh
-        ├─────────────┴───────────────┼───────────────┤
-        │       photo-6  (wide)       │   photo-7     │ 24vh
-        └─────────────────────────────┴───────────────┘
+    .preloader-bg-curtain {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at center, #15141f 0%, #07070d 60%, #020205 100%);
+      will-change: transform;
+    }
+    .cp-bg-top {
+      clip-path: inset(0 0 50% 0);
+      transform-origin: center top;
+    }
+    .cp-bg-bottom {
+      clip-path: inset(50% 0 0 0);
+      transform-origin: center bottom;
+    }
+    #preloader.is-splitting .cp-bg-top {
+      animation: splitTop 1.1s cubic-bezier(0.77, 0, 0.175, 1) forwards;
+    }
+    #preloader.is-splitting .cp-bg-bottom {
+      animation: splitBottom 1.1s cubic-bezier(0.77, 0, 0.175, 1) forwards;
+    }
+    @keyframes splitTop {
+      to { transform: translateY(-100%); }
+    }
+    @keyframes splitBottom {
+      to { transform: translateY(100%); }
+    }
 
-       Col: C0=2vw  C1=34.67vw  C2=67.33vw
-       Row: R0=2vh  R1=44vh     R2=74vh
-    ════════════════════════════════════════════════════════ */
-    #zp-section  { position:relative; width:100%; height:300vh; z-index:10; }
-    #zp-sticky   { position:sticky; top:0; height:100vh; width:100%; overflow:hidden; background:#000; }
-    #zp-grid     { position:absolute; inset:0; transform-origin:center center; will-change:transform; }
+    .preloader-inner {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 2rem;
+      max-width: 600px;
+    }
+    .preloader-brand {
+      font-family: var(--font-display);
+      font-size: 0.85rem;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 2rem;
+      opacity: 0.8;
+    }
+    .preloader-title-box {
+      height: 4rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 2.5rem;
+    }
+    #cp-text {
+      font-family: var(--font-serif);
+      font-size: clamp(2rem, 5vw, 3.4rem);
+      font-weight: 900;
+      letter-spacing: -0.01em;
+      color: #ffffff;
+      opacity: 0;
+      transform: translateY(15px);
+      transition: opacity 0.4s var(--ease-out), transform 0.4s var(--ease-out);
+    }
+    #cp-text.is-visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .preloader-progress-wrap {
+      width: min(320px, 75vw);
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      align-items: center;
+    }
+    .preloader-bar-bg {
+      width: 100%;
+      height: 2px;
+      background: rgba(255, 255, 255, 0.12);
+      border-radius: 4px;
+      overflow: hidden;
+      position: relative;
+    }
+    .preloader-bar-fill {
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 0%;
+      background: linear-gradient(90deg, #d4af37, #ffffff);
+      transition: width 0.15s ease-out;
+      box-shadow: 0 0 12px rgba(255, 255, 255, 0.6);
+    }
+    .preloader-stats {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+      font-size: 0.78rem;
+      letter-spacing: 0.15em;
+      color: var(--text-dim);
+      font-family: var(--font-sans);
+      text-transform: uppercase;
+    }
+    .preloader-skip-btn {
+      margin-top: 1.5rem;
+      font-size: 0.75rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      padding: 0.5rem 1.2rem;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.3s var(--ease-out);
+    }
+    .preloader-skip-btn:hover {
+      background: rgba(255, 255, 255, 0.15);
+      color: #fff;
+      border-color: rgba(255, 255, 255, 0.4);
+    }
+
+    /* ═══════════════════════════════════════════════════════
+       FLOATING NAVIGATION BAR
+       ═══════════════════════════════════════════════════════ */
+    #navbar {
+      position: fixed;
+      top: 1.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 1000;
+      width: min(1140px, 92vw);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.75rem 1.4rem;
+      background: rgba(10, 10, 15, 0.65);
+      backdrop-filter: blur(24px) saturate(180%);
+      -webkit-backdrop-filter: blur(24px) saturate(180%);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 999px;
+      transition: all 0.4s var(--ease-out);
+    }
+    #navbar.scrolled {
+      top: 1rem;
+      background: rgba(8, 8, 12, 0.88);
+      border-color: rgba(255, 255, 255, 0.18);
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6);
+    }
+
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-family: var(--font-display);
+      font-size: 0.95rem;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #fff;
+    }
+    .nav-brand-badge {
+      width: 7px;
+      height: 7px;
+      background: #10b981;
+      border-radius: 50%;
+      box-shadow: 0 0 10px #10b981;
+      animation: pulseGlow 2s infinite ease-in-out;
+    }
+    @keyframes pulseGlow {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.4); opacity: 0.6; }
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 1.8rem;
+      list-style: none;
+    }
+    .nav-link {
+      font-size: 0.82rem;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      transition: color 0.25s var(--ease-out);
+      position: relative;
+    }
+    .nav-link:hover {
+      color: #ffffff;
+    }
+    .nav-link::after {
+      content: '';
+      position: absolute;
+      bottom: -4px; left: 0;
+      width: 0; height: 1.5px;
+      background: #ffffff;
+      transition: width 0.3s var(--ease-out);
+    }
+    .nav-link:hover::after {
+      width: 100%;
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .nav-btn-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--border-subtle);
+      display: grid;
+      place-items: center;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.3s var(--ease-out);
+    }
+    .nav-btn-icon:hover {
+      background: rgba(255, 255, 255, 0.18);
+      color: #fff;
+      border-color: rgba(255, 255, 255, 0.4);
+      transform: scale(1.05);
+    }
+    .nav-cta-btn {
+      padding: 0.5rem 1.25rem;
+      background: #ffffff;
+      color: #000000;
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      border-radius: 999px;
+      transition: all 0.3s var(--ease-out);
+    }
+    .nav-cta-btn:hover {
+      background: #e6dfd5;
+      transform: translateY(-1px);
+      box-shadow: 0 8px 24px rgba(255, 255, 255, 0.2);
+    }
+
+    @media (max-width: 860px) {
+      .nav-links { display: none; }
+      #navbar { width: calc(100% - 2rem); padding: 0.65rem 1.1rem; }
+    }
+
+    /* ═══════════════════════════════════════════════════════
+       STAGE / ULTRA-SMOOTH CANVAS SEQUENCE
+       ═══════════════════════════════════════════════════════ */
+    #scroll-space {
+      position: relative;
+      width: 100%;
+      pointer-events: none;
+    }
+
+    #stage {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      background: #000000;
+      overflow: hidden;
+      z-index: 2;
+    }
+
+    #hero-canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+      will-change: transform;
+      transform: translateZ(0);
+      z-index: 2;
+    }
+
+    #hero-video {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: none;
+      z-index: 2;
+    }
+    #hero-video.is-active {
+      display: block;
+    }
+
+    #fade-overlay {
+      position: absolute;
+      inset: 0;
+      background: #000000;
+      opacity: 0;
+      pointer-events: none;
+      will-change: opacity;
+      z-index: 5;
+    }
+
+    /* HUD overlay on hero */
+    .hero-hud {
+      position: absolute;
+      inset: 0;
+      z-index: 4;
+      pointer-events: none;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: clamp(1.5rem, 4vw, 3.5rem);
+      padding-top: 6rem;
+      transition: opacity 0.5s var(--ease-out);
+    }
+    .hero-hud.hidden {
+      opacity: 0;
+    }
+    .hud-top-left {
+      font-family: var(--font-display);
+      font-size: 0.78rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.7);
+    }
+    .hud-bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+    }
+    .hud-title h1 {
+      font-family: var(--font-display);
+      font-size: clamp(2.4rem, 6.5vw, 6rem);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      line-height: 0.95;
+      text-transform: uppercase;
+      text-shadow: 0 10px 30px rgba(0,0,0,0.8);
+    }
+    .hud-title p {
+      margin-top: 0.6rem;
+      font-size: clamp(0.9rem, 1.4vw, 1.25rem);
+      color: rgba(255, 255, 255, 0.75);
+      font-family: var(--font-serif);
+      font-style: italic;
+    }
+    .hud-scroll-cue {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      font-size: 0.78rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+    .scroll-mouse-icon {
+      width: 22px;
+      height: 34px;
+      border: 1.5px solid rgba(255, 255, 255, 0.4);
+      border-radius: 12px;
+      position: relative;
+    }
+    .scroll-mouse-wheel {
+      position: absolute;
+      top: 6px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 3px;
+      height: 7px;
+      background: #ffffff;
+      border-radius: 999px;
+      animation: mouseWheelMove 1.6s infinite ease-in-out;
+    }
+    @keyframes mouseWheelMove {
+      0% { transform: translate(-50%, 0); opacity: 1; }
+      100% { transform: translate(-50%, 12px); opacity: 0; }
+    }
+
+    /* ═══════════════════════════════════════════════════════
+       TYPOGRAPHIC STORYTELLING / TEXT REVEAL
+       ═══════════════════════════════════════════════════════ */
+    #text-scroll-overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 6;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 300ms linear;
+    }
+    #text-scroll-overlay.is-visible {
+      opacity: 1;
+    }
+    .text-scroll-inner {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      padding: 6vw;
+    }
+    .text-scroll-block {
+      width: min(940px, 88vw);
+      display: flex;
+      flex-direction: column;
+      gap: 0.4em;
+      align-items: center;
+      text-align: center;
+    }
+    .story-tagline {
+      font-family: var(--font-display);
+      font-size: 0.82rem;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 0.6rem;
+      opacity: 0.9;
+    }
+    .reveal-line {
+      position: relative;
+      display: block;
+      width: 100%;
+      font-family: var(--font-serif);
+      font-weight: 900;
+      font-size: clamp(1.4rem, 3.4vw, 3.3rem);
+      line-height: 1.08;
+      letter-spacing: -0.02em;
+      transition: transform 180ms linear, opacity 180ms linear;
+    }
+    .ghost-line, .fill-line {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 0.22em;
+    }
+    .ghost-line {
+      color: rgba(255, 255, 255, 0.12);
+    }
+    .fill-line {
+      position: absolute;
+      inset: 0;
+      color: #ffffff;
+    }
+    .word {
+      display: inline-block;
+      white-space: pre;
+    }
+    .fill-line .word {
+      color: #ffffff;
+      opacity: 1;
+      filter: blur(0);
+      will-change: color, opacity, filter, transform;
+      transition: color 100ms linear, opacity 100ms linear, filter 100ms linear, transform 100ms linear;
+    }
+
+    /* ═══════════════════════════════════════════════════════
+       SPATIAL BENTO GRID & ZOOM PARALLAX
+       ═══════════════════════════════════════════════════════ */
+    #zp-section {
+      position: relative;
+      width: 100%;
+      height: 320vh;
+      z-index: 10;
+      background: #000000;
+    }
+    #zp-sticky {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      width: 100%;
+      overflow: hidden;
+      background: #030306;
+      perspective: 1200px;
+    }
+
+    /* Ambient background gradient in parallax */
+    .zp-ambient-glow {
+      position: absolute;
+      width: 80vw;
+      height: 80vh;
+      top: 10%;
+      left: 10%;
+      background: radial-gradient(circle, rgba(70, 45, 120, 0.22) 0%, rgba(20, 20, 40, 0.08) 50%, rgba(0,0,0,0) 80%);
+      filter: blur(80px);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    #zp-grid {
+      position: absolute;
+      inset: 0;
+      transform-origin: center center;
+      will-change: transform;
+      z-index: 2;
+    }
 
     .zp-card {
-      position:absolute; overflow:hidden;
-      background:#111; border-radius:0;
+      position: absolute;
+      overflow: hidden;
+      background: #0e0e14;
+      border-radius: 18px;
+      border: 1px solid var(--border-subtle);
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.65);
+      cursor: pointer;
+      transition: border-color 0.4s var(--ease-out), box-shadow 0.4s var(--ease-out);
+    }
+    .zp-card:hover {
+      border-color: var(--border-hover);
+      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.9), 0 0 30px rgba(255, 255, 255, 0.12);
     }
     .zp-card img {
-      width:100%; height:100%;
-      object-fit:cover; object-position:center;
-      display:block; user-select:none; -webkit-user-drag:none;
-      backface-visibility:hidden; transform:translateZ(0);
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+      display: block;
+      user-select: none;
+      -webkit-user-drag: none;
+      backface-visibility: hidden;
+      transform: translateZ(0) scale(1);
+      transition: transform 0.8s var(--ease-out);
+    }
+    .zp-card:hover img {
+      transform: scale(1.06);
     }
 
-    .zp-card--4 { width:30.67vw; height:70vh;  left:2vw;     top:2vh;  }
-    .zp-card--1 { width:63.33vw; height:40vh;  left:34.67vw; top:2vh;  }
-    .zp-card--2 { width:30.67vw; height:28vh;  left:34.67vw; top:44vh; }
-    .zp-card--5 { width:30.67vw; height:28vh;  left:67.33vw; top:44vh; }
-    .zp-card--6 { width:63.33vw; height:24vh;  left:2vw;     top:74vh; }
-    .zp-card--7 { width:30.67vw; height:24vh;  left:67.33vw; top:74vh; }
+    /* Card Badge / Metadata */
+    .card-meta {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      padding: 1.2rem 1.4rem;
+      background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.85) 85%);
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: all 0.35s var(--ease-out);
+      pointer-events: none;
+    }
+    .zp-card:hover .card-meta {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .card-tag {
+      font-family: var(--font-display);
+      font-size: 0.72rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: #ffffff;
+      font-weight: 700;
+    }
+    .card-sub {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      margin-top: 0.2rem;
+    }
+    .card-icon-zoom {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(8px);
+      display: grid;
+      place-items: center;
+      color: #fff;
+    }
 
+    /* Bento Mosaic Dimensions (Desktop: gap 2vw / 2vh) */
+    .zp-card--4 { width: 30.67vw; height: 70vh; left: 2vw;     top: 2vh;  }
+    .zp-card--1 { width: 63.33vw; height: 40vh; left: 34.67vw; top: 2vh;  }
+    .zp-card--2 { width: 30.67vw; height: 28vh; left: 34.67vw; top: 44vh; }
+    .zp-card--5 { width: 30.67vw; height: 28vh; left: 67.33vw; top: 44vh; }
+    .zp-card--6 { width: 63.33vw; height: 24vh; left: 2vw;     top: 74vh; }
+    .zp-card--7 { width: 30.67vw; height: 24vh; left: 67.33vw; top: 74vh; }
+
+    /* Central Hero Card */
     #zp-hero-card {
-      position:absolute; overflow:hidden;
-      background:#111; border-radius:0;
-      will-change:width,height,left,top;
-      z-index:8; image-rendering:high-quality;
+      position: absolute;
+      overflow: hidden;
+      background: #0e0e14;
+      border-radius: 18px;
+      border: 1px solid var(--border-subtle);
+      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.8);
+      will-change: width, height, left, top, border-radius;
+      z-index: 8;
+      image-rendering: high-quality;
+      cursor: pointer;
+      transition: border-color 0.4s var(--ease-out);
     }
     #zp-hero-card img {
-      width:100%; height:100%;
-      object-fit:cover; object-position:center;
-      display:block; user-select:none; -webkit-user-drag:none;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+      display: block;
+      user-select: none;
+      -webkit-user-drag: none;
+      transform: translateZ(0);
+      transition: transform 0.8s var(--ease-out);
+    }
+    #zp-hero-card:hover img {
+      transform: scale(1.03);
+    }
+
+    .hero-expand-badge {
+      position: absolute;
+      top: 1.2rem; right: 1.2rem;
+      padding: 0.4rem 0.85rem;
+      border-radius: 999px;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      font-size: 0.68rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      pointer-events: none;
+      transition: opacity 0.4s;
     }
 
     .zp-vignette {
-      position:absolute; inset:0; pointer-events:none; z-index:9;
-      background:radial-gradient(circle at center,rgba(0,0,0,0) 35%,rgba(0,0,0,.13) 70%,rgba(0,0,0,.25) 100%);
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 9;
+      background: radial-gradient(circle at center, rgba(0,0,0,0) 40%, rgba(0,0,0,0.18) 75%, rgba(0,0,0,0.45) 100%);
     }
 
-    /* ─── Mobile ─── */
-    @media (max-width:768px) {
-      .text-scroll-block { width:min(92vw,640px); gap:.16em; }
-      .ghost-line,.fill-line { gap:.14em; }
-      .reveal-line { font-size:clamp(1.18rem,5.4vw,2.35rem); line-height:1.04; }
-
-      .zp-card--4 { width:47vw; height:55vh; left:2vw;  top:2vh;  }
-      .zp-card--1 { width:47vw; height:30vh; left:51vw; top:2vh;  }
-      .zp-card--2 { width:47vw; height:23vh; left:51vw; top:34vh; }
-      .zp-card--5 { width:47vw; height:35vh; left:2vw;  top:59vh; }
-      .zp-card--6 { width:30vw; height:35vh; left:51vw; top:59vh; }
-      .zp-card--7 { width:15vw; height:35vh; left:83vw; top:59vh; }
+    /* Mobile Parallax Mosaic */
+    @media (max-width: 768px) {
+      .zp-card--4 { width: 47vw; height: 50vh; left: 2vw;  top: 2vh;  }
+      .zp-card--1 { width: 47vw; height: 28vh; left: 51vw; top: 2vh;  }
+      .zp-card--2 { width: 47vw; height: 20vh; left: 51vw; top: 32vh; }
+      .zp-card--5 { width: 47vw; height: 38vh; left: 2vw;  top: 54vh; }
+      .zp-card--6 { width: 47vw; height: 38vh; left: 51vw; top: 54vh; }
+      .zp-card--7 { display: none; }
     }
 
-    /* ─── CONTATTAMI ─── */
+    /* ═══════════════════════════════════════════════════════
+       ABOUT & CREATIVE PHILOSOPHY SECTION
+       ═══════════════════════════════════════════════════════ */
+    #about-section {
+      position: relative;
+      background: #07070b;
+      padding: clamp(6rem, 14vh, 12rem) clamp(1.5rem, 6vw, 6rem);
+      z-index: 10;
+      border-top: 1px solid var(--border-subtle);
+    }
+    .about-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1.1fr 1fr;
+      gap: clamp(3rem, 6vw, 6rem);
+      align-items: center;
+    }
+    @media (max-width: 900px) {
+      .about-container { grid-template-columns: 1fr; gap: 3rem; }
+    }
+
+    .about-label {
+      font-family: var(--font-display);
+      font-size: 0.8rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--gold);
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin-bottom: 1.2rem;
+    }
+    .about-heading {
+      font-family: var(--font-display);
+      font-size: clamp(2rem, 4.2vw, 3.8rem);
+      font-weight: 800;
+      line-height: 1.05;
+      letter-spacing: -0.02em;
+      text-transform: uppercase;
+      margin-bottom: 1.8rem;
+    }
+    .about-lead {
+      font-family: var(--font-serif);
+      font-size: clamp(1.15rem, 1.8vw, 1.45rem);
+      line-height: 1.45;
+      color: var(--accent);
+      margin-bottom: 1.6rem;
+      font-style: italic;
+    }
+    .about-text {
+      font-size: 1rem;
+      line-height: 1.7;
+      color: var(--text-muted);
+      margin-bottom: 2.2rem;
+    }
+
+    .about-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+      margin-top: 2rem;
+      padding-top: 2rem;
+      border-top: 1px solid var(--border-subtle);
+    }
+    .stat-item {
+      display: flex;
+      flex-direction: column;
+    }
+    .stat-number {
+      font-family: var(--font-display);
+      font-size: clamp(1.8rem, 3vw, 2.6rem);
+      font-weight: 800;
+      color: #ffffff;
+      line-height: 1;
+    }
+    .stat-label {
+      margin-top: 0.5rem;
+      font-size: 0.75rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+    }
+
+    .about-card-visual {
+      position: relative;
+    }
+    .about-image-wrapper {
+      position: relative;
+      border-radius: 24px;
+      overflow: hidden;
+      border: 1px solid var(--border-subtle);
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7);
+      aspect-ratio: 4/5;
+    }
+    .about-image-wrapper img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.8s var(--ease-out);
+    }
+    .about-image-wrapper:hover img {
+      transform: scale(1.05);
+    }
+    .about-floating-badge {
+      position: absolute;
+      bottom: -1.5rem;
+      left: -1.5rem;
+      padding: 1.2rem 1.8rem;
+      background: rgba(14, 14, 22, 0.9);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--border-subtle);
+      border-radius: 18px;
+      box-shadow: 0 16px 40px rgba(0,0,0,0.6);
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+    }
+    .floating-badge-title {
+      font-family: var(--font-display);
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+    .floating-badge-sub {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    /* ═══════════════════════════════════════════════════════
+       INTERACTIVE GALLERY SHOWCASE
+       ═══════════════════════════════════════════════════════ */
+    #gallery-section {
+      position: relative;
+      background: #040407;
+      padding: clamp(6rem, 12vh, 10rem) clamp(1.5rem, 6vw, 6rem);
+      z-index: 10;
+      border-top: 1px solid var(--border-subtle);
+    }
+    .section-header {
+      max-width: 1200px;
+      margin: 0 auto 3.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+    }
+    .section-title {
+      font-family: var(--font-display);
+      font-size: clamp(2.2rem, 5vw, 4.2rem);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      text-transform: uppercase;
+      line-height: 0.95;
+    }
+    .section-sub {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      max-width: 420px;
+      line-height: 1.5;
+    }
+
+    .gallery-grid {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 2rem;
+    }
+    .gallery-item {
+      position: relative;
+      border-radius: 20px;
+      overflow: hidden;
+      border: 1px solid var(--border-subtle);
+      background: var(--bg-card);
+      aspect-ratio: 3/4;
+      cursor: pointer;
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.4);
+      transition: all 0.4s var(--ease-out);
+    }
+    .gallery-item:hover {
+      transform: translateY(-8px);
+      border-color: var(--border-hover);
+      box-shadow: 0 24px 50px rgba(0, 0, 0, 0.7), 0 0 25px rgba(255, 255, 255, 0.08);
+    }
+    .gallery-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.7s var(--ease-out);
+    }
+    .gallery-item:hover img {
+      transform: scale(1.06);
+    }
+    .gallery-item-info {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.85) 90%);
+      padding: 1.6rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      opacity: 0;
+      transition: opacity 0.35s var(--ease-out);
+    }
+    .gallery-item:hover .gallery-item-info {
+      opacity: 1;
+    }
+    .gallery-item-index {
+      font-family: var(--font-display);
+      font-size: 0.75rem;
+      letter-spacing: 0.25em;
+      color: var(--gold);
+      margin-bottom: 0.4rem;
+    }
+    .gallery-item-title {
+      font-family: var(--font-serif);
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: #fff;
+    }
+    .gallery-item-meta {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 0.2rem;
+    }
+
+    /* ═══════════════════════════════════════════════════════
+       PREMIUM "CONTATTAMI" SECTION
+       ═══════════════════════════════════════════════════════ */
     #contact-section {
-      position:relative; width:100%; background:#000; color:#fff;
-      padding:16vh 8vw 18vh; z-index:10;
-    }
-    #contact-section h2 {
-      font-size:clamp(2rem,4vw,3rem); letter-spacing:.12em;
-      text-transform:uppercase; text-align:center;
+      position: relative;
+      background: radial-gradient(circle at 80% 20%, #151124 0%, #06060a 60%, #020204 100%);
+      padding: clamp(6rem, 14vh, 12rem) clamp(1.5rem, 6vw, 6rem);
+      z-index: 10;
+      border-top: 1px solid var(--border-subtle);
+      overflow: hidden;
     }
 
-    @media (prefers-reduced-motion:reduce) {
-      html { scroll-behavior:auto; }
-      #text-scroll-overlay,.reveal-line,.fill-line .word,
-      #zp-grid,#zp-hero-card,#cp-text,.cp-content,
-      .cp-bg-top,.cp-bg-bottom { transition:none !important; animation:none !important; }
+    .contact-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1.15fr;
+      gap: clamp(3rem, 6vw, 6rem);
+      align-items: flex-start;
+    }
+    @media (max-width: 900px) {
+      .contact-container { grid-template-columns: 1fr; gap: 3rem; }
+    }
+
+    .contact-info {
+      display: flex;
+      flex-direction: column;
+    }
+    .contact-tag {
+      font-family: var(--font-display);
+      font-size: 0.8rem;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 1.2rem;
+    }
+    .contact-title {
+      font-family: var(--font-display);
+      font-size: clamp(2.4rem, 4.8vw, 4.2rem);
+      font-weight: 800;
+      line-height: 1;
+      letter-spacing: -0.02em;
+      text-transform: uppercase;
+      margin-bottom: 1.5rem;
+    }
+    .contact-desc {
+      font-size: 1.05rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+      margin-bottom: 2.5rem;
+    }
+
+    .contact-channels {
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+      margin-bottom: 2.5rem;
+    }
+    .channel-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.1rem 1.4rem;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-subtle);
+      border-radius: 16px;
+      transition: all 0.3s var(--ease-out);
+    }
+    .channel-item:hover {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.3);
+      transform: translateX(6px);
+    }
+    .channel-left {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .channel-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.08);
+      display: grid;
+      place-items: center;
+      color: #fff;
+    }
+    .channel-name {
+      font-size: 0.75rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+    }
+    .channel-val {
+      font-size: 0.98rem;
+      font-weight: 600;
+      color: #ffffff;
+    }
+    .copy-pill-btn {
+      font-size: 0.75rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 0.45rem 0.9rem;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 999px;
+      color: #fff;
+      cursor: pointer;
+      transition: all 0.25s var(--ease-out);
+    }
+    .copy-pill-btn:hover {
+      background: #ffffff;
+      color: #000000;
+    }
+
+    .availability-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.6rem 1.2rem;
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      border-radius: 999px;
+      font-size: 0.78rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #34d399;
+      width: fit-content;
+    }
+    .avail-dot {
+      width: 8px;
+      height: 8px;
+      background: #10b981;
+      border-radius: 50%;
+      box-shadow: 0 0 10px #10b981;
+    }
+
+    /* Contact Form Card */
+    .contact-form-card {
+      background: rgba(15, 15, 24, 0.75);
+      backdrop-filter: blur(30px);
+      border: 1px solid var(--border-subtle);
+      border-radius: 28px;
+      padding: clamp(2rem, 4vw, 3.2rem);
+      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.75);
+    }
+    .form-group {
+      margin-bottom: 1.6rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .form-label {
+      font-size: 0.75rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+    }
+    .form-input, .form-textarea {
+      width: 100%;
+      padding: 1rem 1.2rem;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-subtle);
+      border-radius: 14px;
+      color: #ffffff;
+      font-family: var(--font-sans);
+      font-size: 0.95rem;
+      transition: all 0.3s var(--ease-out);
+      outline: none;
+    }
+    .form-input:focus, .form-textarea:focus {
+      border-color: rgba(255, 255, 255, 0.5);
+      background: rgba(255, 255, 255, 0.08);
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+    }
+    .form-textarea {
+      resize: vertical;
+      min-height: 130px;
+    }
+    .form-submit-btn {
+      width: 100%;
+      padding: 1.15rem;
+      background: #ffffff;
+      color: #000000;
+      border: none;
+      border-radius: 14px;
+      font-family: var(--font-display);
+      font-size: 0.9rem;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.35s var(--ease-out);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 0.6rem;
+    }
+    .form-submit-btn:hover {
+      background: #e6dfd5;
+      transform: translateY(-2px);
+      box-shadow: 0 12px 30px rgba(255, 255, 255, 0.25);
+    }
+    .form-success-note {
+      display: none;
+      margin-top: 1rem;
+      padding: 0.8rem;
+      border-radius: 10px;
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid rgba(16, 185, 129, 0.4);
+      color: #34d399;
+      font-size: 0.85rem;
+      text-align: center;
+    }
+
+    /* ═══════════════════════════════════════════════════════
+       FOOTER
+       ═══════════════════════════════════════════════════════ */
+    footer {
+      background: #020205;
+      padding: 3.5rem clamp(1.5rem, 6vw, 6rem) 2.5rem;
+      border-top: 1px solid var(--border-subtle);
+      z-index: 10;
+      position: relative;
+    }
+    .footer-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1.8rem;
+    }
+    .footer-left {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+    .footer-brand {
+      font-family: var(--font-display);
+      font-size: 1.1rem;
+      font-weight: 800;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+    }
+    .footer-copy {
+      font-size: 0.8rem;
+      color: var(--text-dim);
+    }
+    .footer-time {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      letter-spacing: 0.05em;
+    }
+    .footer-back-to-top {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-size: 0.8rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: color 0.25s var(--ease-out);
+    }
+    .footer-back-to-top:hover {
+      color: #ffffff;
+    }
+
+    /* ═══════════════════════════════════════════════════════
+       FULL-SCREEN LIGHTBOX MODAL
+       ═══════════════════════════════════════════════════════ */
+    #lightbox {
+      position: fixed;
+      inset: 0;
+      z-index: 99999;
+      background: rgba(3, 3, 6, 0.95);
+      backdrop-filter: blur(25px);
+      -webkit-backdrop-filter: blur(25px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.4s var(--ease-out), visibility 0.4s;
+    }
+    #lightbox.active {
+      opacity: 1;
+      visibility: visible;
+    }
+    .lightbox-close-btn {
+      position: absolute;
+      top: 2rem; right: 2rem;
+      width: 44px; height: 44px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid var(--border-subtle);
+      color: #fff;
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      transition: all 0.3s var(--ease-out);
+      z-index: 10;
+    }
+    .lightbox-close-btn:hover {
+      background: #fff;
+      color: #000;
+      transform: rotate(90deg);
+    }
+    .lightbox-content {
+      position: relative;
+      max-width: 90vw;
+      max-height: 85vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .lightbox-img {
+      max-width: 100%;
+      max-height: 80vh;
+      object-fit: contain;
+      border-radius: 12px;
+      box-shadow: 0 30px 90px rgba(0,0,0,0.9);
+      user-select: none;
+    }
+    .lightbox-caption {
+      margin-top: 1.2rem;
+      font-family: var(--font-display);
+      font-size: 0.9rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    /* ─── REDUCED MOTION ─── */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
     }
   </style>
 </head>
 <body>
 
+  <!-- Custom Cursor -->
+  <div class="custom-cursor" id="custom-cursor" aria-hidden="true"></div>
+  <div class="custom-cursor-follower" id="custom-cursor-follower" aria-hidden="true"></div>
+
+  <!-- ════════ PRELOADER ════════ -->
   <div id="preloader" aria-hidden="true">
-    <div class="cp-bg cp-bg-top"></div>
-    <div class="cp-bg cp-bg-bottom"></div>
-    <div class="cp-content">
-      <div class="cp-inner">
-        <div class="cp-words"><span id="cp-text">Welcome</span></div>
+    <div class="preloader-bg-curtain cp-bg-top"></div>
+    <div class="preloader-bg-curtain cp-bg-bottom"></div>
+    <div class="preloader-inner">
+      <div class="preloader-brand">Gabriele Madeo // Portfolio 2026</div>
+      <div class="preloader-title-box">
+        <span id="cp-text">Welcome</span>
       </div>
+      <div class="preloader-progress-wrap">
+        <div class="preloader-bar-bg">
+          <div class="preloader-bar-fill" id="preloader-bar"></div>
+        </div>
+        <div class="preloader-stats">
+          <span id="preloader-status">Caricamento frame...</span>
+          <span id="preloader-pct">0%</span>
+        </div>
+      </div>
+      <button class="preloader-skip-btn" id="preloader-skip">Entra subito →</button>
     </div>
   </div>
 
+  <!-- ════════ FLOATING NAVBAR ════════ -->
+  <nav id="navbar">
+    <a href="#" class="nav-brand">
+      <div class="nav-brand-badge"></div>
+      <span>Gabriele Madeo</span>
+    </a>
+
+    <ul class="nav-links">
+      <li><a href="#stage" class="nav-link">Visione</a></li>
+      <li><a href="#zp-section" class="nav-link">Spaziale</a></li>
+      <li><a href="#about-section" class="nav-link">Profilo</a></li>
+      <li><a href="#gallery-section" class="nav-link">Galleria</a></li>
+      <li><a href="#contact-section" class="nav-link">Contatti</a></li>
+    </ul>
+
+    <div class="nav-actions">
+      <!-- Media Mode Switcher (Canvas / Video) -->
+      <button class="nav-btn-icon" id="mode-toggle-btn" title="Alterna Sequenza Canvas / Video MP4" aria-label="Cambia modalità video">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="5 3 19 12 5 21 5 3"></polygon>
+        </svg>
+      </button>
+
+      <!-- Ambient Audio Synthesizer Toggle -->
+      <button class="nav-btn-icon" id="audio-toggle-btn" title="Attiva/Disattiva Suono Atmosferico" aria-label="Audio atmosfera">
+        <svg id="audio-icon-off" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M11 5L6 9H2v6h4l5 4V5z"></path>
+          <line x1="23" y1="9" x2="17" y2="15"></line>
+          <line x1="17" y1="9" x2="23" y2="15"></line>
+        </svg>
+        <svg id="audio-icon-on" style="display:none;" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+          <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+        </svg>
+      </button>
+
+      <a href="#contact-section" class="nav-cta-btn">Collaboriamo</a>
+    </div>
+  </nav>
+
+  <!-- ════════ HERO & SEQUENCE ════════ -->
   <div id="scroll-space"></div>
 
   <div id="stage">
-    <img id="seq-a" class="seq-layer active" alt="" decoding="async" fetchpriority="high">
-    <img id="seq-b" class="seq-layer" alt="" decoding="async">
+    <!-- Hardware Accelerated Canvas for Instant 120 FPS Scrub -->
+    <canvas id="hero-canvas"></canvas>
+
+    <!-- Alternative Lightweight MP4 Video Element -->
+    <video id="hero-video" src="sequence.mp4" playsinline muted loop preload="auto"></video>
+
+    <!-- Hero HUD overlay -->
+    <div class="hero-hud" id="hero-hud">
+      <div class="hud-top-left">
+        <span>EST. 2026 // VISUAL ARTIST & PHOTOGRAPHER</span>
+      </div>
+      <div class="hud-bottom">
+        <div class="hud-title">
+          <h1>Gabriele Madeo</h1>
+          <p>Cinematic Frames & Spatial Photography</p>
+        </div>
+        <div class="hud-scroll-cue">
+          <div class="scroll-mouse-icon">
+            <div class="scroll-mouse-wheel"></div>
+          </div>
+          <span>Scorri per esplorare</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Kinetic Text Storyline Reveal -->
     <div id="text-scroll-overlay" aria-hidden="true">
       <div class="text-scroll-inner">
         <div class="text-scroll-block">
+          <div class="story-tagline">LA MIA VISIONE</div>
           <div class="reveal-line" data-line="0"><div class="ghost-line"></div><div class="fill-line"></div></div>
           <div class="reveal-line" data-line="1"><div class="ghost-line"></div><div class="fill-line"></div></div>
           <div class="reveal-line" data-line="2"><div class="ghost-line"></div><div class="fill-line"></div></div>
@@ -219,38 +1444,99 @@
         </div>
       </div>
     </div>
+
+    <!-- Smooth Transition Fade Overlay -->
     <div id="fade-overlay"></div>
   </div>
 
+  <!-- ════════ SPATIAL BENTO GRID & ZOOM PARALLAX ════════ -->
   <section id="zp-section">
     <div id="zp-sticky">
+      <div class="zp-ambient-glow"></div>
       <div id="zp-grid">
 
-        <div class="zp-card zp-card--4">
-          <img src="spatial-carousel/photo-4.jpg" alt="Foto 4" loading="lazy" decoding="async">
+        <!-- Card 4 (Tall Left) -->
+        <div class="zp-card zp-card--4" data-img="spatial-carousel/photo-4.jpg" data-title="Ritratto Studio // 01">
+          <img src="spatial-carousel/photo-4.jpg" alt="Ritratto Studio" loading="lazy" decoding="async">
+          <div class="card-meta">
+            <div>
+              <div class="card-tag">01 // RITRATTO</div>
+              <div class="card-sub">Studio Session — 35mm</div>
+            </div>
+            <div class="card-icon-zoom">⊕</div>
+          </div>
         </div>
-        <div class="zp-card zp-card--1">
-          <img src="spatial-carousel/photo-1.jpg" alt="Foto 1" loading="lazy" decoding="async">
+
+        <!-- Card 1 (Wide Top) -->
+        <div class="zp-card zp-card--1" data-img="spatial-carousel/photo-1.jpg" data-title="Paesaggio Urbano // 02">
+          <img src="spatial-carousel/photo-1.jpg" alt="Paesaggio Urbano" loading="lazy" decoding="async">
+          <div class="card-meta">
+            <div>
+              <div class="card-tag">02 // ARCHITETTURA</div>
+              <div class="card-sub">Luci della notte e prospettive</div>
+            </div>
+            <div class="card-icon-zoom">⊕</div>
+          </div>
         </div>
-        <div class="zp-card zp-card--2">
-          <img src="spatial-carousel/photo-7.jpg" alt="Foto 2" loading="lazy" decoding="async">
+
+        <!-- Card 2 (Center Left) -->
+        <div class="zp-card zp-card--2" data-img="spatial-carousel/photo-7.jpg" data-title="Visione Editoriale // 03">
+          <img src="spatial-carousel/photo-7.jpg" alt="Visione Editoriale" loading="lazy" decoding="async">
+          <div class="card-meta">
+            <div>
+              <div class="card-tag">03 // EDITORIALE</div>
+              <div class="card-sub">Contrasti cromatici</div>
+            </div>
+            <div class="card-icon-zoom">⊕</div>
+          </div>
         </div>
-        <div class="zp-card zp-card--5">
-          <img src="spatial-carousel/photo-5.jpg" alt="Foto 5" loading="lazy" decoding="async">
+
+        <!-- Card 5 (Center Right) -->
+        <div class="zp-card zp-card--5" data-img="spatial-carousel/photo-5.jpg" data-title="Luce Naturale // 04">
+          <img src="spatial-carousel/photo-5.jpg" alt="Luce Naturale" loading="lazy" decoding="async">
+          <div class="card-meta">
+            <div>
+              <div class="card-tag">04 // ATMOSFERA</div>
+              <div class="card-sub">Composizione e silenzio</div>
+            </div>
+            <div class="card-icon-zoom">⊕</div>
+          </div>
         </div>
-        <div class="zp-card zp-card--6">
-          <img src="spatial-carousel/photo-6.jpg" alt="Foto 6" loading="lazy" decoding="async">
+
+        <!-- Card 6 (Wide Bottom Left) -->
+        <div class="zp-card zp-card--6" data-img="spatial-carousel/photo-6.jpg" data-title="Dettaglio Visivo // 05">
+          <img src="spatial-carousel/photo-6.jpg" alt="Dettaglio Visivo" loading="lazy" decoding="async">
+          <div class="card-meta">
+            <div>
+              <div class="card-tag">05 // GEOMETRIA</div>
+              <div class="card-sub">Forme essenziali e spazio</div>
+            </div>
+            <div class="card-icon-zoom">⊕</div>
+          </div>
         </div>
-        <div class="zp-card zp-card--7">
-          <img src="spatial-carousel/photo-2.jpg" alt="Foto 7" loading="lazy" decoding="async">
+
+        <!-- Card 7 (Bottom Right) -->
+        <div class="zp-card zp-card--7" data-img="spatial-carousel/photo-2.jpg" data-title="Momenti Dinamici // 06">
+          <img src="spatial-carousel/photo-2.jpg" alt="Momenti Dinamici" loading="lazy" decoding="async">
+          <div class="card-meta">
+            <div>
+              <div class="card-tag">06 // DINAMISMO</div>
+              <div class="card-sub">Velocità ed emozione</div>
+            </div>
+            <div class="card-icon-zoom">⊕</div>
+          </div>
         </div>
 
       </div>
 
-      <div id="zp-hero-card">
+      <!-- Hero Centered Card (Expands to 100vw x 100vh) -->
+      <div id="zp-hero-card" data-img="spatial-carousel/photo-3.jpg" data-title="Opera Principale // Masterpiece">
+        <div class="hero-expand-badge">
+          <span>Visione Spaziale</span>
+        </div>
         <img
           src="spatial-carousel/photo-3.jpg"
-          alt="Foto principale"
+          alt="Foto Principale Gabriele Madeo"
           decoding="async"
           fetchpriority="high"
         >
@@ -260,15 +1546,232 @@
     </div>
   </section>
 
-  <section id="contact-section">
-    <h2>CONTATTAMI</h2>
+  <!-- ════════ ABOUT / FILOSOFIA ════════ -->
+  <section id="about-section">
+    <div class="about-container">
+      <div class="about-content">
+        <div class="about-label">
+          <span>●</span>
+          <span>Chi Sono // Visione</span>
+        </div>
+        <h2 class="about-heading">L'arte di catturare ciò che sfugge allo sguardo ordinario.</h2>
+        <p class="about-lead">
+          "Ogni immagine è il risultato di un dialogo tra geometria, luce e silenzio emotivo."
+        </p>
+        <p class="about-text">
+          Mi chiamo <strong>Gabriele Madeo</strong>. Sono un visual creator e fotografo appassionato di estetica cinematografica, architettura e ritrattistica moderna. Questo spazio digitale unisce la fluidità dello sviluppo web all'impatto narrativo delle immagini, creando un viaggio visivo coinvolgente a 360 gradi.
+        </p>
+
+        <div class="about-stats">
+          <div class="stat-item">
+            <span class="stat-number">120+</span>
+            <span class="stat-label">Scatti Curati</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-number">100%</span>
+            <span class="stat-label">Precisione 4K</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-number">60 FPS</span>
+            <span class="stat-label">Fluidità Totale</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="about-card-visual">
+        <div class="about-image-wrapper">
+          <img src="spatial-carousel/photo-5.jpg" alt="Gabriele Madeo Studio" loading="lazy">
+        </div>
+        <div class="about-floating-badge">
+          <span class="floating-badge-title">Gabriele Madeo</span>
+          <span class="floating-badge-sub">Creatore Visivo • Italia</span>
+        </div>
+      </div>
+    </div>
   </section>
 
+  <!-- ════════ INTERACTIVE GALLERY ════════ -->
+  <section id="gallery-section">
+    <div class="section-header">
+      <div>
+        <h2 class="section-title">Archivio Visivo</h2>
+        <p class="section-sub">Tocca o fai clic su qualsiasi fotografia per aprirla in alta risoluzione con dettagli compositivi.</p>
+      </div>
+    </div>
+
+    <div class="gallery-grid">
+      <div class="gallery-item" data-img="spatial-carousel/photo-1.jpg" data-title="Paesaggio Urbano — Architettura Notturna">
+        <img src="spatial-carousel/photo-1.jpg" alt="Foto 1" loading="lazy">
+        <div class="gallery-item-info">
+          <span class="gallery-item-index">01 / ARCHITETTURA</span>
+          <h3 class="gallery-item-title">Paesaggio Urbano</h3>
+          <span class="gallery-item-meta">Milano • Esposizione Lunare</span>
+        </div>
+      </div>
+
+      <div class="gallery-item" data-img="spatial-carousel/photo-2.jpg" data-title="Movimento e Riflessi">
+        <img src="spatial-carousel/photo-2.jpg" alt="Foto 2" loading="lazy">
+        <div class="gallery-item-info">
+          <span class="gallery-item-index">02 / DINAMICA</span>
+          <h3 class="gallery-item-title">Movimento e Riflessi</h3>
+          <span class="gallery-item-meta">High Speed Shutter</span>
+        </div>
+      </div>
+
+      <div class="gallery-item" data-img="spatial-carousel/photo-3.jpg" data-title="L'Origine del Segno — Masterpiece">
+        <img src="spatial-carousel/photo-3.jpg" alt="Foto 3" loading="lazy">
+        <div class="gallery-item-info">
+          <span class="gallery-item-index">03 / MASTERPIECE</span>
+          <h3 class="gallery-item-title">L'Origine del Segno</h3>
+          <span class="gallery-item-meta">Scatto Centrale • 50mm Prime</span>
+        </div>
+      </div>
+
+      <div class="gallery-item" data-img="spatial-carousel/photo-4.jpg" data-title="Studio Monocromatico">
+        <img src="spatial-carousel/photo-4.jpg" alt="Foto 4" loading="lazy">
+        <div class="gallery-item-info">
+          <span class="gallery-item-index">04 / RITRATTO</span>
+          <h3 class="gallery-item-title">Studio Monocromatico</h3>
+          <span class="gallery-item-meta">Ombre Netta e Tagli di Luce</span>
+        </div>
+      </div>
+
+      <div class="gallery-item" data-img="spatial-carousel/photo-5.jpg" data-title="Composizione Spaziale">
+        <img src="spatial-carousel/photo-5.jpg" alt="Foto 5" loading="lazy">
+        <div class="gallery-item-info">
+          <span class="gallery-item-index">05 / ATMOSFERA</span>
+          <h3 class="gallery-item-title">Composizione Spaziale</h3>
+          <span class="gallery-item-meta">Golden Hour • Natural Light</span>
+        </div>
+      </div>
+
+      <div class="gallery-item" data-img="spatial-carousel/photo-6.jpg" data-title="Forme e Prospettive">
+        <img src="spatial-carousel/photo-6.jpg" alt="Foto 6" loading="lazy">
+        <div class="gallery-item-info">
+          <span class="gallery-item-index">06 / GEOMETRIE</span>
+          <h3 class="gallery-item-title">Forme e Prospettive</h3>
+          <span class="gallery-item-meta">Linee di Fuga e Simmetria</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════ CONTATTAMI ════════ -->
+  <section id="contact-section">
+    <div class="contact-container">
+      <div class="contact-info">
+        <span class="contact-tag">Iniziamo un Progetto</span>
+        <h2 class="contact-title">Parliamo del tuo prossimo lavoro.</h2>
+        <p class="contact-desc">
+          Hai un'idea visiva, una campagna da curare o desideri collaborare per una sessione fotografica o creativa? Sono sempre aperto a nuove stimolanti sfide.
+        </p>
+
+        <div class="contact-channels">
+          <div class="channel-item">
+            <div class="channel-left">
+              <div class="channel-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                  <polyline points="22,6 12,13 2,6"></polyline>
+                </svg>
+              </div>
+              <div>
+                <div class="channel-name">Email Diretta</div>
+                <div class="channel-val">gabimad@outlook.it</div>
+              </div>
+            </div>
+            <button class="copy-pill-btn" id="copy-email-btn" data-email="gabimad@outlook.it">Copia</button>
+          </div>
+
+          <a href="https://github.com/gabrjmad" target="_blank" rel="noopener noreferrer" class="channel-item">
+            <div class="channel-left">
+              <div class="channel-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+                </svg>
+              </div>
+              <div>
+                <div class="channel-name">GitHub Profilo</div>
+                <div class="channel-val">github.com/gabrjmad</div>
+              </div>
+            </div>
+            <span class="copy-pill-btn">Visita ↗</span>
+          </a>
+        </div>
+
+        <div class="availability-pill">
+          <div class="avail-dot"></div>
+          <span>Disponibile per progetti 2026/2027</span>
+        </div>
+      </div>
+
+      <!-- Contact Form -->
+      <div class="contact-form-card">
+        <form id="contact-form" onsubmit="event.preventDefault(); submitContactForm();">
+          <div class="form-group">
+            <label class="form-label" for="user-name">Il tuo Nome</label>
+            <input type="text" id="user-name" class="form-input" placeholder="Es. Marco Rossi" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="user-email">La tua Email</label>
+            <input type="email" id="user-email" class="form-input" placeholder="marco@esempio.com" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="user-msg">Messaggio o Descrizione Progetto</label>
+            <textarea id="user-msg" class="form-textarea" placeholder="Descrivi la tua idea o richiedi informazioni..." required></textarea>
+          </div>
+          <button type="submit" class="form-submit-btn">
+            <span>Invia Messaggio</span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="22" y1="2" x2="11" y2="13"></line>
+              <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+            </svg>
+          </button>
+          <div class="form-success-note" id="form-success-msg">
+            ✓ Messaggio pronto! Ti ricontatterò al più presto all'indirizzo indicato.
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════ FOOTER ════════ -->
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-left">
+        <span class="footer-brand">Gabriele Madeo</span>
+        <span class="footer-copy">© 2026 Gabriele Madeo. Tutti i diritti riservati.</span>
+      </div>
+      <div class="footer-time" id="local-time-display">
+        Roma, IT — Ora Locale: --:--:--
+      </div>
+      <div class="footer-back-to-top" id="back-to-top-btn">
+        <span>Torna in Cima</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="18 15 12 9 6 15"></polyline>
+        </svg>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ════════ LIGHTBOX MODAL ════════ -->
+  <div id="lightbox" aria-modal="true" role="dialog">
+    <button class="lightbox-close-btn" id="lightbox-close" aria-label="Chiudi finestra">✕</button>
+    <div class="lightbox-content">
+      <img class="lightbox-img" id="lightbox-img" src="" alt="Anteprima">
+      <div class="lightbox-caption" id="lightbox-caption"></div>
+    </div>
+  </div>
+
+  <!-- Main Controller Script -->
   <script>
-    const FRAME_COUNT      = 127;
-    const PX_PER_FRAME     = window.innerWidth <= 768 ? 30 : 24;
-    const FADE_PX          = 420;
-    const TEXT_SECTION_PX  = 2600;
+    /* ═══════════════════════════════════════════════════════
+       CONFIGURAZIONE GLOBALE & SELETTORI
+       ═══════════════════════════════════════════════════════ */
+    const FRAME_COUNT      = 117; // 117 frame reali presenti in img-sequence (compressed_002 a 118)
+    const PX_PER_FRAME     = window.innerWidth <= 768 ? 26 : 22;
+    const FADE_PX          = 380;
+    const TEXT_SECTION_PX  = 2400;
 
     const S_SEQ_END        = (FRAME_COUNT - 1) * PX_PER_FRAME;
     const S_FADE_END       = S_SEQ_END + FADE_PX;
@@ -276,23 +1779,31 @@
     const SCROLL_SPACE_PX  = TEXT_VISIBLE_END + 400;
 
     const TEXT_LINES = [
-      "questa è la sezione delle foto",
-      "scorrendo troverai",
-      "la mia descrizione",
-      "lascia un feedback se ti piace il sito."
+      "catturare la luce",
+      "scolpire il tempo",
+      "raccontare emozioni",
+      "lascia un segno nella visione."
     ];
 
     const frameSrc = i =>
       `img-sequence/compressed_${String(i + 2).padStart(3, '0')}.webp`;
 
     const scrollSpace   = document.getElementById('scroll-space');
-    const layerA        = document.getElementById('seq-a');
-    const layerB        = document.getElementById('seq-b');
+    const heroCanvas    = document.getElementById('hero-canvas');
+    const heroVideo     = document.getElementById('hero-video');
+    const ctx           = heroCanvas ? heroCanvas.getContext('2d') : null;
     const overlay       = document.getElementById('fade-overlay');
+    const heroHud       = document.getElementById('hero-hud');
     const preloader     = document.getElementById('preloader');
+    const preloaderBar  = document.getElementById('preloader-bar');
+    const preloaderPct  = document.getElementById('preloader-pct');
+    const preloaderStat = document.getElementById('preloader-status');
     const textOverlay   = document.getElementById('text-scroll-overlay');
     const revealLineEls = [...document.querySelectorAll('.reveal-line')];
     const cpTextEl      = document.getElementById('cp-text');
+    const navbar        = document.getElementById('navbar');
+
+    let isVideoMode = false;
 
     function setScrollHeight() {
       scrollSpace.style.height = (SCROLL_SPACE_PX + window.innerHeight) + 'px';
@@ -302,17 +1813,167 @@
     const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
     const norm  = (v, a, b) => clamp((v - a) / (b - a), 0, 1);
 
-    function frameIndexFor(scrollY) {
-      if (scrollY >= S_SEQ_END) return FRAME_COUNT - 1;
-      return Math.round(clamp(scrollY / S_SEQ_END, 0, 1) * (FRAME_COUNT - 1));
+    /* ═══════════════════════════════════════════════════════
+       CANVAS RESIZE & ASPECT-RATIO COVER LOGIC
+       ═══════════════════════════════════════════════════════ */
+    let dpr = Math.min(window.devicePixelRatio || 1, 2);
+    function resizeCanvas() {
+      if (!heroCanvas) return;
+      heroCanvas.width  = window.innerWidth * dpr;
+      heroCanvas.height = window.innerHeight * dpr;
+    }
+    resizeCanvas();
+
+    function drawCover(image) {
+      if (!ctx || !image || !image.width) return;
+      const cw = heroCanvas.width;
+      const ch = heroCanvas.height;
+      const imgRatio = image.width / image.height;
+      const canRatio = cw / ch;
+      let rw, rh, ox, oy;
+
+      if (canRatio > imgRatio) {
+        rw = cw;
+        rh = cw / imgRatio;
+        ox = 0;
+        oy = (ch - rh) / 2;
+      } else {
+        rw = ch * imgRatio;
+        rh = ch;
+        ox = (cw - rw) / 2;
+        oy = 0;
+      }
+      ctx.drawImage(image, ox, oy, rw, rh);
     }
 
+    /* ═══════════════════════════════════════════════════════
+       FRAME PRELOADING CACHE CON SUPPORTO IMAGEBITMAP
+       ═══════════════════════════════════════════════════════ */
+    const frameCache = new Array(FRAME_COUNT);
+    let loadedCount = 0;
+
+    function updatePreloaderProgress() {
+      const pct = Math.min(100, Math.round((loadedCount / FRAME_COUNT) * 100));
+      if (preloaderBar) preloaderBar.style.width = pct + '%';
+      if (preloaderPct) preloaderPct.textContent = pct + '%';
+      if (loadedCount >= 20 && preloaderStat) {
+        preloaderStat.textContent = 'Pronto all\'esplorazione';
+      }
+    }
+
+    function loadFrame(index, priority = 'auto') {
+      if (index < 0 || index >= FRAME_COUNT) return Promise.resolve(null);
+      if (frameCache[index]) return Promise.resolve(frameCache[index]);
+
+      return new Promise((resolve) => {
+        const img = new Image();
+        img.decoding = 'async';
+        img.fetchPriority = priority;
+        img.src = frameSrc(index);
+
+        img.onload = async () => {
+          try {
+            if (window.createImageBitmap) {
+              const bmp = await createImageBitmap(img);
+              frameCache[index] = bmp;
+              loadedCount++;
+              updatePreloaderProgress();
+              resolve(bmp);
+              return;
+            }
+          } catch(e) {}
+          frameCache[index] = img;
+          loadedCount++;
+          updatePreloaderProgress();
+          resolve(img);
+        };
+        img.onerror = () => resolve(null);
+      });
+    }
+
+    async function preloadInitialSequence() {
+      // Carica i primi 25 frame con priorità elevata per avvio istantaneo
+      for (let i = 0; i < Math.min(25, FRAME_COUNT); i++) {
+        await loadFrame(i, 'high');
+      }
+      render(0);
+
+      // Carica il resto in background
+      let cur = 25;
+      function pump() {
+        let batch = 0;
+        while (cur < FRAME_COUNT && batch < 6) {
+          loadFrame(cur, 'low');
+          cur++;
+          batch++;
+        }
+        if (cur < FRAME_COUNT) {
+          if ('requestIdleCallback' in window) {
+            requestIdleCallback(pump, { timeout: 100 });
+          } else {
+            setTimeout(pump, 30);
+          }
+        }
+      }
+      setTimeout(pump, 50);
+    }
+    preloadInitialSequence();
+
+    /* ═══════════════════════════════════════════════════════
+       PRELOADER CINEMATOGRAFICO
+       ═══════════════════════════════════════════════════════ */
+    const cpPhrases = ['Benvenuto', 'Io sono', 'GABRIELE MADEO', 'Visual Creator'];
+    let cpStep = 0;
+    function showPhrase(index) {
+      if (!cpTextEl) return;
+      cpTextEl.classList.remove('is-visible');
+      setTimeout(() => {
+        cpTextEl.textContent = cpPhrases[index];
+        cpTextEl.classList.add('is-visible');
+      }, 70);
+    }
+
+    function triggerPreloaderSplit() {
+      if (!preloader || preloader.classList.contains('is-splitting')) return;
+      preloader.classList.add('is-splitting');
+      setTimeout(() => {
+        preloader.classList.add('is-hidden');
+      }, 1100);
+    }
+
+    function startCinematicLoader() {
+      if (!cpTextEl) return;
+      cpTextEl.textContent = cpPhrases[0];
+      cpTextEl.classList.add('is-visible');
+      const DELAY = 800;
+      function advance() {
+        cpStep += 1;
+        if (cpStep < cpPhrases.length) {
+          showPhrase(cpStep);
+          setTimeout(advance, DELAY);
+        } else {
+          setTimeout(triggerPreloaderSplit, 900);
+        }
+      }
+      setTimeout(advance, DELAY);
+    }
+    startCinematicLoader();
+
+    const skipBtn = document.getElementById('preloader-skip');
+    if (skipBtn) {
+      skipBtn.addEventListener('click', triggerPreloaderSplit);
+    }
+
+    /* ═══════════════════════════════════════════════════════
+       TEXT REVEAL BUILDER
+       ═══════════════════════════════════════════════════════ */
     function buildTextReveal() {
       revealLineEls.forEach((lineEl, lineIndex) => {
         const text  = TEXT_LINES[lineIndex] || '';
         const words = text.split(' ').map(w => w.trim()).filter(Boolean);
         const ghost = lineEl.querySelector('.ghost-line');
         const fill  = lineEl.querySelector('.fill-line');
+        if (!ghost || !fill) return;
         ghost.innerHTML = ''; fill.innerHTML = '';
         words.forEach((word, wordIndex) => {
           const gw = document.createElement('span');
@@ -326,78 +1987,12 @@
     }
     buildTextReveal();
 
-    const cpPhrases = ['Welcome','I am','GABRIELE','this is my portfolio'];
-    let cpStep = 0;
-    function showPhrase(index) {
-      if (!cpTextEl) return;
-      cpTextEl.classList.remove('is-visible');
-      setTimeout(() => { cpTextEl.textContent = cpPhrases[index]; cpTextEl.classList.add('is-visible'); }, 80);
-    }
-    function triggerPreloaderSplit() {
-      if (!preloader || preloader.classList.contains('is-splitting')) return;
-      preloader.classList.add('is-splitting');
-      setTimeout(() => preloader.classList.add('is-hidden'), 1500);
-    }
-    function startCinematicLoader() {
-      if (!cpTextEl || !cpPhrases.length) return;
-      cpTextEl.textContent = cpPhrases[0]; cpTextEl.classList.add('is-visible');
-      const WORD_DELAY = 950, LAST_HOLD = 1300;
-      function advance() {
-        cpStep += 1;
-        if (cpStep < cpPhrases.length) { showPhrase(cpStep); setTimeout(advance, WORD_DELAY); }
-        else setTimeout(triggerPreloaderSplit, LAST_HOLD);
-      }
-      setTimeout(advance, WORD_DELAY);
-    }
-    startCinematicLoader();
-
-    const frames = Array.from({ length: FRAME_COUNT }, () => ({ status: 0, img: null, promise: null }));
-    let activeLayer = layerA, hiddenLayer = layerB;
-    let shownFrame = -1, wantedFrame = 0;
-
-    function swapTo(src) {
-      if (hiddenLayer.src !== src) hiddenLayer.src = src;
-      hiddenLayer.classList.add('active'); activeLayer.classList.remove('active');
-      const tmp = activeLayer; activeLayer = hiddenLayer; hiddenLayer = tmp;
-    }
-    function ensureFrame(index, priority = 'auto') {
-      if (index < 0 || index >= FRAME_COUNT) return Promise.resolve(null);
-      const item = frames[index];
-      if (item.status === 2) return Promise.resolve(item.img);
-      if (item.promise) return item.promise;
-      item.status = 1;
-      const img = new Image(); img.decoding = 'async'; img.fetchPriority = priority; img.src = frameSrc(index);
-      item.promise = new Promise((resolve, reject) => {
-        img.onload = async () => { try { if (img.decode) await img.decode(); } catch(e) {} item.status = 2; item.img = img; resolve(img); };
-        img.onerror = () => { item.status = 3; reject(); };
-      }).finally(() => { item.promise = null; if (wantedFrame === index && frames[index].status === 2) startLoop(); });
-      return item.promise;
-    }
-    function warmFrames(c) { [-3,-2,-1,0,1,2,3].forEach(d => ensureFrame(c + d, d === 0 ? 'high' : 'auto')); }
-    function showFrame(index) {
-      index = clamp(index, 0, FRAME_COUNT - 1);
-      wantedFrame = index; warmFrames(index);
-      const item = frames[index];
-      if (item.status !== 2 || !item.img || shownFrame === index) return;
-      shownFrame = index; swapTo(item.img.currentSrc || item.img.src);
-    }
-    function preloadInitial() {
-      for (let i = 0; i < Math.min(18, FRAME_COUNT); i++) ensureFrame(i, 'high').catch(() => {});
-      let cursor = 18;
-      function pump() {
-        let count = 0;
-        while (cursor < FRAME_COUNT && count < 4) { ensureFrame(cursor, 'auto').catch(() => {}); cursor++; count++; }
-        if (cursor < FRAME_COUNT) { 'requestIdleCallback' in window ? requestIdleCallback(pump, { timeout: 120 }) : setTimeout(pump, 40); }
-      }
-      setTimeout(pump, 80);
-    }
-    preloadInitial();
-
     function updateTextReveal(scrollY) {
-      const overlayIn  = S_FADE_END + 60;
+      const overlayIn  = S_FADE_END + 50;
       const overlayOut = TEXT_VISIBLE_END;
       textOverlay.classList.toggle('is-visible', scrollY >= overlayIn && scrollY <= overlayOut);
-      const globalProgress = norm(scrollY, S_FADE_END + 120, TEXT_VISIBLE_END);
+      const globalProgress = norm(scrollY, S_FADE_END + 100, TEXT_VISIBLE_END);
+
       revealLineEls.forEach((lineEl, lineIndex) => {
         const fillWords  = [...lineEl.querySelectorAll('.fill-line .word')];
         const total      = fillWords.length;
@@ -405,70 +2000,325 @@
         const lineStart  = lineIndex / linesCount;
         const lineEnd    = (lineIndex + 1) / linesCount;
         const lineProgress = clamp((globalProgress - lineStart) / (lineEnd - lineStart), 0, 1);
+
         fillWords.forEach((wordEl, wordIndex) => {
           const wordSpan = 1 / total;
           const wordStart = wordIndex * wordSpan;
-          const wordEnd   = wordStart + wordSpan * 0.72;
+          const wordEnd   = wordStart + wordSpan * 0.75;
           const t = clamp((lineProgress - wordStart) / (wordEnd - wordStart), 0, 1);
-          const ch = Math.round(78 + (255 - 78) * t);
+          const ch = Math.round(75 + (255 - 75) * t);
           wordEl.style.color     = `rgb(${ch},${ch},${ch})`;
-          wordEl.style.opacity   = String(0.18 + t * 0.82);
-          wordEl.style.filter    = `blur(${(1 - t) * 1.55}px)`;
-          wordEl.style.transform = `translateY(${(1 - t) * 5}px)`;
+          wordEl.style.opacity   = String(0.15 + t * 0.85);
+          wordEl.style.filter    = `blur(${(1 - t) * 1.8}px)`;
+          wordEl.style.transform = `translateY(${(1 - t) * 6}px)`;
         });
-        lineEl.style.opacity   = String(lineProgress > 0.01 ? (0.28 + lineProgress * 0.72) : 0.2);
-        lineEl.style.transform = `translateY(${Math.max(0, 12 - lineProgress * 12)}px)`;
+        lineEl.style.opacity   = String(lineProgress > 0.01 ? (0.25 + lineProgress * 0.75) : 0.2);
+        lineEl.style.transform = `translateY(${Math.max(0, 10 - lineProgress * 10)}px)`;
       });
     }
 
+    /* ═══════════════════════════════════════════════════════
+       RENDER TICK PER SEQUENZA E OVERLAY
+       ═══════════════════════════════════════════════════════ */
+    let lastDrawnFrame = -1;
+
+    function frameIndexFor(scrollY) {
+      if (scrollY >= S_SEQ_END) return FRAME_COUNT - 1;
+      return Math.round(clamp(scrollY / S_SEQ_END, 0, 1) * (FRAME_COUNT - 1));
+    }
+
     function render(scrollY) {
-      showFrame(frameIndexFor(scrollY));
+      const frameIdx = frameIndexFor(scrollY);
+
+      if (!isVideoMode && heroCanvas) {
+        if (frameCache[frameIdx]) {
+          drawCover(frameCache[frameIdx]);
+          lastDrawnFrame = frameIdx;
+        } else if (lastDrawnFrame === -1) {
+          // Trova il frame caricato più vicino
+          for (let f = 0; f < FRAME_COUNT; f++) {
+            if (frameCache[f]) { drawCover(frameCache[f]); lastDrawnFrame = f; break; }
+          }
+        }
+      }
+
+      // HUD visibilità
+      if (heroHud) {
+        heroHud.classList.toggle('hidden', scrollY > 120);
+      }
+
+      // Fade a nero tra sequenza e testo
       if (scrollY < S_SEQ_END) {
         overlay.style.opacity = '0';
-        layerA.classList.remove('hidden-after-fade'); layerB.classList.remove('hidden-after-fade');
+        heroCanvas.style.opacity = '1';
         textOverlay.classList.remove('is-visible');
       } else if (scrollY < S_FADE_END) {
         overlay.style.opacity = norm(scrollY, S_SEQ_END, S_FADE_END).toFixed(3);
+        heroCanvas.style.opacity = '1';
         textOverlay.classList.remove('is-visible');
       } else {
         overlay.style.opacity = '0';
-        layerA.classList.add('hidden-after-fade'); layerB.classList.add('hidden-after-fade');
+        heroCanvas.style.opacity = '0';
       }
+
       updateTextReveal(scrollY);
+
+      // Navbar scrolled class
+      if (navbar) {
+        navbar.classList.toggle('scrolled', scrollY > 80);
+      }
     }
 
+    /* ═══════════════════════════════════════════════════════
+       SMOOTH LERP SCROLL LOOP (60/120 FPS)
+       ═══════════════════════════════════════════════════════ */
     let targetScrollY = window.scrollY || 0;
     let currentScrollY = targetScrollY;
-    let running = false;
+    let isRunning = false;
 
     function loop() {
       const delta = targetScrollY - currentScrollY;
-      const ease  = Math.abs(delta) > 140 ? 0.115 : 0.135;
-      if (Math.abs(delta) > 0.1) { currentScrollY += delta * ease; } else { currentScrollY = targetScrollY; }
+      const ease  = Math.abs(delta) > 120 ? 0.12 : 0.15;
+      if (Math.abs(delta) > 0.08) {
+        currentScrollY += delta * ease;
+      } else {
+        currentScrollY = targetScrollY;
+      }
       render(currentScrollY);
-      if (Math.abs(targetScrollY - currentScrollY) > 0.1 || frames[wantedFrame]?.status !== 2) {
+
+      if (Math.abs(targetScrollY - currentScrollY) > 0.08) {
         requestAnimationFrame(loop);
-      } else { running = false; render(targetScrollY); }
+      } else {
+        isRunning = false;
+        render(targetScrollY);
+      }
     }
-    function startLoop() { if (running) return; running = true; requestAnimationFrame(loop); }
+
+    function startLoop() {
+      if (isRunning) return;
+      isRunning = true;
+      requestAnimationFrame(loop);
+    }
 
     window.addEventListener('scroll', () => {
       targetScrollY = window.scrollY || 0;
-      if (targetScrollY <= SCROLL_SPACE_PX) startLoop();
+      if (targetScrollY <= SCROLL_SPACE_PX + 200) {
+        startLoop();
+      }
     }, { passive: true });
 
     window.addEventListener('resize', () => {
-      setScrollHeight(); buildTextReveal();
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      resizeCanvas();
+      setScrollHeight();
+      buildTextReveal();
       targetScrollY = currentScrollY = window.scrollY || 0;
-      render(currentScrollY); startLoop();
+      render(currentScrollY);
+      startLoop();
     }, { passive: true });
 
-    ensureFrame(0, 'high').then(img => {
-      layerA.src = img.currentSrc || img.src;
-      shownFrame = 0; wantedFrame = 0; render(currentScrollY);
-    }).catch(() => render(currentScrollY));
+    /* ═══════════════════════════════════════════════════════
+       INTERACTIVE CUSTOM CURSOR
+       ═══════════════════════════════════════════════════════ */
+    const cursor = document.getElementById('custom-cursor');
+    const follower = document.getElementById('custom-cursor-follower');
+    if (cursor && follower && window.matchMedia('(hover: hover)').matches) {
+      let mx = window.innerWidth / 2, my = window.innerHeight / 2;
+      let fx = mx, fy = my;
+
+      window.addEventListener('mousemove', e => {
+        mx = e.clientX;
+        my = e.clientY;
+        cursor.style.transform = `translate(${mx}px, ${my}px)`;
+      }, { passive: true });
+
+      function animateFollower() {
+        fx += (mx - fx) * 0.18;
+        fy += (my - fy) * 0.18;
+        follower.style.transform = `translate(${fx}px, ${fy}px)`;
+        requestAnimationFrame(animateFollower);
+      }
+      animateFollower();
+
+      const hoverTargets = 'a, button, .zp-card, #zp-hero-card, .gallery-item, .channel-item';
+      document.querySelectorAll(hoverTargets).forEach(el => {
+        el.addEventListener('mouseenter', () => document.body.classList.add('hovering'));
+        el.addEventListener('mouseleave', () => document.body.classList.remove('hovering'));
+      });
+    }
+
+    /* ═══════════════════════════════════════════════════════
+       MODE SWITCHER: CANVAS / VIDEO
+       ═══════════════════════════════════════════════════════ */
+    const modeBtn = document.getElementById('mode-toggle-btn');
+    if (modeBtn && heroVideo) {
+      modeBtn.addEventListener('click', () => {
+        isVideoMode = !isVideoMode;
+        if (isVideoMode) {
+          heroVideo.classList.add('is-active');
+          heroCanvas.style.display = 'none';
+          heroVideo.play().catch(() => {});
+          modeBtn.style.background = '#ffffff';
+          modeBtn.style.color = '#000000';
+        } else {
+          heroVideo.classList.remove('is-active');
+          heroCanvas.style.display = 'block';
+          heroVideo.pause();
+          modeBtn.style.background = '';
+          modeBtn.style.color = '';
+          render(currentScrollY);
+        }
+      });
+    }
+
+    /* ═══════════════════════════════════════════════════════
+       ATMOSPHERIC AUDIO SYNTHESIZER (WEB AUDIO API)
+       ═══════════════════════════════════════════════════════ */
+    let audioCtx = null;
+    let isAudioPlaying = false;
+    let droneGain = null;
+
+    const audioBtn = document.getElementById('audio-toggle-btn');
+    const audioIconOff = document.getElementById('audio-icon-off');
+    const audioIconOn  = document.getElementById('audio-icon-on');
+
+    function toggleAtmosphericAudio() {
+      if (!audioCtx) {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        audioCtx = new AudioContext();
+
+        // Generatore di sottofondo cinematografico caldo a 55Hz (A1) e 110Hz (A2)
+        const osc1 = audioCtx.createOscillator();
+        const osc2 = audioCtx.createOscillator();
+        const filter = audioCtx.createBiquadFilter();
+
+        droneGain = audioCtx.createGain();
+        droneGain.gain.setValueAtTime(0.001, audioCtx.currentTime);
+
+        osc1.type = 'sine';
+        osc1.frequency.setValueAtTime(55, audioCtx.currentTime); // La1
+        osc2.type = 'triangle';
+        osc2.frequency.setValueAtTime(110, audioCtx.currentTime); // La2
+
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(220, audioCtx.currentTime);
+
+        osc1.connect(filter);
+        osc2.connect(filter);
+        filter.connect(droneGain);
+        droneGain.connect(audioCtx.destination);
+
+        osc1.start();
+        osc2.start();
+      }
+
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+
+      isAudioPlaying = !isAudioPlaying;
+      if (isAudioPlaying) {
+        droneGain.gain.exponentialRampToValueAtTime(0.08, audioCtx.currentTime + 1.2);
+        audioIconOff.style.display = 'none';
+        audioIconOn.style.display  = 'block';
+        audioBtn.style.background = 'rgba(255, 255, 255, 0.25)';
+      } else {
+        droneGain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.8);
+        audioIconOff.style.display = 'block';
+        audioIconOn.style.display  = 'none';
+        audioBtn.style.background = '';
+      }
+    }
+    if (audioBtn) audioBtn.addEventListener('click', toggleAtmosphericAudio);
+
+    /* ═══════════════════════════════════════════════════════
+       INTERACTIVE LIGHTBOX
+       ═══════════════════════════════════════════════════════ */
+    const lightbox        = document.getElementById('lightbox');
+    const lightboxImg     = document.getElementById('lightbox-img');
+    const lightboxCaption = document.getElementById('lightbox-caption');
+    const lightboxClose   = document.getElementById('lightbox-close');
+
+    function openLightbox(src, caption) {
+      if (!lightbox || !lightboxImg) return;
+      lightboxImg.src = src;
+      lightboxCaption.textContent = caption || 'Gabriele Madeo Photography';
+      lightbox.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeLightbox() {
+      if (!lightbox) return;
+      lightbox.classList.remove('active');
+      document.body.style.overflow = '';
+      setTimeout(() => { if (lightboxImg) lightboxImg.src = ''; }, 350);
+    }
+
+    if (lightboxClose) lightboxClose.addEventListener('click', closeLightbox);
+    if (lightbox) {
+      lightbox.addEventListener('click', e => {
+        if (e.target === lightbox) closeLightbox();
+      });
+    }
+    window.addEventListener('keydown', e => {
+      if (e.key === 'Escape') closeLightbox();
+    });
+
+    document.querySelectorAll('.zp-card, #zp-hero-card, .gallery-item').forEach(card => {
+      card.addEventListener('click', () => {
+        const src = card.dataset.img || card.querySelector('img')?.src;
+        const cap = card.dataset.title || card.querySelector('.gallery-item-title')?.textContent;
+        if (src) openLightbox(src, cap);
+      });
+    });
+
+    /* ═══════════════════════════════════════════════════════
+       COPY EMAIL & CONTACT FORM
+       ═══════════════════════════════════════════════════════ */
+    const copyEmailBtn = document.getElementById('copy-email-btn');
+    if (copyEmailBtn) {
+      copyEmailBtn.addEventListener('click', () => {
+        const email = copyEmailBtn.dataset.email;
+        navigator.clipboard.writeText(email).then(() => {
+          copyEmailBtn.textContent = 'Copiato! ✓';
+          setTimeout(() => { copyEmailBtn.textContent = 'Copia'; }, 2200);
+        });
+      });
+    }
+
+    window.submitContactForm = function() {
+      const name = document.getElementById('user-name')?.value;
+      const msg = document.getElementById('form-success-msg');
+      if (msg) {
+        msg.style.display = 'block';
+        msg.textContent = `Grazie ${name || ''}! Il messaggio è stato registrato. Ti ricontatterò al più presto all'indirizzo indicato.`;
+      }
+      const form = document.getElementById('contact-form');
+      if (form) form.reset();
+    };
+
+    /* ═══════════════════════════════════════════════════════
+       FOOTER TIME & BACK TO TOP
+       ═══════════════════════════════════════════════════════ */
+    function updateClock() {
+      const timeEl = document.getElementById('local-time-display');
+      if (!timeEl) return;
+      const now = new Date();
+      const options = { timeZone: 'Europe/Rome', hour: '2-digit', minute: '2-digit', second: '2-digit' };
+      timeEl.textContent = `Roma, IT — Ora Locale: ${now.toLocaleTimeString('it-IT', options)} CET`;
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    const btt = document.getElementById('back-to-top-btn');
+    if (btt) {
+      btt.addEventListener('click', () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+    }
   </script>
 
+  <!-- Zoom Parallax GSAP Module -->
   <script src="zoom-parallax.js" defer></script>
 
 </body>
