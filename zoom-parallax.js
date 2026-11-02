@@ -1,11 +1,11 @@
 /**
- * zoom-parallax.js — Edizione Spaziale 2026
+ * zoom-parallax.js — Motore Spaziale Zero-Lag (120 FPS)
  *
- * Movimento cinematografico a 3 dimensioni con GSAP ScrollTrigger & Lenis Smooth Scroll.
- * - Zoom telecamera tridimensionale con profondità di campo (DoF blur e dispersione 3D)
- * - Incastro Bento perfezionato con angoli smussati e riflessi
- * - Parallasse dinamico al movimento del mouse
- * - Espansione fluida a tutto schermo (100vw x 100vh) senza sgranatura
+ * Ottimizzato per fluidità assoluta:
+ * - Esclusivo uso di trasformazioni GPU (translate3d, scale, opacity)
+ * - Nessun filtro blur durante lo scrub (elimina il frame-lag)
+ * - Sincronizzazione perfetta tra Lenis e GSAP ScrollTrigger
+ * - Espansione cinematografica dell'Hero Card a pieno schermo
  */
 
 (function () {
@@ -26,14 +26,14 @@
 
     gsap.registerPlugin(ScrollTrigger);
 
-    // Configurazione Lenis Smooth Scroll
+    // Lenis configurato per risposta istantanea senza attrito
     let lenis = null;
     if (typeof Lenis !== "undefined") {
       lenis = new Lenis({
-        duration:    1.25,
-        easing:      (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-        smooth:      true,
-        smoothTouch: false,
+        duration:        1.0,
+        easing:          (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+        smooth:          true,
+        smoothTouch:     false,
         wheelMultiplier: 1.0,
       });
 
@@ -60,7 +60,7 @@
           top:    vh() * 0.34,
           width:  vw() * 0.92,
           height: vh() * 0.24,
-          radius: 16
+          radius: 14
         };
       }
       return {
@@ -80,14 +80,15 @@
         width:        dim.width,
         height:       dim.height,
         borderRadius: dim.radius + "px",
-        xPercent:     0,
-        yPercent:     0,
-        clearProps:   "transform"
+        x:            0,
+        y:            0,
+        scale:        1,
+        force3D:      true
       });
     }
     setHeroInitial();
 
-    // Selettori card per dispersione tridimensionale
+    // Selettori card per dispersione fluida
     const card4 = document.querySelector(".zp-card--4");
     const card1 = document.querySelector(".zp-card--1");
     const card2 = document.querySelector(".zp-card--2");
@@ -96,7 +97,7 @@
     const card7 = document.querySelector(".zp-card--7");
     const heroBadge = heroCard.querySelector(".hero-expand-badge");
 
-    // Master Timeline GSAP con ScrollTrigger
+    // Master Timeline GSAP con ScrollTrigger leggero e scattante
     const tl = gsap.timeline({
       scrollTrigger: {
         trigger:       section,
@@ -104,91 +105,97 @@
         end:           "bottom bottom",
         pin:           sticky,
         pinSpacing:    false,
-        scrub:         1.1,
+        scrub:         0.5, // Molto più reattivo ed esente da lag
         anticipatePin: 1,
+        fastScrollEnd: true,
       }
     });
 
-    /* FASE 1 (0.00 – 0.25): Breve sospensione per ammirare il mosaico */
-    tl.to({}, { duration: 0.22 });
+    /* FASE 1 (0.00 – 0.18): Breve sospensione per apprezzare la composizione */
+    tl.to({}, { duration: 0.18 });
 
-    /* FASE 2 (0.25 – 0.65): Zoom della camera 3D ed espansione dell'Hero Card */
-    // La griglia scala e le schede circostanti si disperdono nello spazio 3D con sfocatura
+    /* FASE 2 (0.18 – 0.65): Zoom fluido ed elegante senza filtri pesanti */
+    // Zoom leggero della camera
     tl.to(grid, {
-      scale: 3.4,
-      ease:  "power1.inOut",
-      duration: 0.42,
-    }, "zoomStart");
+      scale:    2.8,
+      ease:     "power1.inOut",
+      duration: 0.45,
+      force3D:  true,
+    }, "zoomMotion");
 
+    // Dispersione delle card circostanti tramite sole coordinate GPU (x, y, opacity)
     if (card4) {
       tl.to(card4, {
-        x: -vw() * 0.35,
-        y: -vh() * 0.15,
-        rotateY: -18,
-        filter: "blur(10px)",
-        opacity: 0.1,
-        ease: "power1.inOut",
-        duration: 0.42,
-      }, "zoomStart");
+        x:        -vw() * 0.38,
+        y:        -vh() * 0.15,
+        opacity:  0.02,
+        scale:    1.2,
+        ease:     "power1.inOut",
+        duration: 0.45,
+        force3D:  true,
+      }, "zoomMotion");
     }
 
     if (card1) {
       tl.to(card1, {
-        y: -vh() * 0.45,
-        rotateX: 18,
-        filter: "blur(10px)",
-        opacity: 0.1,
-        ease: "power1.inOut",
-        duration: 0.42,
-      }, "zoomStart");
+        y:        -vh() * 0.42,
+        opacity:  0.02,
+        scale:    1.15,
+        ease:     "power1.inOut",
+        duration: 0.45,
+        force3D:  true,
+      }, "zoomMotion");
     }
 
     if (card2) {
       tl.to(card2, {
-        x: -vw() * 0.35,
-        y: vh() * 0.25,
-        filter: "blur(8px)",
-        opacity: 0.1,
-        ease: "power1.inOut",
-        duration: 0.42,
-      }, "zoomStart");
+        x:        -vw() * 0.38,
+        y:        vh() * 0.25,
+        opacity:  0.02,
+        scale:    1.15,
+        ease:     "power1.inOut",
+        duration: 0.45,
+        force3D:  true,
+      }, "zoomMotion");
     }
 
     if (card5) {
       tl.to(card5, {
-        x: vw() * 0.35,
-        y: -vh() * 0.10,
-        rotateY: 18,
-        filter: "blur(8px)",
-        opacity: 0.1,
-        ease: "power1.inOut",
-        duration: 0.42,
-      }, "zoomStart");
+        x:        vw() * 0.38,
+        y:        -vh() * 0.12,
+        opacity:  0.02,
+        scale:    1.2,
+        ease:     "power1.inOut",
+        duration: 0.45,
+        force3D:  true,
+      }, "zoomMotion");
     }
 
     if (card6) {
       tl.to(card6, {
-        y: vh() * 0.45,
-        rotateX: -18,
-        filter: "blur(10px)",
-        opacity: 0.1,
-        ease: "power1.inOut",
-        duration: 0.42,
-      }, "zoomStart");
+        x:        -vw() * 0.25,
+        y:        vh() * 0.42,
+        opacity:  0.02,
+        scale:    1.15,
+        ease:     "power1.inOut",
+        duration: 0.45,
+        force3D:  true,
+      }, "zoomMotion");
     }
 
     if (card7) {
       tl.to(card7, {
-        x: vw() * 0.35,
-        y: vh() * 0.35,
-        filter: "blur(10px)",
-        opacity: 0.1,
-        ease: "power1.inOut",
-        duration: 0.42,
-      }, "zoomStart");
+        x:        vw() * 0.38,
+        y:        vh() * 0.35,
+        opacity:  0.02,
+        scale:    1.15,
+        ease:     "power1.inOut",
+        duration: 0.45,
+        force3D:  true,
+      }, "zoomMotion");
     }
 
-    // Hero Card si espande verso 100vw x 100vh a schermo intero
+    // Hero Card si espande verso tutto lo schermo (100vw x 100vh) in modo ultra-fluido
     tl.to(heroCard, {
       left:         0,
       top:          0,
@@ -196,61 +203,24 @@
       height:       () => vh(),
       borderRadius: 0,
       ease:         "power1.inOut",
-      duration:     0.42,
-    }, "zoomStart");
+      duration:     0.45,
+      force3D:      true,
+    }, "zoomMotion");
 
     if (heroBadge) {
       tl.to(heroBadge, {
         opacity:  0,
-        duration: 0.2,
-      }, "zoomStart");
+        duration: 0.18,
+      }, "zoomMotion");
     }
 
-    /* FASE 3 (0.65 – 0.88): Posa a schermo intero dell'immagine principale */
-    tl.to({}, { duration: 0.23 });
+    /* FASE 3 (0.65 – 0.88): Posa a schermo intero dell'opera */
+    tl.to({}, { duration: 0.24 });
 
-    /* FASE 4 (0.88 – 1.00): Stabilizzazione e transizione dolce alla sezione successiva */
+    /* FASE 4 (0.88 – 1.00): Transizione graduale alla sezione successiva */
     tl.to({}, { duration: 0.13 });
 
-    /* ═══════════════════════════════════════════════════════
-       INTERACTIVE 3D MOUSE TILT PARALLAX (DESKTOP)
-       ═══════════════════════════════════════════════════════ */
-    if (window.matchMedia("(min-width: 900px)").matches) {
-      let mouseX = 0, mouseY = 0;
-      let targetTiltX = 0, targetTiltY = 0;
-      let currentTiltX = 0, currentTiltY = 0;
-
-      sticky.addEventListener("mousemove", (e) => {
-        // Solo quando lo zoom non è completato al massimo
-        const rect = sticky.getBoundingClientRect();
-        const nx = (e.clientX - rect.left) / rect.width - 0.5;
-        const ny = (e.clientY - rect.top) / rect.height - 0.5;
-        targetTiltX = ny * -7; // Rotazione asse X (gradi)
-        targetTiltY = nx * 9;  // Rotazione asse Y (gradi)
-      }, { passive: true });
-
-      sticky.addEventListener("mouseleave", () => {
-        targetTiltX = 0;
-        targetTiltY = 0;
-      });
-
-      function renderTilt() {
-        currentTiltX += (targetTiltX - currentTiltX) * 0.08;
-        currentTiltY += (targetTiltY - currentTiltY) * 0.08;
-
-        if (grid && !tl.isActive()) {
-          gsap.set(grid, {
-            rotationX: currentTiltX,
-            rotationY: currentTiltY,
-            transformPerspective: 1200,
-          });
-        }
-        requestAnimationFrame(renderTilt);
-      }
-      renderTilt();
-    }
-
-    // Refresh layout su resize della finestra
+    // Refresh layout su resize
     window.addEventListener("resize", () => {
       setHeroInitial();
       ScrollTrigger.refresh();

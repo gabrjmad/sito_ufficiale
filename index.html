@@ -62,40 +62,64 @@
       text-decoration: none;
     }
 
-    /* ─── CUSTOM CURSOR (DESKTOP) ─── */
-    .custom-cursor {
+    /* ─── CUSTOM PHOTO CURSOR (DESKTOP) ─── */
+    @media (hover: hover) and (pointer: fine) {
+      body, a, button, input, textarea, .zp-card, #zp-hero-card, .gallery-item, .channel-item {
+        cursor: none !important;
+      }
+    }
+
+    .photo-cursor {
       position: fixed;
       top: 0; left: 0;
-      width: 10px; height: 10px;
-      background: #ffffff;
+      width: 44px; height: 44px;
       border-radius: 50%;
       pointer-events: none;
       z-index: 99999;
-      transform: translate(-50%, -50%);
-      transition: width 0.25s var(--ease-out), height 0.25s var(--ease-out), background-color 0.25s, opacity 0.25s;
-      mix-blend-mode: difference;
+      transform: translate3d(-50%, -50%, 0);
+      overflow: hidden;
+      border: 2px solid rgba(255, 255, 255, 0.9);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.65), 0 0 12px rgba(255, 255, 255, 0.3);
+      transition: width 0.25s var(--ease-out), height 0.25s var(--ease-out), border-color 0.25s, box-shadow 0.25s;
+      will-change: transform, width, height;
+      background: #111;
     }
-    .custom-cursor-follower {
+    .photo-cursor img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+      display: block;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    .photo-cursor-ring {
       position: fixed;
       top: 0; left: 0;
-      width: 36px; height: 36px;
-      border: 1px solid rgba(255, 255, 255, 0.35);
+      width: 60px; height: 60px;
+      border: 1.5px dashed rgba(255, 255, 255, 0.4);
       border-radius: 50%;
       pointer-events: none;
       z-index: 99998;
-      transform: translate(-50%, -50%);
-      transition: transform 0.08s ease-out, width 0.25s var(--ease-out), height 0.25s var(--ease-out), border-color 0.25s;
+      transform: translate3d(-50%, -50%, 0);
+      transition: width 0.3s var(--ease-out), height 0.3s var(--ease-out), border-color 0.3s;
+      will-change: transform;
     }
-    body.hovering .custom-cursor {
-      width: 24px; height: 24px;
-      background: rgba(255, 255, 255, 0.9);
+
+    body.hovering .photo-cursor {
+      width: 66px; height: 66px;
+      border-color: #ffffff;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.85), 0 0 22px rgba(255, 255, 255, 0.55);
     }
-    body.hovering .custom-cursor-follower {
-      width: 60px; height: 60px;
-      border-color: rgba(255, 255, 255, 0.7);
+    body.hovering .photo-cursor-ring {
+      width: 86px; height: 86px;
+      border-color: rgba(255, 255, 255, 0.85);
+      border-style: solid;
     }
-    @media (hover: none) and (pointer: coarse) {
-      .custom-cursor, .custom-cursor-follower { display: none !important; }
+
+    @media (hover: none) or (pointer: coarse) {
+      .photo-cursor, .photo-cursor-ring { display: none !important; }
     }
 
     /* ═══════════════════════════════════════════════════════
@@ -241,7 +265,7 @@
     }
 
     /* ═══════════════════════════════════════════════════════
-       FLOATING NAVIGATION BAR
+       FLOATING NAVIGATION BAR (SENZA AUDIO)
        ═══════════════════════════════════════════════════════ */
     #navbar {
       position: fixed;
@@ -572,12 +596,12 @@
     }
 
     /* ═══════════════════════════════════════════════════════
-       SPATIAL BENTO GRID & ZOOM PARALLAX
+       SPATIAL BENTO GRID (ZERO FRAME-LAG)
        ═══════════════════════════════════════════════════════ */
     #zp-section {
       position: relative;
       width: 100%;
-      height: 320vh;
+      height: 300vh;
       z-index: 10;
       background: #000000;
     }
@@ -588,20 +612,6 @@
       width: 100%;
       overflow: hidden;
       background: #030306;
-      perspective: 1200px;
-    }
-
-    /* Ambient background gradient in parallax */
-    .zp-ambient-glow {
-      position: absolute;
-      width: 80vw;
-      height: 80vh;
-      top: 10%;
-      left: 10%;
-      background: radial-gradient(circle, rgba(70, 45, 120, 0.22) 0%, rgba(20, 20, 40, 0.08) 50%, rgba(0,0,0,0) 80%);
-      filter: blur(80px);
-      pointer-events: none;
-      z-index: 1;
     }
 
     #zp-grid {
@@ -618,13 +628,16 @@
       background: #0e0e14;
       border-radius: 18px;
       border: 1px solid var(--border-subtle);
-      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.65);
-      cursor: pointer;
-      transition: border-color 0.4s var(--ease-out), box-shadow 0.4s var(--ease-out);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+      will-change: transform, opacity;
+      transform: translate3d(0, 0, 0);
+      backface-visibility: hidden;
+      contain: layout paint;
+      transition: border-color 0.3s var(--ease-out), box-shadow 0.3s var(--ease-out);
     }
     .zp-card:hover {
       border-color: var(--border-hover);
-      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.9), 0 0 30px rgba(255, 255, 255, 0.12);
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85);
     }
     .zp-card img {
       width: 100%;
@@ -635,25 +648,25 @@
       user-select: none;
       -webkit-user-drag: none;
       backface-visibility: hidden;
-      transform: translateZ(0) scale(1);
-      transition: transform 0.8s var(--ease-out);
+      transform: translate3d(0, 0, 0);
+      transition: transform 0.6s var(--ease-out);
     }
     .zp-card:hover img {
-      transform: scale(1.06);
+      transform: scale(1.04);
     }
 
     /* Card Badge / Metadata */
     .card-meta {
       position: absolute;
       bottom: 0; left: 0; right: 0;
-      padding: 1.2rem 1.4rem;
-      background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.85) 85%);
+      padding: 1.1rem 1.3rem;
+      background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.88) 85%);
       display: flex;
       justify-content: space-between;
       align-items: flex-end;
       opacity: 0;
-      transform: translateY(10px);
-      transition: all 0.35s var(--ease-out);
+      transform: translateY(8px);
+      transition: opacity 0.3s var(--ease-out), transform 0.3s var(--ease-out);
       pointer-events: none;
     }
     .zp-card:hover .card-meta {
@@ -684,27 +697,32 @@
       color: #fff;
     }
 
-    /* Bento Mosaic Dimensions (Desktop: gap 2vw / 2vh) */
+    /* 
+       BENTO MOSAIC DIMENSIONS (6 FOTO DISPOSTE SENZA SOVRAPPOSIZIONI)
+       Row 0: Card 4 (tall left 70vh)  +  Card 1 (wide top 40vh)
+       Row 1: Card 4 (prosegue)        +  HERO Card 3 (center 28vh) + Card 5 (right 28vh)
+       Row 2: Card 6 (wide bottom 24vh) + Card 2 (bottom right 24vh)
+    */
     .zp-card--4 { width: 30.67vw; height: 70vh; left: 2vw;     top: 2vh;  }
     .zp-card--1 { width: 63.33vw; height: 40vh; left: 34.67vw; top: 2vh;  }
-    .zp-card--2 { width: 30.67vw; height: 28vh; left: 34.67vw; top: 44vh; }
     .zp-card--5 { width: 30.67vw; height: 28vh; left: 67.33vw; top: 44vh; }
     .zp-card--6 { width: 63.33vw; height: 24vh; left: 2vw;     top: 74vh; }
-    .zp-card--7 { width: 30.67vw; height: 24vh; left: 67.33vw; top: 74vh; }
+    .zp-card--2 { width: 30.67vw; height: 24vh; left: 67.33vw; top: 74vh; }
 
-    /* Central Hero Card */
+    /* Central Hero Card (Photo 3) */
     #zp-hero-card {
       position: absolute;
       overflow: hidden;
       background: #0e0e14;
       border-radius: 18px;
       border: 1px solid var(--border-subtle);
-      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.8);
-      will-change: width, height, left, top, border-radius;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.75);
+      will-change: width, height, left, top, border-radius, transform;
       z-index: 8;
       image-rendering: high-quality;
-      cursor: pointer;
-      transition: border-color 0.4s var(--ease-out);
+      backface-visibility: hidden;
+      contain: layout paint;
+      transition: border-color 0.3s var(--ease-out);
     }
     #zp-hero-card img {
       width: 100%;
@@ -714,11 +732,11 @@
       display: block;
       user-select: none;
       -webkit-user-drag: none;
-      transform: translateZ(0);
-      transition: transform 0.8s var(--ease-out);
+      transform: translate3d(0, 0, 0);
+      transition: transform 0.6s var(--ease-out);
     }
     #zp-hero-card:hover img {
-      transform: scale(1.03);
+      transform: scale(1.02);
     }
 
     .hero-expand-badge {
@@ -737,7 +755,7 @@
       align-items: center;
       gap: 0.4rem;
       pointer-events: none;
-      transition: opacity 0.4s;
+      transition: opacity 0.3s;
     }
 
     .zp-vignette {
@@ -745,17 +763,16 @@
       inset: 0;
       pointer-events: none;
       z-index: 9;
-      background: radial-gradient(circle at center, rgba(0,0,0,0) 40%, rgba(0,0,0,0.18) 75%, rgba(0,0,0,0.45) 100%);
+      background: radial-gradient(circle at center, rgba(0,0,0,0) 45%, rgba(0,0,0,0.15) 80%, rgba(0,0,0,0.4) 100%);
     }
 
     /* Mobile Parallax Mosaic */
     @media (max-width: 768px) {
       .zp-card--4 { width: 47vw; height: 50vh; left: 2vw;  top: 2vh;  }
       .zp-card--1 { width: 47vw; height: 28vh; left: 51vw; top: 2vh;  }
-      .zp-card--2 { width: 47vw; height: 20vh; left: 51vw; top: 32vh; }
       .zp-card--5 { width: 47vw; height: 38vh; left: 2vw;  top: 54vh; }
       .zp-card--6 { width: 47vw; height: 38vh; left: 51vw; top: 54vh; }
-      .zp-card--7 { display: none; }
+      .zp-card--2 { display: none; }
     }
 
     /* ═══════════════════════════════════════════════════════
@@ -937,7 +954,6 @@
       border: 1px solid var(--border-subtle);
       background: var(--bg-card);
       aspect-ratio: 3/4;
-      cursor: pointer;
       box-shadow: 0 16px 36px rgba(0, 0, 0, 0.4);
       transition: all 0.4s var(--ease-out);
     }
@@ -990,7 +1006,7 @@
     }
 
     /* ═══════════════════════════════════════════════════════
-       PREMIUM "CONTATTAMI" SECTION
+       PREMIUM "CONTATTAMI" SECTION CON INSTAGRAM
        ═══════════════════════════════════════════════════════ */
     #contact-section {
       position: relative;
@@ -1205,7 +1221,7 @@
     }
 
     /* ═══════════════════════════════════════════════════════
-       FOOTER
+       FOOTER CON LINK INSTAGRAM DIRETTO
        ═══════════════════════════════════════════════════════ */
     footer {
       background: #020205;
@@ -1238,6 +1254,29 @@
     .footer-copy {
       font-size: 0.8rem;
       color: var(--text-dim);
+    }
+    .footer-center {
+      display: flex;
+      align-items: center;
+      gap: 1.2rem;
+    }
+    .footer-social-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.45rem 1rem;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-subtle);
+      border-radius: 999px;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      transition: all 0.25s var(--ease-out);
+    }
+    .footer-social-link:hover {
+      background: rgba(255, 255, 255, 0.15);
+      color: #fff;
+      border-color: rgba(255, 255, 255, 0.4);
+      transform: translateY(-2px);
     }
     .footer-time {
       font-size: 0.8rem;
@@ -1337,9 +1376,11 @@
 </head>
 <body>
 
-  <!-- Custom Cursor -->
-  <div class="custom-cursor" id="custom-cursor" aria-hidden="true"></div>
-  <div class="custom-cursor-follower" id="custom-cursor-follower" aria-hidden="true"></div>
+  <!-- Custom Photo Cursor (Con la foto di Gabriele al posto del puntatore) -->
+  <div class="photo-cursor" id="photo-cursor" aria-hidden="true">
+    <img src="spatial-carousel/photo-3.jpg" alt="Puntatore Gabriele Madeo">
+  </div>
+  <div class="photo-cursor-ring" id="photo-cursor-ring" aria-hidden="true"></div>
 
   <!-- ════════ PRELOADER ════════ -->
   <div id="preloader" aria-hidden="true">
@@ -1363,7 +1404,7 @@
     </div>
   </div>
 
-  <!-- ════════ FLOATING NAVBAR ════════ -->
+  <!-- ════════ FLOATING NAVBAR (SENZA AUDIO) ════════ -->
   <nav id="navbar">
     <a href="#" class="nav-brand">
       <div class="nav-brand-badge"></div>
@@ -1383,19 +1424,6 @@
       <button class="nav-btn-icon" id="mode-toggle-btn" title="Alterna Sequenza Canvas / Video MP4" aria-label="Cambia modalità video">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <polygon points="5 3 19 12 5 21 5 3"></polygon>
-        </svg>
-      </button>
-
-      <!-- Ambient Audio Synthesizer Toggle -->
-      <button class="nav-btn-icon" id="audio-toggle-btn" title="Attiva/Disattiva Suono Atmosferico" aria-label="Audio atmosfera">
-        <svg id="audio-icon-off" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M11 5L6 9H2v6h4l5 4V5z"></path>
-          <line x1="23" y1="9" x2="17" y2="15"></line>
-          <line x1="17" y1="9" x2="23" y2="15"></line>
-        </svg>
-        <svg id="audio-icon-on" style="display:none;" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
-          <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
         </svg>
       </button>
 
@@ -1449,13 +1477,12 @@
     <div id="fade-overlay"></div>
   </div>
 
-  <!-- ════════ SPATIAL BENTO GRID & ZOOM PARALLAX ════════ -->
+  <!-- ════════ SPATIAL BENTO GRID & ZOOM PARALLAX (ZERO FRAME-LAG) ════════ -->
   <section id="zp-section">
     <div id="zp-sticky">
-      <div class="zp-ambient-glow"></div>
       <div id="zp-grid">
 
-        <!-- Card 4 (Tall Left) -->
+        <!-- Card 4 (Tall Left: photo-4.jpg) -->
         <div class="zp-card zp-card--4" data-img="spatial-carousel/photo-4.jpg" data-title="Ritratto Studio // 01">
           <img src="spatial-carousel/photo-4.jpg" alt="Ritratto Studio" loading="lazy" decoding="async">
           <div class="card-meta">
@@ -1467,7 +1494,7 @@
           </div>
         </div>
 
-        <!-- Card 1 (Wide Top) -->
+        <!-- Card 1 (Wide Top: photo-1.jpg) -->
         <div class="zp-card zp-card--1" data-img="spatial-carousel/photo-1.jpg" data-title="Paesaggio Urbano // 02">
           <img src="spatial-carousel/photo-1.jpg" alt="Paesaggio Urbano" loading="lazy" decoding="async">
           <div class="card-meta">
@@ -1479,48 +1506,36 @@
           </div>
         </div>
 
-        <!-- Card 2 (Center Left) -->
-        <div class="zp-card zp-card--2" data-img="spatial-carousel/photo-7.jpg" data-title="Visione Editoriale // 03">
-          <img src="spatial-carousel/photo-7.jpg" alt="Visione Editoriale" loading="lazy" decoding="async">
-          <div class="card-meta">
-            <div>
-              <div class="card-tag">03 // EDITORIALE</div>
-              <div class="card-sub">Contrasti cromatici</div>
-            </div>
-            <div class="card-icon-zoom">⊕</div>
-          </div>
-        </div>
-
-        <!-- Card 5 (Center Right) -->
-        <div class="zp-card zp-card--5" data-img="spatial-carousel/photo-5.jpg" data-title="Luce Naturale // 04">
+        <!-- Card 5 (Center Right: photo-5.jpg) -->
+        <div class="zp-card zp-card--5" data-img="spatial-carousel/photo-5.jpg" data-title="Luce Naturale // 03">
           <img src="spatial-carousel/photo-5.jpg" alt="Luce Naturale" loading="lazy" decoding="async">
           <div class="card-meta">
             <div>
-              <div class="card-tag">04 // ATMOSFERA</div>
+              <div class="card-tag">03 // ATMOSFERA</div>
               <div class="card-sub">Composizione e silenzio</div>
             </div>
             <div class="card-icon-zoom">⊕</div>
           </div>
         </div>
 
-        <!-- Card 6 (Wide Bottom Left) -->
-        <div class="zp-card zp-card--6" data-img="spatial-carousel/photo-6.jpg" data-title="Dettaglio Visivo // 05">
+        <!-- Card 6 (Wide Bottom: photo-6.jpg) -->
+        <div class="zp-card zp-card--6" data-img="spatial-carousel/photo-6.jpg" data-title="Dettaglio Visivo // 04">
           <img src="spatial-carousel/photo-6.jpg" alt="Dettaglio Visivo" loading="lazy" decoding="async">
           <div class="card-meta">
             <div>
-              <div class="card-tag">05 // GEOMETRIA</div>
+              <div class="card-tag">04 // GEOMETRIA</div>
               <div class="card-sub">Forme essenziali e spazio</div>
             </div>
             <div class="card-icon-zoom">⊕</div>
           </div>
         </div>
 
-        <!-- Card 7 (Bottom Right) -->
-        <div class="zp-card zp-card--7" data-img="spatial-carousel/photo-2.jpg" data-title="Momenti Dinamici // 06">
+        <!-- Card 2 (Bottom Right: photo-2.jpg) -->
+        <div class="zp-card zp-card--2" data-img="spatial-carousel/photo-2.jpg" data-title="Momenti Dinamici // 05">
           <img src="spatial-carousel/photo-2.jpg" alt="Momenti Dinamici" loading="lazy" decoding="async">
           <div class="card-meta">
             <div>
-              <div class="card-tag">06 // DINAMISMO</div>
+              <div class="card-tag">05 // DINAMISMO</div>
               <div class="card-sub">Velocità ed emozione</div>
             </div>
             <div class="card-icon-zoom">⊕</div>
@@ -1529,7 +1544,7 @@
 
       </div>
 
-      <!-- Hero Centered Card (Expands to 100vw x 100vh) -->
+      <!-- Hero Centered Card (Expands to 100vw x 100vh: photo-3.jpg) -->
       <div id="zp-hero-card" data-img="spatial-carousel/photo-3.jpg" data-title="Opera Principale // Masterpiece">
         <div class="hero-expand-badge">
           <span>Visione Spaziale</span>
@@ -1656,7 +1671,7 @@
     </div>
   </section>
 
-  <!-- ════════ CONTATTAMI ════════ -->
+  <!-- ════════ CONTATTAMI (CON INSTAGRAM GABRIELEMADEO) ════════ -->
   <section id="contact-section">
     <div class="contact-container">
       <div class="contact-info">
@@ -1667,6 +1682,25 @@
         </p>
 
         <div class="contact-channels">
+          <!-- Instagram Ufficiale gabrielemadeo -->
+          <a href="https://www.instagram.com/gabrielemadeo" target="_blank" rel="noopener noreferrer" class="channel-item">
+            <div class="channel-left">
+              <div class="channel-icon">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                  <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                  <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+                </svg>
+              </div>
+              <div>
+                <div class="channel-name">Instagram Ufficiale</div>
+                <div class="channel-val">@gabrielemadeo</div>
+              </div>
+            </div>
+            <span class="copy-pill-btn">Segui ↗</span>
+          </a>
+
+          <!-- Email Diretta -->
           <div class="channel-item">
             <div class="channel-left">
               <div class="channel-icon">
@@ -1683,6 +1717,7 @@
             <button class="copy-pill-btn" id="copy-email-btn" data-email="gabimad@outlook.it">Copia</button>
           </div>
 
+          <!-- GitHub Profilo -->
           <a href="https://github.com/gabrjmad" target="_blank" rel="noopener noreferrer" class="channel-item">
             <div class="channel-left">
               <div class="channel-icon">
@@ -1735,16 +1770,29 @@
     </div>
   </section>
 
-  <!-- ════════ FOOTER ════════ -->
+  <!-- ════════ FOOTER CON COLLEGAMENTO INSTAGRAM ════════ -->
   <footer>
     <div class="footer-inner">
       <div class="footer-left">
         <span class="footer-brand">Gabriele Madeo</span>
         <span class="footer-copy">© 2026 Gabriele Madeo. Tutti i diritti riservati.</span>
       </div>
+
+      <div class="footer-center">
+        <a href="https://www.instagram.com/gabrielemadeo" target="_blank" rel="noopener noreferrer" class="footer-social-link">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+            <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+            <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+          </svg>
+          <span>Instagram: @gabrielemadeo</span>
+        </a>
+      </div>
+
       <div class="footer-time" id="local-time-display">
         Roma, IT — Ora Locale: --:--:--
       </div>
+
       <div class="footer-back-to-top" id="back-to-top-btn">
         <span>Torna in Cima</span>
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -1892,13 +1940,11 @@
     }
 
     async function preloadInitialSequence() {
-      // Carica i primi 25 frame con priorità elevata per avvio istantaneo
       for (let i = 0; i < Math.min(25, FRAME_COUNT); i++) {
         await loadFrame(i, 'high');
       }
       render(0);
 
-      // Carica il resto in background
       let cur = 25;
       function pump() {
         let batch = 0;
@@ -2035,19 +2081,16 @@
           drawCover(frameCache[frameIdx]);
           lastDrawnFrame = frameIdx;
         } else if (lastDrawnFrame === -1) {
-          // Trova il frame caricato più vicino
           for (let f = 0; f < FRAME_COUNT; f++) {
             if (frameCache[f]) { drawCover(frameCache[f]); lastDrawnFrame = f; break; }
           }
         }
       }
 
-      // HUD visibilità
       if (heroHud) {
         heroHud.classList.toggle('hidden', scrollY > 120);
       }
 
-      // Fade a nero tra sequenza e testo
       if (scrollY < S_SEQ_END) {
         overlay.style.opacity = '0';
         heroCanvas.style.opacity = '1';
@@ -2063,7 +2106,6 @@
 
       updateTextReveal(scrollY);
 
-      // Navbar scrolled class
       if (navbar) {
         navbar.classList.toggle('scrolled', scrollY > 80);
       }
@@ -2118,29 +2160,30 @@
     }, { passive: true });
 
     /* ═══════════════════════════════════════════════════════
-       INTERACTIVE CUSTOM CURSOR
+       CUSTOM PHOTO CURSOR
        ═══════════════════════════════════════════════════════ */
-    const cursor = document.getElementById('custom-cursor');
-    const follower = document.getElementById('custom-cursor-follower');
-    if (cursor && follower && window.matchMedia('(hover: hover)').matches) {
+    const photoCursor = document.getElementById('photo-cursor');
+    const photoCursorRing = document.getElementById('photo-cursor-ring');
+
+    if (photoCursor && photoCursorRing && window.matchMedia('(hover: hover)').matches) {
       let mx = window.innerWidth / 2, my = window.innerHeight / 2;
-      let fx = mx, fy = my;
+      let rx = mx, ry = my;
 
       window.addEventListener('mousemove', e => {
         mx = e.clientX;
         my = e.clientY;
-        cursor.style.transform = `translate(${mx}px, ${my}px)`;
+        photoCursor.style.transform = `translate3d(${mx}px, ${my}px, 0) translate(-50%, -50%)`;
       }, { passive: true });
 
-      function animateFollower() {
-        fx += (mx - fx) * 0.18;
-        fy += (my - fy) * 0.18;
-        follower.style.transform = `translate(${fx}px, ${fy}px)`;
-        requestAnimationFrame(animateFollower);
+      function animateRing() {
+        rx += (mx - rx) * 0.16;
+        ry += (my - ry) * 0.16;
+        photoCursorRing.style.transform = `translate3d(${rx}px, ${ry}px, 0) translate(-50%, -50%)`;
+        requestAnimationFrame(animateRing);
       }
-      animateFollower();
+      animateRing();
 
-      const hoverTargets = 'a, button, .zp-card, #zp-hero-card, .gallery-item, .channel-item';
+      const hoverTargets = 'a, button, .zp-card, #zp-hero-card, .gallery-item, .channel-item, input, textarea';
       document.querySelectorAll(hoverTargets).forEach(el => {
         el.addEventListener('mouseenter', () => document.body.classList.add('hovering'));
         el.addEventListener('mouseleave', () => document.body.classList.remove('hovering'));
@@ -2170,66 +2213,6 @@
         }
       });
     }
-
-    /* ═══════════════════════════════════════════════════════
-       ATMOSPHERIC AUDIO SYNTHESIZER (WEB AUDIO API)
-       ═══════════════════════════════════════════════════════ */
-    let audioCtx = null;
-    let isAudioPlaying = false;
-    let droneGain = null;
-
-    const audioBtn = document.getElementById('audio-toggle-btn');
-    const audioIconOff = document.getElementById('audio-icon-off');
-    const audioIconOn  = document.getElementById('audio-icon-on');
-
-    function toggleAtmosphericAudio() {
-      if (!audioCtx) {
-        const AudioContext = window.AudioContext || window.webkitAudioContext;
-        audioCtx = new AudioContext();
-
-        // Generatore di sottofondo cinematografico caldo a 55Hz (A1) e 110Hz (A2)
-        const osc1 = audioCtx.createOscillator();
-        const osc2 = audioCtx.createOscillator();
-        const filter = audioCtx.createBiquadFilter();
-
-        droneGain = audioCtx.createGain();
-        droneGain.gain.setValueAtTime(0.001, audioCtx.currentTime);
-
-        osc1.type = 'sine';
-        osc1.frequency.setValueAtTime(55, audioCtx.currentTime); // La1
-        osc2.type = 'triangle';
-        osc2.frequency.setValueAtTime(110, audioCtx.currentTime); // La2
-
-        filter.type = 'lowpass';
-        filter.frequency.setValueAtTime(220, audioCtx.currentTime);
-
-        osc1.connect(filter);
-        osc2.connect(filter);
-        filter.connect(droneGain);
-        droneGain.connect(audioCtx.destination);
-
-        osc1.start();
-        osc2.start();
-      }
-
-      if (audioCtx.state === 'suspended') {
-        audioCtx.resume();
-      }
-
-      isAudioPlaying = !isAudioPlaying;
-      if (isAudioPlaying) {
-        droneGain.gain.exponentialRampToValueAtTime(0.08, audioCtx.currentTime + 1.2);
-        audioIconOff.style.display = 'none';
-        audioIconOn.style.display  = 'block';
-        audioBtn.style.background = 'rgba(255, 255, 255, 0.25)';
-      } else {
-        droneGain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.8);
-        audioIconOff.style.display = 'block';
-        audioIconOn.style.display  = 'none';
-        audioBtn.style.background = '';
-      }
-    }
-    if (audioBtn) audioBtn.addEventListener('click', toggleAtmosphericAudio);
 
     /* ═══════════════════════════════════════════════════════
        INTERACTIVE LIGHTBOX
@@ -2291,7 +2274,7 @@
       const msg = document.getElementById('form-success-msg');
       if (msg) {
         msg.style.display = 'block';
-        msg.textContent = `Grazie ${name || ''}! Il messaggio è stato registrato. Ti ricontatterò al più presto all'indirizzo indicato.`;
+        msg.textContent = `Grazie ${name || ''}! Il messaggio è stato registrato. Ti ricontatterò al più presto.`;
       }
       const form = document.getElementById('contact-form');
       if (form) form.reset();
