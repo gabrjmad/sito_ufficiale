@@ -3,51 +3,46 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>Gabriele Madeo — Visual Archive & Spatial Flow</title>
-  <meta name="description" content="Esperienza visiva personale di Gabriele Madeo: fotografia, estetica cinematografica, geometrie e silenzi." />
+  <title>GABRIELE MADEO</title>
+  <meta name="description" content="Esperienza visiva personale di Gabriele Madeo: fly-through tra le nuvole, sequenza cinematografica e viaggi spaziali 3D." />
 
   <!-- Open Graph / Meta -->
-  <meta property="og:title" content="Gabriele Madeo — Visual Archive" />
-  <meta property="og:description" content="Un'esperienza fotografica e cinetica personale." />
+  <meta property="og:title" content="GABRIELE MADEO" />
+  <meta property="og:description" content="Esperienza visiva personale, cinematica e spaziale." />
   <meta property="og:type" content="website" />
   <meta property="og:image" content="spatial-carousel/photo-3.webp" />
 
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,900;1,400;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Syne:wght@700;800;900&display=swap" rel="stylesheet">
 
-  <!-- Core Motion Libraries: GSAP, ScrollTrigger, Lenis -->
+  <!-- Core Libraries: GSAP, ScrollTrigger, Lenis -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js" defer></script>
 
-  <!-- Preload First Strategic Visuals for Instant Render -->
-  <link rel="preload" as="image" href="spatial-carousel/photo-4.webp" type="image/webp" />
-  <link rel="preload" as="image" href="spatial-carousel/photo-1.webp" type="image/webp" />
+  <!-- Preload Essential Starting Visuals -->
+  <link rel="preload" as="image" href="clouds_panorama.webp" type="image/webp" />
+  <link rel="preload" as="image" href="img-sequence/compressed_002.webp" type="image/webp" />
 
   <style>
     /* ═══════════════════════════════════════════════════════
-       DESIGN SYSTEM & RESET (MOBILE-FIRST)
+       DESIGN SYSTEM & RESET
        ═══════════════════════════════════════════════════════ */
     :root {
-      --bg: #070709;
-      --bg-darker: #020204;
-      --surface: rgba(18, 18, 22, 0.7);
-      --surface-border: rgba(255, 255, 255, 0.1);
-      --text: #f5f4f0;
-      --text-muted: rgba(245, 244, 240, 0.65);
-      --text-dim: rgba(245, 244, 240, 0.38);
-      --accent-warm: #e3d5c5;
-      --accent-glow: rgba(227, 213, 197, 0.15);
-      
+      --bg-neutral: #0a0a0d;
+      --bg-darker: #050507;
+      --text: #ffffff;
+      --text-muted: rgba(255, 255, 255, 0.65);
+      --text-dim: rgba(255, 255, 255, 0.35);
+      --accent: #e4d8c9;
+      --cyan-glow: #00f0ff;
       --font-display: 'Syne', sans-serif;
-      --font-editorial: 'Playfair Display', Georgia, serif;
       --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-
       --safe-top: env(safe-area-inset-top, 0px);
       --safe-bottom: env(safe-area-inset-bottom, 0px);
-      --ease-fluid: cubic-bezier(0.16, 1, 0.3, 1);
+      --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     *, *::before, *::after {
@@ -55,21 +50,13 @@
       -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
     }
 
-    html {
-      background: var(--bg);
+    html, body {
+      background: var(--bg-neutral);
       color: var(--text);
       font-family: var(--font-sans);
       overflow-x: hidden;
       overscroll-behavior-y: none;
       scroll-behavior: auto;
-    }
-
-    body {
-      background: var(--bg);
-      min-height: 100vh;
-      min-height: 100dvh;
-      position: relative;
-      overflow-x: hidden;
     }
 
     ::selection {
@@ -82,21 +69,9 @@
       text-decoration: none;
     }
 
-    /* ─── ANALOG FILM GRAIN (ULTRA LOW GPU OVERHEAD) ─── */
-    .film-grain {
-      position: fixed;
-      inset: -50%;
-      width: 200%;
-      height: 200%;
-      pointer-events: none;
-      z-index: 900;
-      opacity: 0.035;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
-    }
-
-    /* ─── CUSTOM PHOTO CURSOR (DESKTOP ONLY) ─── */
+    /* ─── CUSTOM PHOTO CURSOR (DESKTOP) ─── */
     @media (hover: hover) and (pointer: fine) {
-      body, a, button, .photo-card, .touch-target {
+      body, a, button, .photo-wrapper, .touch-target {
         cursor: none !important;
       }
     }
@@ -104,48 +79,46 @@
     .custom-cursor {
       position: fixed;
       top: 0; left: 0;
-      width: 48px; height: 48px;
+      width: 44px; height: 44px;
       border-radius: 50%;
       pointer-events: none;
       z-index: 99999;
       transform: translate3d(-50%, -50%, 0);
       overflow: hidden;
       border: 2px solid rgba(255, 255, 255, 0.85);
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.7), 0 0 16px rgba(255, 255, 255, 0.25);
-      transition: width 0.28s var(--ease-fluid), height 0.28s var(--ease-fluid), border-color 0.25s, box-shadow 0.25s;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.8), 0 0 15px rgba(255, 255, 255, 0.3);
+      transition: width 0.28s var(--ease-out), height 0.28s var(--ease-out);
       will-change: transform;
-      background: #111116;
+      background: #111;
     }
     .custom-cursor img {
       width: 100%; height: 100%;
       object-fit: cover;
-      object-position: center;
       display: block;
       pointer-events: none;
-      user-select: none;
     }
 
     .cursor-ring {
       position: fixed;
       top: 0; left: 0;
-      width: 68px; height: 68px;
+      width: 64px; height: 64px;
       border: 1.5px dashed rgba(255, 255, 255, 0.35);
       border-radius: 50%;
       pointer-events: none;
       z-index: 99998;
       transform: translate3d(-50%, -50%, 0);
-      transition: width 0.3s var(--ease-fluid), height 0.3s var(--ease-fluid), border-color 0.3s;
+      transition: width 0.3s var(--ease-out), height 0.3s var(--ease-out), border-color 0.25s;
       will-change: transform;
     }
 
     body.cursor-active .custom-cursor {
-      width: 72px; height: 72px;
+      width: 68px; height: 68px;
       border-color: #ffffff;
-      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.9), 0 0 24px rgba(255, 255, 255, 0.6);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.9), 0 0 25px rgba(255, 255, 255, 0.6);
     }
     body.cursor-active .cursor-ring {
-      width: 96px; height: 96px;
-      border-color: rgba(255, 255, 255, 0.85);
+      width: 88px; height: 88px;
+      border-color: rgba(255, 255, 255, 0.8);
       border-style: solid;
     }
 
@@ -154,198 +127,209 @@
     }
 
     /* ═══════════════════════════════════════════════════════
-       NAVIGATION BAR / TOP HUD
+       1. HERO: SCHERMATA INIZIALE NEUTRA CON SOLO IL NOME
        ═══════════════════════════════════════════════════════ */
-    .top-nav {
+    #hero-intro {
       position: fixed;
-      top: 0; left: 0; right: 0;
-      z-index: 800;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: calc(var(--safe-top) + 16px) 24px 16px;
-      background: linear-gradient(to bottom, rgba(7, 7, 9, 0.85) 0%, rgba(7, 7, 9, 0) 100%);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      transition: transform 0.4s var(--ease-fluid), opacity 0.4s;
-    }
-
-    .nav-brand {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .brand-dot {
-      width: 8px; height: 8px;
-      border-radius: 50%;
-      background: #ffffff;
-      box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
-      animation: pulse 3s infinite ease-in-out;
-    }
-    @keyframes pulse {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.4; transform: scale(0.85); }
-    }
-    .brand-name {
-      font-family: var(--font-display);
-      font-size: 0.82rem;
-      font-weight: 800;
-      letter-spacing: 0.16em;
-      text-transform: uppercase;
-      color: var(--text);
-    }
-    .brand-sub {
-      font-size: 0.7rem;
-      color: var(--text-dim);
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      display: none;
-    }
-    @media (min-width: 600px) {
-      .brand-sub { display: inline-block; }
-    }
-
-    .nav-link-ig {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 0.75rem;
-      font-weight: 600;
-      letter-spacing: 0.08em;
-      padding: 8px 16px;
-      border-radius: 999px;
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid rgba(255, 255, 255, 0.16);
-      color: var(--text);
-      transition: all 0.25s var(--ease-fluid);
-      backdrop-filter: blur(8px);
-    }
-    .nav-link-ig:hover {
-      background: #ffffff;
-      color: #000000;
-      border-color: #ffffff;
-      transform: translateY(-1px);
-    }
-    .nav-link-ig svg {
-      transition: transform 0.25s var(--ease-fluid);
-    }
-    .nav-link-ig:hover svg {
-      transform: scale(1.15);
-    }
-
-    /* ═══════════════════════════════════════════════════════
-       HERO / INTRO SECTION
-       ═══════════════════════════════════════════════════════ */
-    .hero-section {
-      min-height: 100vh;
-      min-height: 100dvh;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      height: 100dvh;
       display: flex;
       flex-direction: column;
-      justify-content: flex-end;
-      padding: 0 24px calc(var(--safe-bottom) + 40px);
-      position: relative;
-      z-index: 2;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg-neutral);
+      z-index: 100;
+      pointer-events: none;
+      will-change: transform, opacity;
     }
 
-    .hero-ambient-bg {
-      position: absolute;
-      inset: 0;
-      z-index: -1;
-      overflow: hidden;
-      background: radial-gradient(circle at 50% 30%, rgba(25, 25, 35, 0.6) 0%, rgba(7, 7, 9, 1) 75%);
-    }
-
-    .hero-content {
-      max-width: 900px;
-      margin: 0 auto;
-      width: 100%;
-    }
-
-    .hero-tagline {
+    .hero-name {
       font-family: var(--font-display);
-      font-size: 0.75rem;
-      font-weight: 700;
-      letter-spacing: 0.22em;
+      font-size: clamp(2.8rem, 10vw, 7.8rem);
+      font-weight: 900;
+      letter-spacing: 0.18em;
       text-transform: uppercase;
-      color: var(--accent-warm);
-      margin-bottom: 20px;
+      text-align: center;
+      color: #ffffff;
+      line-height: 1;
+      padding: 0 20px;
+      margin-right: -0.18em; /* optical balance for letter-spacing */
+      text-shadow: 0 10px 40px rgba(0, 0, 0, 0.7);
+    }
+
+    .hero-scroll-hint {
+      position: absolute;
+      bottom: calc(var(--safe-bottom) + 36px);
       display: flex;
+      flex-direction: column;
       align-items: center;
       gap: 12px;
-    }
-    .hero-tagline::before {
-      content: '';
-      display: block;
-      width: 24px;
-      height: 1px;
-      background: var(--accent-warm);
-    }
-
-    .hero-title {
-      font-family: var(--font-editorial);
-      font-size: clamp(2.4rem, 7.5vw, 5.8rem);
-      font-weight: 400;
-      line-height: 1.05;
-      letter-spacing: -0.02em;
-      color: var(--text);
-      margin-bottom: 24px;
-    }
-    .hero-title em {
-      font-style: italic;
-      font-weight: 600;
-      color: var(--accent-warm);
-    }
-
-    .hero-statement {
-      font-size: clamp(0.95rem, 2.5vw, 1.25rem);
-      line-height: 1.6;
-      color: var(--text-muted);
-      max-width: 620px;
-      margin-bottom: 40px;
-      font-weight: 400;
-    }
-
-    .hero-scroll-indicator {
-      display: inline-flex;
-      align-items: center;
-      gap: 14px;
       font-size: 0.72rem;
-      letter-spacing: 0.16em;
+      letter-spacing: 0.22em;
       text-transform: uppercase;
       color: var(--text-dim);
+      transition: opacity 0.3s;
     }
-    .scroll-line-track {
-      width: 48px;
-      height: 1px;
-      background: rgba(255, 255, 255, 0.2);
+
+    .scroll-wheel-icon {
+      width: 20px;
+      height: 32px;
+      border: 1.5px solid rgba(255, 255, 255, 0.3);
+      border-radius: 12px;
       position: relative;
-      overflow: hidden;
     }
-    .scroll-line-runner {
-      position: absolute;
-      top: 0; left: 0;
-      width: 50%; height: 100%;
+    .scroll-wheel-dot {
+      width: 3px;
+      height: 6px;
       background: #ffffff;
-      animation: runner 2.2s infinite ease-in-out;
+      border-radius: 2px;
+      position: absolute;
+      top: 6px;
+      left: 50%;
+      transform: translateX(-50%);
+      animation: wheelScroll 2s infinite ease-in-out;
     }
-    @keyframes runner {
-      0% { transform: translateX(-100%); }
-      50% { transform: translateX(200%); }
-      100% { transform: translateX(200%); }
+    @keyframes wheelScroll {
+      0% { transform: translate(-50%, 0); opacity: 1; }
+      80% { transform: translate(-50%, 12px); opacity: 0; }
+      100% { transform: translate(-50%, 0); opacity: 0; }
     }
 
     /* ═══════════════════════════════════════════════════════
-       THE PHOTOGRAPHIC STAGE (ONE HERO PHOTO AT A TIME)
+       2. CLEVIR.LI CLOUDS & PERSPECTIVE CHANGE STAGE
        ═══════════════════════════════════════════════════════ */
-    .photo-journey {
+    #clouds-dive-stage {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      height: 100dvh;
+      perspective: 1200px;
+      perspective-origin: center center;
+      overflow: hidden;
+      z-index: 90;
+      pointer-events: none;
+      will-change: transform, opacity;
+      background: #0a0a0d;
+      opacity: 0;
+    }
+
+    .clouds-panorama-backdrop {
+      position: absolute;
+      inset: -20%;
+      width: 140%;
+      height: 140%;
+      background-image: url('clouds_panorama.webp');
+      background-size: cover;
+      background-position: center;
+      opacity: 0.85;
+      transform: translateZ(-300px) scale(1.4);
+      filter: blur(1px) brightness(1.05);
+      will-change: transform, opacity;
+    }
+
+    /* 3D Volumetric Cloud Masses that split apart */
+    .clouds-layer {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      transform-style: preserve-3d;
+      will-change: transform;
+    }
+
+    .cloud-mass {
+      position: absolute;
+      background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.95) 0%, rgba(240, 245, 255, 0.75) 45%, rgba(220, 235, 255, 0) 75%);
+      border-radius: 50%;
+      filter: blur(28px);
+      pointer-events: none;
+      will-change: transform, opacity;
+    }
+
+    .cloud-mass--left-1 {
+      width: 90vw; height: 90vh;
+      top: -15vh; left: -25vw;
+      transform: translateZ(100px);
+    }
+    .cloud-mass--right-1 {
+      width: 95vw; height: 95vh;
+      top: -20vh; right: -25vw;
+      transform: translateZ(200px);
+    }
+    .cloud-mass--left-2 {
+      width: 75vw; height: 75vh;
+      bottom: -15vh; left: -10vw;
+      transform: translateZ(350px);
+    }
+    .cloud-mass--right-2 {
+      width: 80vw; height: 80vh;
+      bottom: -20vh; right: -15vw;
+      transform: translateZ(450px);
+    }
+    .cloud-mass--center {
+      width: 60vw; height: 60vh;
+      top: 20vh; left: 20vw;
+      transform: translateZ(50px);
+      opacity: 0.7;
+    }
+
+    /* ═══════════════════════════════════════════════════════
+       3. 117-FRAME LANDSCAPE SEQUENCE CANVAS
+       ═══════════════════════════════════════════════════════ */
+    #sequence-fixed-stage {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      height: 100dvh;
+      z-index: 50;
+      pointer-events: none;
+      opacity: 0;
+      will-change: opacity;
+    }
+
+    #sequence-canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    /* ═══════════════════════════════════════════════════════
+       SCROLL TRACKS (DRIVES THE TIMELINES ON SCROLL)
+       ═══════════════════════════════════════════════════════ */
+    #scroll-container {
       position: relative;
       width: 100%;
-      background: var(--bg);
       z-index: 10;
     }
 
-    /* Individual Full-Screen Chapter */
-    .photo-chapter {
+    /* Virtual scroll spacers for sequence */
+    #intro-track {
+      height: 120vh;
+    }
+    #clouds-track {
+      height: 180vh;
+    }
+    #sequence-track {
+      height: 480vh; /* Smooth, natural scrub through the 117 frames */
+    }
+
+    /* ═══════════════════════════════════════════════════════
+       4. THE 3D SPATIAL JOURNEY ACROSS THE 6 AUTHOR PHOTOS
+       ═══════════════════════════════════════════════════════ */
+    .author-gallery-stage {
+      position: relative;
+      width: 100%;
+      background: var(--bg-darker);
+      z-index: 60;
+    }
+
+    .gallery-station {
       position: relative;
       width: 100%;
       height: 100vh;
@@ -354,21 +338,20 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      background: var(--bg);
-      will-change: transform;
+      background: var(--bg-darker);
     }
 
-    .photo-frame-wrapper {
+    .photo-wrapper {
       position: relative;
       width: 100%;
       height: 100%;
+      overflow: hidden;
       display: flex;
       align-items: center;
       justify-content: center;
-      overflow: hidden;
     }
 
-    .photo-stage-img {
+    .photo-clean-img {
       position: absolute;
       inset: 0;
       width: 100%;
@@ -379,202 +362,269 @@
       transition: filter 0.3s ease;
     }
 
-    /* Focal point tunings derived from artistic analysis */
-    .focal-photo-4 { object-position: 50% 32%; } /* Head & shadow portrait protected */
-    .focal-photo-1 { object-position: 50% 40%; } /* Architecture & warm lines */
-    .focal-photo-3 { object-position: 50% 38%; } /* Masterpiece center human figure protected */
-    .focal-photo-5 { object-position: 50% 45%; } /* Nature & deep blue textures */
-    .focal-photo-6 { object-position: 50% 50%; } /* Geometric diagonals */
-    .focal-photo-2 { object-position: 50% 50%; } /* Street shutter & contrast */
+    /* Protected focal positions */
+    .focal-1 { object-position: 50% 40%; }
+    .focal-2 { object-position: 50% 50%; }
+    .focal-3 { object-position: 50% 38%; } /* Protected face/horizon */
+    .focal-4 { object-position: 50% 32%; } /* Protected shadow portrait head */
+    .focal-5 { object-position: 50% 45%; }
+    .focal-6 { object-position: 50% 50%; }
 
-    /* Subtle Cinematic Vignette per chapter */
-    .photo-vignette {
+    /* Vignette protection */
+    .clean-vignette {
       position: absolute;
       inset: 0;
       pointer-events: none;
-      background: radial-gradient(circle at center, transparent 40%, rgba(7, 7, 9, 0.72) 100%);
-      z-index: 2;
-    }
-    .photo-bottom-fade {
-      position: absolute;
-      left: 0; right: 0; bottom: 0;
-      height: 35vh;
-      pointer-events: none;
-      background: linear-gradient(to top, rgba(7, 7, 9, 0.95) 0%, rgba(7, 7, 9, 0) 100%);
-      z-index: 2;
-    }
-    .photo-top-fade {
-      position: absolute;
-      left: 0; right: 0; top: 0;
-      height: 20vh;
-      pointer-events: none;
-      background: linear-gradient(to bottom, rgba(7, 7, 9, 0.8) 0%, rgba(7, 7, 9, 0) 100%);
+      background: radial-gradient(circle at center, transparent 45%, rgba(5, 5, 7, 0.65) 100%);
       z-index: 2;
     }
 
-    /* Chapter Meta & Narrative Text */
-    .photo-meta-container {
+    /* Minimalist Inspection Trigger (No text, pure icon) */
+    .inspect-trigger {
       position: absolute;
-      left: 0; right: 0; bottom: 0;
-      padding: 0 24px calc(var(--safe-bottom) + 32px);
-      z-index: 3;
-      max-width: 900px;
-      margin: 0 auto;
-      pointer-events: auto;
-    }
-
-    .chapter-tag {
-      font-family: var(--font-display);
-      font-size: 0.7rem;
-      font-weight: 700;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      color: var(--accent-warm);
-      margin-bottom: 8px;
+      bottom: calc(var(--safe-bottom) + 24px);
+      right: 24px;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: rgba(20, 20, 26, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      color: #ffffff;
       display: flex;
       align-items: center;
-      gap: 10px;
-    }
-    .chapter-tag span {
-      background: rgba(227, 213, 197, 0.15);
-      border: 1px solid rgba(227, 213, 197, 0.3);
-      padding: 3px 8px;
-      border-radius: 4px;
-    }
-
-    .chapter-heading {
-      font-family: var(--font-editorial);
-      font-size: clamp(1.8rem, 5vw, 3.4rem);
-      font-weight: 400;
-      line-height: 1.15;
-      letter-spacing: -0.01em;
-      color: var(--text);
-      margin-bottom: 12px;
-    }
-
-    .chapter-caption {
-      font-size: clamp(0.85rem, 2vw, 1.05rem);
-      line-height: 1.5;
-      color: var(--text-muted);
-      max-width: 580px;
-      margin-bottom: 16px;
-    }
-
-    .chapter-actions {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-    .inspect-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 0.72rem;
-      font-weight: 600;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      padding: 8px 14px;
-      border-radius: 999px;
-      background: rgba(255, 255, 255, 0.12);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      color: var(--text);
-      backdrop-filter: blur(8px);
-      transition: all 0.25s var(--ease-fluid);
+      justify-content: center;
+      font-size: 1.2rem;
+      z-index: 10;
       cursor: pointer;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      transition: all 0.25s var(--ease-out);
     }
-    .inspect-btn:hover {
+    .inspect-trigger:hover {
       background: #ffffff;
       color: #000000;
-      border-color: #ffffff;
-    }
-
-    /* Specific Multi-frame Chapter (Chapter 5) */
-    .dual-frame-stage {
-      display: grid;
-      grid-template-columns: 1fr;
-      width: 100%;
-      height: 100%;
-      gap: 12px;
-      padding: 16px;
-    }
-    @media (min-width: 768px) {
-      .dual-frame-stage {
-        grid-template-columns: 1.1fr 0.9fr;
-        padding: 40px;
-        gap: 32px;
-      }
-    }
-    .dual-panel {
-      position: relative;
-      width: 100%;
-      height: 100%;
-      border-radius: 12px;
-      overflow: hidden;
+      transform: scale(1.1);
     }
 
     /* ═══════════════════════════════════════════════════════
-       EPILOGUE & PERSONAL CONNECTION (INSTAGRAM PROMINENT)
+       SPATIAL 3D EFFECTS (TUNNEL, UNFOLDING BOX, VORTEX)
        ═══════════════════════════════════════════════════════ */
-    .epilogue-section {
+
+    /* EFFECT 1: 3D GEOMETRIC TUNNEL (Prima di Foto 2) */
+    .tunnel-stage {
+      position: relative;
+      width: 100%;
+      height: 200vh;
+      background: #030305;
+      overflow: hidden;
+    }
+    .tunnel-sticky {
+      position: sticky;
+      top: 0;
+      width: 100%;
+      height: 100vh;
+      height: 100dvh;
+      perspective: 800px;
+      perspective-origin: center center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    .tunnel-viewport {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      transform-style: preserve-3d;
+      will-change: transform;
+    }
+    .tunnel-ring {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      border: 2px solid rgba(255, 255, 255, 0.22);
+      border-radius: 24px;
+      box-shadow: 0 0 30px rgba(0, 240, 255, 0.15), inset 0 0 20px rgba(255, 255, 255, 0.05);
+      pointer-events: none;
+      will-change: transform, opacity;
+    }
+
+    /* EFFECT 2: 3D UNFOLDING BOX (Prima di Foto 3) */
+    .box-unfold-stage {
+      position: relative;
+      width: 100%;
+      height: 220vh;
+      background: #020204;
+      overflow: hidden;
+    }
+    .box-sticky {
+      position: sticky;
+      top: 0;
+      width: 100%;
+      height: 100vh;
+      height: 100dvh;
+      perspective: 1000px;
+      perspective-origin: center center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    .box-3d-wrapper {
+      position: relative;
+      width: min(75vw, 420px);
+      height: min(75vw, 420px);
+      transform-style: preserve-3d;
+      will-change: transform;
+    }
+    .box-face {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(35, 35, 45, 0.95) 0%, rgba(15, 15, 20, 0.95) 100%);
+      border: 1.5px solid rgba(255, 255, 255, 0.3);
+      box-shadow: inset 0 0 40px rgba(255, 255, 255, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      will-change: transform, opacity;
+      backface-visibility: hidden;
+    }
+    .box-face--front  { transform: translateZ(min(37.5vw, 210px)); }
+    .box-face--back   { transform: rotateY(180deg) translateZ(min(37.5vw, 210px)); }
+    .box-face--top    { transform: rotateX(90deg) translateZ(min(37.5vw, 210px)); transform-origin: top; }
+    .box-face--bottom { transform: rotateX(-90deg) translateZ(min(37.5vw, 210px)); transform-origin: bottom; }
+    .box-face--left   { transform: rotateY(-90deg) translateZ(min(37.5vw, 210px)); transform-origin: left; }
+    .box-face--right  { transform: rotateY(90deg) translateZ(min(37.5vw, 210px)); transform-origin: right; }
+
+    .box-inner-reveal {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      transform: translateZ(0);
+      will-change: transform, opacity;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .box-inner-reveal img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+    }
+
+    /* EFFECT 3: 3D DEPTH VORTEX (Prima di Foto 4) */
+    .vortex-stage {
+      position: relative;
+      width: 100%;
+      height: 180vh;
+      background: #040406;
+      overflow: hidden;
+    }
+    .vortex-sticky {
+      position: sticky;
+      top: 0;
+      width: 100%;
+      height: 100vh;
+      height: 100dvh;
+      perspective: 900px;
+      perspective-origin: center center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    .vortex-disc {
+      position: absolute;
+      border-radius: 50%;
+      border: 1.5px solid rgba(255, 255, 255, 0.25);
+      pointer-events: none;
+      will-change: transform, opacity;
+    }
+
+    /* EFFECT 4: 3D PRISMATIC SHIELD (Prima di Foto 5) */
+    .prism-stage {
+      position: relative;
+      width: 100%;
+      height: 180vh;
+      background: #020204;
+      overflow: hidden;
+    }
+    .prism-sticky {
+      position: sticky;
+      top: 0;
+      width: 100%;
+      height: 100vh;
+      height: 100dvh;
+      perspective: 1000px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    .prism-panel {
+      position: absolute;
+      width: 50vw;
+      height: 50vh;
+      background: rgba(20, 20, 28, 0.9);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(10px);
+      will-change: transform, opacity;
+    }
+    .prism-panel--tl { top: 0; left: 0; transform-origin: top left; }
+    .prism-panel--tr { top: 0; right: 0; transform-origin: top right; }
+    .prism-panel--bl { bottom: 0; left: 0; transform-origin: bottom left; }
+    .prism-panel--br { bottom: 0; right: 0; transform-origin: bottom right; }
+
+    /* ═══════════════════════════════════════════════════════
+       5. EPILOGUE & INSTAGRAM PROMINENT CARD
+       ═══════════════════════════════════════════════════════ */
+    .epilogue-stage {
+      position: relative;
       min-height: 100vh;
       min-height: 100dvh;
-      background: var(--bg-darker);
-      position: relative;
-      z-index: 20;
+      background: var(--bg-neutral);
+      z-index: 70;
       display: flex;
       flex-direction: column;
       justify-content: center;
+      align-items: center;
       padding: 80px 24px calc(var(--safe-bottom) + 60px);
       border-top: 1px solid rgba(255, 255, 255, 0.08);
     }
 
-    .epilogue-container {
-      max-width: 840px;
-      margin: 0 auto;
+    .epilogue-content {
+      max-width: 720px;
       width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
     }
 
-    .epilogue-label {
+    .epilogue-tag {
       font-family: var(--font-display);
       font-size: 0.72rem;
-      font-weight: 700;
+      font-weight: 800;
       letter-spacing: 0.24em;
       text-transform: uppercase;
-      color: var(--accent-warm);
-      margin-bottom: 20px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .epilogue-title {
-      font-family: var(--font-editorial);
-      font-size: clamp(2.2rem, 6.5vw, 4.6rem);
-      font-weight: 400;
-      line-height: 1.1;
-      letter-spacing: -0.02em;
-      color: var(--text);
+      color: var(--accent);
       margin-bottom: 24px;
     }
-    .epilogue-title em {
-      font-style: italic;
-      color: var(--accent-warm);
-    }
 
-    .epilogue-text {
-      font-size: clamp(0.95rem, 2.5vw, 1.2rem);
-      line-height: 1.7;
-      color: var(--text-muted);
-      margin-bottom: 48px;
-      max-width: 660px;
+    .epilogue-headline {
+      font-family: var(--font-display);
+      font-size: clamp(2rem, 6vw, 3.8rem);
+      font-weight: 800;
+      line-height: 1.15;
+      letter-spacing: -0.01em;
+      margin-bottom: 36px;
     }
 
     /* Instagram Master Card */
     .instagram-card {
-      position: relative;
-      background: linear-gradient(135deg, rgba(28, 28, 38, 0.6) 0%, rgba(14, 14, 20, 0.8) 100%);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      border-radius: 20px;
+      width: 100%;
+      background: linear-gradient(135deg, rgba(25, 25, 34, 0.7) 0%, rgba(12, 12, 18, 0.85) 100%);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: 24px;
       padding: 32px 28px;
       display: flex;
       flex-direction: column;
@@ -582,15 +632,15 @@
       margin-bottom: 40px;
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
-      transition: all 0.35s var(--ease-fluid);
+      transition: all 0.35s var(--ease-out);
       box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6);
       text-decoration: none;
       color: var(--text);
     }
     .instagram-card:hover {
-      border-color: rgba(255, 255, 255, 0.4);
+      border-color: rgba(255, 255, 255, 0.45);
       transform: translateY(-3px);
-      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.8), 0 0 30px rgba(227, 213, 197, 0.12);
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.85), 0 0 30px rgba(255, 255, 255, 0.1);
     }
 
     @media (min-width: 640px) {
@@ -599,13 +649,8 @@
         align-items: center;
         justify-content: space-between;
         padding: 36px 40px;
+        text-align: left;
       }
-    }
-
-    .ig-profile-info {
-      display: flex;
-      align-items: center;
-      gap: 20px;
     }
 
     .ig-avatar-wrap {
@@ -620,21 +665,24 @@
       width: 100%; height: 100%;
       border-radius: 50%;
       object-fit: cover;
-      object-position: center;
-      border: 2px solid #070709;
       display: block;
+      border: 2px solid #0a0a0d;
+    }
+
+    .ig-user-info {
+      display: flex;
+      align-items: center;
+      gap: 20px;
     }
 
     .ig-handle {
       font-family: var(--font-display);
-      font-size: 1.35rem;
+      font-size: 1.4rem;
       font-weight: 800;
-      letter-spacing: -0.01em;
-      color: var(--text);
       display: block;
       margin-bottom: 4px;
     }
-    .ig-bio-snippet {
+    .ig-bio {
       font-size: 0.82rem;
       color: var(--text-muted);
       line-height: 1.4;
@@ -654,51 +702,48 @@
       font-weight: 700;
       letter-spacing: 0.08em;
       text-transform: uppercase;
-      transition: all 0.25s var(--ease-fluid);
+      transition: all 0.25s var(--ease-out);
       flex-shrink: 0;
     }
     .instagram-card:hover .ig-cta-pill {
-      background: var(--accent-warm);
-      transform: scale(1.04);
+      background: var(--accent);
+      transform: scale(1.05);
     }
 
-    /* Direct Contact & Footer Bottom */
     .epilogue-footer {
       display: flex;
       flex-direction: column;
-      gap: 20px;
-      padding-top: 32px;
+      align-items: center;
+      gap: 16px;
+      padding-top: 24px;
       border-top: 1px solid rgba(255, 255, 255, 0.06);
+      width: 100%;
     }
     @media (min-width: 600px) {
       .epilogue-footer {
         flex-direction: row;
         justify-content: space-between;
-        align-items: center;
       }
     }
-
     .epilogue-copy {
       font-size: 0.75rem;
       color: var(--text-dim);
-      letter-spacing: 0.06em;
     }
-
-    .back-to-top-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
+    .back-to-top {
+      background: none;
+      border: none;
+      color: var(--text-muted);
       font-size: 0.72rem;
       font-weight: 600;
       letter-spacing: 0.12em;
       text-transform: uppercase;
-      color: var(--text-muted);
-      background: none;
-      border: none;
       cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
       transition: color 0.2s;
     }
-    .back-to-top-btn:hover {
+    .back-to-top:hover {
       color: #ffffff;
     }
 
@@ -709,7 +754,7 @@
       position: fixed;
       inset: 0;
       z-index: 99990;
-      background: rgba(3, 3, 5, 0.94);
+      background: rgba(3, 3, 5, 0.95);
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
       display: flex;
@@ -718,33 +763,18 @@
       padding: 24px;
       opacity: 0;
       pointer-events: none;
-      transition: opacity 0.35s var(--ease-fluid);
+      transition: opacity 0.35s var(--ease-out);
     }
     .lightbox-modal.is-open {
       opacity: 1;
       pointer-events: auto;
     }
-    .lightbox-img-wrap {
-      position: relative;
+    .lightbox-modal img {
       max-width: 90vw;
       max-height: 85vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    .lightbox-img-wrap img {
-      max-width: 100%;
-      max-height: 75vh;
       object-fit: contain;
       border-radius: 8px;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.85);
-    }
-    .lightbox-caption {
-      margin-top: 16px;
-      font-size: 0.82rem;
-      color: var(--text-muted);
-      text-align: center;
-      letter-spacing: 0.08em;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.9);
     }
     .lightbox-close {
       position: absolute;
@@ -777,249 +807,206 @@
         transition-duration: 0.01ms !important;
         scroll-behavior: auto !important;
       }
-      .photo-chapter {
-        height: auto !important;
-        min-height: 80vh !important;
-        position: relative !important;
-        margin-bottom: 40px;
-      }
-      .photo-stage-img {
-        position: relative !important;
-        height: 60vh !important;
-      }
+      #hero-intro { position: relative !important; height: 100vh !important; }
+      #sequence-fixed-stage { display: none !important; }
     }
   </style>
 </head>
 <body>
 
-  <!-- Film Grain Texture Overlay -->
-  <div class="film-grain" aria-hidden="true"></div>
-
-  <!-- Custom Photo Cursor (Desktop) -->
+  <!-- Custom Photo Cursor (Desktop fine pointer only) -->
   <div class="custom-cursor" id="custom-cursor" aria-hidden="true">
     <img src="spatial-carousel/photo-3.webp" alt="Cursor Photo" id="cursor-thumb">
   </div>
   <div class="cursor-ring" id="cursor-ring" aria-hidden="true"></div>
 
-  <!-- Top Minimalist HUD Navigation -->
-  <header class="top-nav">
-    <div class="nav-brand">
-      <div class="brand-dot"></div>
-      <span class="brand-name">Gabriele Madeo</span>
-      <span class="brand-sub">// Visual Archive</span>
-    </div>
-
-    <a href="https://www.instagram.com/gabrielemadeo" target="_blank" rel="noopener noreferrer" class="nav-link-ig touch-target" aria-label="Profilo Instagram di Gabriele Madeo">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
-        <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
-        <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
-      </svg>
-      <span>@gabrielemadeo</span>
-    </a>
-  </header>
-
-  <!-- Hero Chapter / Entrance -->
-  <main>
-    <section class="hero-section" id="hero">
-      <div class="hero-ambient-bg"></div>
-      
-      <div class="hero-content">
-        <div class="hero-tagline">ARCHIVIO VISIVO // EST. 2026</div>
-        
-        <h1 class="hero-title">
-          Catturare ciò che sfugge<br>allo <em>sguardo ordinario</em>.
-        </h1>
-        
-        <p class="hero-statement">
-          Non un portfolio aziendale né una lista di competenze. Questo è un viaggio fotografico e cinetico tra luce, ombre, geometrie e silenzi. Scorri per entrare.
-        </p>
-
-        <div class="hero-scroll-indicator">
-          <div class="scroll-line-track">
-            <div class="scroll-line-runner"></div>
-          </div>
-          <span>Scorri per esplorare</span>
-        </div>
+  <!-- 1. HERO INIZIALE: SOLO LA SCRITTA GABRIELE MADEO -->
+  <section id="hero-intro">
+    <h1 class="hero-name">GABRIELE MADEO</h1>
+    <div class="hero-scroll-hint" id="hero-hint">
+      <div class="scroll-wheel-icon">
+        <div class="scroll-wheel-dot"></div>
       </div>
-    </section>
+      <span>Scorri per entrare</span>
+    </div>
+  </section>
 
-    <!-- ════════ SINGLE IMMERSIVE PHOTOGRAPHIC JOURNEY ════════ -->
-    <div class="photo-journey" id="photo-journey">
+  <!-- 2. CLEVIR.LI STYLE CLOUD DIVE & 3D PERSPECTIVE STAGE -->
+  <div id="clouds-dive-stage" aria-hidden="true">
+    <div class="clouds-panorama-backdrop" id="clouds-backdrop"></div>
+    <div class="clouds-layer" id="clouds-layer">
+      <div class="cloud-mass cloud-mass--left-1" id="cloud-l1"></div>
+      <div class="cloud-mass cloud-mass--right-1" id="cloud-r1"></div>
+      <div class="cloud-mass cloud-mass--left-2" id="cloud-l2"></div>
+      <div class="cloud-mass cloud-mass--right-2" id="cloud-r2"></div>
+      <div class="cloud-mass cloud-mass--center" id="cloud-c"></div>
+    </div>
+  </div>
 
-      <!-- CHAPTER 01: L'Ombra e il Ritratto (photo-4) -->
-      <section class="photo-chapter" id="chapter-1" data-cursor="spatial-carousel/photo-4.webp">
-        <div class="photo-frame-wrapper">
-          <picture>
-            <source srcset="spatial-carousel/photo-4.webp" type="image/webp">
-            <img src="spatial-carousel/photo-4.jpg" alt="Ritratto nell'ombra — Gabriele Madeo" class="photo-stage-img focal-photo-4" loading="eager" decoding="async">
-          </picture>
-          <div class="photo-vignette"></div>
-          <div class="photo-bottom-fade"></div>
-          <div class="photo-top-fade"></div>
+  <!-- 3. 117-FRAME LANDSCAPE SEQUENCE CANVAS -->
+  <div id="sequence-fixed-stage" aria-hidden="true">
+    <canvas id="sequence-canvas"></canvas>
+  </div>
 
-          <div class="photo-meta-container">
-            <div class="chapter-tag"><span>01</span> RITRATTO // STUDIO MONOCROMO</div>
-            <h2 class="chapter-heading">L'Identità nell'Ombra</h2>
-            <p class="chapter-caption">
-              Cercare la luce dove gli altri vedono solo buio. Un dialogo intimo tra tagli netti, profilo e silenzio.
-            </p>
-            <div class="chapter-actions">
-              <button class="inspect-btn touch-target" data-full="spatial-carousel/photo-4.jpg" data-title="01 // L'Identità nell'Ombra">
-                <span>⊕ Espandi scatto originale</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      </section>
+  <!-- SCROLL TRACK DRIVERS -->
+  <div id="scroll-container">
+    <div id="intro-track"></div>
+    <div id="clouds-track"></div>
+    <div id="sequence-track"></div>
 
-      <!-- CHAPTER 02: Geometria Notturna & Toni d'Ambra (photo-1) -->
-      <section class="photo-chapter" id="chapter-2" data-cursor="spatial-carousel/photo-1.webp">
-        <div class="photo-frame-wrapper">
+    <!-- 4. THE 3D SPATIAL JOURNEY ACROSS THE 6 AUTHOR PHOTOS -->
+    <div class="author-gallery-stage" id="gallery-stage">
+
+      <!-- FOTO 1: Emerges from landscape sequence into full screen -->
+      <section class="gallery-station" id="station-1" data-cursor="spatial-carousel/photo-1.webp">
+        <div class="photo-wrapper">
           <picture>
             <source srcset="spatial-carousel/photo-1.webp" type="image/webp">
-            <img src="spatial-carousel/photo-1.jpg" alt="Architettura notturna — Gabriele Madeo" class="photo-stage-img focal-photo-1" loading="lazy" decoding="async">
+            <img src="spatial-carousel/photo-1.jpg" alt="Foto 1" class="photo-clean-img focal-1" loading="lazy" decoding="async">
           </picture>
-          <div class="photo-vignette"></div>
-          <div class="photo-bottom-fade"></div>
-          <div class="photo-top-fade"></div>
-
-          <div class="photo-meta-container">
-            <div class="chapter-tag"><span>02</span> ARCHITETTURA // TONI D'AMBRA</div>
-            <h2 class="chapter-heading">Geometria e Notte</h2>
-            <p class="chapter-caption">
-              La città quando tacciono le parole. Linee pulite, riflessi caldi e proporzioni che ridisegnano lo spazio urbano.
-            </p>
-            <div class="chapter-actions">
-              <button class="inspect-btn touch-target" data-full="spatial-carousel/photo-1.jpg" data-title="02 // Geometria e Notte">
-                <span>⊕ Espandi scatto originale</span>
-              </button>
-            </div>
-          </div>
+          <div class="clean-vignette"></div>
+          <button class="inspect-trigger touch-target" data-full="spatial-carousel/photo-1.jpg" aria-label="Espandi scatto">⊕</button>
         </div>
       </section>
 
-      <!-- CHAPTER 03: Il Respiro Centrale / Masterpiece (photo-3) -->
-      <section class="photo-chapter" id="chapter-3" data-cursor="spatial-carousel/photo-3.webp">
-        <div class="photo-frame-wrapper">
+      <!-- EFFETTO VISIVO SPATIAL: 3D GEOMETRIC TUNNEL (Prima di Foto 2) -->
+      <div class="tunnel-stage" id="tunnel-stage-2">
+        <div class="tunnel-sticky">
+          <div class="tunnel-viewport" id="tunnel-viewport-2">
+            <!-- 8 Concentric 3D Tunnel Rings with varying depth -->
+            <div class="tunnel-ring" style="width: 280px; height: 380px; transform: translate3d(-50%, -50%, -1200px);"></div>
+            <div class="tunnel-ring" style="width: 380px; height: 500px; transform: translate3d(-50%, -50%, -900px);"></div>
+            <div class="tunnel-ring" style="width: 480px; height: 620px; transform: translate3d(-50%, -50%, -600px);"></div>
+            <div class="tunnel-ring" style="width: 580px; height: 740px; transform: translate3d(-50%, -50%, -300px);"></div>
+            <div class="tunnel-ring" style="width: 680px; height: 860px; transform: translate3d(-50%, -50%, 0px);"></div>
+            <div class="tunnel-ring" style="width: 780px; height: 980px; transform: translate3d(-50%, -50%, 300px);"></div>
+            <div class="tunnel-ring" style="width: 880px; height: 1100px; transform: translate3d(-50%, -50%, 600px);"></div>
+            <div class="tunnel-ring" style="width: 980px; height: 1220px; transform: translate3d(-50%, -50%, 900px);"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- FOTO 2: Full screen, pure photography -->
+      <section class="gallery-station" id="station-2" data-cursor="spatial-carousel/photo-2.webp">
+        <div class="photo-wrapper">
+          <picture>
+            <source srcset="spatial-carousel/photo-2.webp" type="image/webp">
+            <img src="spatial-carousel/photo-2.jpg" alt="Foto 2" class="photo-clean-img focal-2" loading="lazy" decoding="async">
+          </picture>
+          <div class="clean-vignette"></div>
+          <button class="inspect-trigger touch-target" data-full="spatial-carousel/photo-2.jpg" aria-label="Espandi scatto">⊕</button>
+        </div>
+      </section>
+
+      <!-- EFFETTO VISIVO SPATIAL: 3D UNFOLDING BOX (Prima di Foto 3) -->
+      <div class="box-unfold-stage" id="box-unfold-stage-3">
+        <div class="box-sticky">
+          <div class="box-3d-wrapper" id="box-3d">
+            <!-- 6 Faces that unfold outward in 3D -->
+            <div class="box-face box-face--front" id="box-f-front"></div>
+            <div class="box-face box-face--top" id="box-f-top"></div>
+            <div class="box-face box-face--bottom" id="box-f-bottom"></div>
+            <div class="box-face box-face--left" id="box-f-left"></div>
+            <div class="box-face box-face--right" id="box-f-right"></div>
+            <div class="box-face box-face--back" id="box-f-back"></div>
+            <!-- Center piece inside box -->
+            <div class="box-inner-reveal" id="box-inner-img">
+              <img src="spatial-carousel/photo-3.webp" alt="Foto 3 Inside Box">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- FOTO 3: Full screen Masterpiece -->
+      <section class="gallery-station" id="station-3" data-cursor="spatial-carousel/photo-3.webp">
+        <div class="photo-wrapper">
           <picture>
             <source srcset="spatial-carousel/photo-3.webp" type="image/webp">
-            <img src="spatial-carousel/photo-3.jpg" alt="Scatto d'autore all'aperto — Gabriele Madeo" class="photo-stage-img focal-photo-3" loading="lazy" decoding="async">
+            <img src="spatial-carousel/photo-3.jpg" alt="Foto 3" class="photo-clean-img focal-3" loading="lazy" decoding="async">
           </picture>
-          <div class="photo-vignette"></div>
-          <div class="photo-bottom-fade"></div>
-          <div class="photo-top-fade"></div>
-
-          <div class="photo-meta-container">
-            <div class="chapter-tag"><span>03</span> SCATTO CENTRALE // RESPIRO</div>
-            <h2 class="chapter-heading">L'Origine del Segno</h2>
-            <p class="chapter-caption">
-              Il momento esatto in cui la figura si allinea con l'orizzonte. Luce naturale aperta, autenticità senza filtri.
-            </p>
-            <div class="chapter-actions">
-              <button class="inspect-btn touch-target" data-full="spatial-carousel/photo-3.jpg" data-title="03 // L'Origine del Segno">
-                <span>⊕ Espandi scatto originale</span>
-              </button>
-            </div>
-          </div>
+          <div class="clean-vignette"></div>
+          <button class="inspect-trigger touch-target" data-full="spatial-carousel/photo-3.jpg" aria-label="Espandi scatto">⊕</button>
         </div>
       </section>
 
-      <!-- CHAPTER 04: Materia & Silenzio Blu (photo-5) -->
-      <section class="photo-chapter" id="chapter-4" data-cursor="spatial-carousel/photo-5.webp">
-        <div class="photo-frame-wrapper">
+      <!-- EFFETTO VISIVO SPATIAL: 3D DEPTH VORTEX (Prima di Foto 4) -->
+      <div class="vortex-stage" id="vortex-stage-4">
+        <div class="vortex-sticky">
+          <div class="vortex-disc" id="v-disc-1" style="width: 250px; height: 250px;"></div>
+          <div class="vortex-disc" id="v-disc-2" style="width: 450px; height: 450px;"></div>
+          <div class="vortex-disc" id="v-disc-3" style="width: 650px; height: 650px;"></div>
+          <div class="vortex-disc" id="v-disc-4" style="width: 850px; height: 850px;"></div>
+        </div>
+      </div>
+
+      <!-- FOTO 4: Studio Shadow Portrait -->
+      <section class="gallery-station" id="station-4" data-cursor="spatial-carousel/photo-4.webp">
+        <div class="photo-wrapper">
+          <picture>
+            <source srcset="spatial-carousel/photo-4.webp" type="image/webp">
+            <img src="spatial-carousel/photo-4.jpg" alt="Foto 4" class="photo-clean-img focal-4" loading="lazy" decoding="async">
+          </picture>
+          <div class="clean-vignette"></div>
+          <button class="inspect-trigger touch-target" data-full="spatial-carousel/photo-4.jpg" aria-label="Espandi scatto">⊕</button>
+        </div>
+      </section>
+
+      <!-- EFFETTO VISIVO SPATIAL: 3D PRISMATIC PANELS (Prima di Foto 5) -->
+      <div class="prism-stage" id="prism-stage-5">
+        <div class="prism-sticky">
+          <div class="prism-panel prism-panel--tl" id="prism-tl"></div>
+          <div class="prism-panel prism-panel--tr" id="prism-tr"></div>
+          <div class="prism-panel prism-panel--bl" id="prism-bl"></div>
+          <div class="prism-panel prism-panel--br" id="prism-br"></div>
+        </div>
+      </div>
+
+      <!-- FOTO 5: Texture & Natura -->
+      <section class="gallery-station" id="station-5" data-cursor="spatial-carousel/photo-5.webp">
+        <div class="photo-wrapper">
           <picture>
             <source srcset="spatial-carousel/photo-5.webp" type="image/webp">
-            <img src="spatial-carousel/photo-5.jpg" alt="Texture e natura — Gabriele Madeo" class="photo-stage-img focal-photo-5" loading="lazy" decoding="async">
+            <img src="spatial-carousel/photo-5.jpg" alt="Foto 5" class="photo-clean-img focal-5" loading="lazy" decoding="async">
           </picture>
-          <div class="photo-vignette"></div>
-          <div class="photo-bottom-fade"></div>
-          <div class="photo-top-fade"></div>
-
-          <div class="photo-meta-container">
-            <div class="chapter-tag"><span>04</span> NATURA // ATMOSFERA BLU</div>
-            <h2 class="chapter-heading">La Materia Invisibile</h2>
-            <p class="chapter-caption">
-              Dettagli microscopici e sfumature profonde. Quando l'ambiente circostante diventa una tela meditativa.
-            </p>
-            <div class="chapter-actions">
-              <button class="inspect-btn touch-target" data-full="spatial-carousel/photo-5.jpg" data-title="04 // La Materia Invisibile">
-                <span>⊕ Espandi scatto originale</span>
-              </button>
-            </div>
-          </div>
+          <div class="clean-vignette"></div>
+          <button class="inspect-trigger touch-target" data-full="spatial-carousel/photo-5.jpg" aria-label="Espandi scatto">⊕</button>
         </div>
       </section>
 
-      <!-- CHAPTER 05: Linee e Dinamismo (photo-6 e photo-2) -->
-      <section class="photo-chapter" id="chapter-5" data-cursor="spatial-carousel/photo-6.webp">
-        <div class="dual-frame-stage">
-          <div class="dual-panel">
-            <picture>
-              <source srcset="spatial-carousel/photo-6.webp" type="image/webp">
-              <img src="spatial-carousel/photo-6.jpg" alt="Prospettive urbane — Gabriele Madeo" class="photo-stage-img focal-photo-6" loading="lazy" decoding="async">
-            </picture>
-            <div class="photo-vignette"></div>
-            <div class="photo-bottom-fade"></div>
-          </div>
-          <div class="dual-panel">
-            <picture>
-              <source srcset="spatial-carousel/photo-2.webp" type="image/webp">
-              <img src="spatial-carousel/photo-2.jpg" alt="Movimento e riflessi — Gabriele Madeo" class="photo-stage-img focal-photo-2" loading="lazy" decoding="async">
-            </picture>
-            <div class="photo-vignette"></div>
-            <div class="photo-bottom-fade"></div>
-          </div>
-        </div>
-
-        <div class="photo-meta-container">
-          <div class="chapter-tag"><span>05</span> MOVIMENTO // RIFLESSI & PROSPETTIVE</div>
-          <h2 class="chapter-heading">Velocità e Geometrie</h2>
-          <p class="chapter-caption">
-            Cogliere l'istante prima che svanisca nel ricordo. Due prospettive in risonanza visiva continua.
-          </p>
-          <div class="chapter-actions">
-            <button class="inspect-btn touch-target" data-full="spatial-carousel/photo-6.jpg" data-title="05 // Prospettive e Dinamica">
-              <span>⊕ Espandi scatto</span>
-            </button>
-          </div>
+      <!-- FOTO 6: Geometria finale -->
+      <section class="gallery-station" id="station-6" data-cursor="spatial-carousel/photo-6.webp">
+        <div class="photo-wrapper">
+          <picture>
+            <source srcset="spatial-carousel/photo-6.webp" type="image/webp">
+            <img src="spatial-carousel/photo-6.jpg" alt="Foto 6" class="photo-clean-img focal-6" loading="lazy" decoding="async">
+          </picture>
+          <div class="clean-vignette"></div>
+          <button class="inspect-trigger touch-target" data-full="spatial-carousel/photo-6.jpg" aria-label="Espandi scatto">⊕</button>
         </div>
       </section>
 
     </div>
 
-    <!-- ════════ EPILOGUE & INSTAGRAM CONNECTION ════════ -->
-    <section class="epilogue-section" id="connessione">
-      <div class="epilogue-container">
-        
-        <div class="epilogue-label">
-          <span>●</span>
-          <span>AUTENTICITÀ // DIALOGO APERTO</span>
-        </div>
-
-        <h2 class="epilogue-title">
-          Le immagini non hanno bisogno<br>di <em>spiegazioni complesse</em>.
-        </h2>
-
-        <p class="epilogue-text">
-          Credo in un web che non sia una fredda sequenza di servizi o curriculum, ma uno spazio vivo che trasmette ritmo visivo, atmosfera e presenza. Per collaborazioni fotografiche, idee o semplicemente per scambiare due parole su uno scatto:
-        </p>
+    <!-- 5. EPILOGUE & INSTAGRAM MASTER CARD -->
+    <section class="epilogue-stage" id="connessione">
+      <div class="epilogue-content">
+        <div class="epilogue-tag">GABRIELE MADEO // ARCHIVIO VISIVO</div>
+        <h2 class="epilogue-headline">Vivere lo spazio attraverso lo sguardo.</h2>
 
         <!-- Master Instagram Card -->
-        <a href="https://www.instagram.com/gabrielemadeo" target="_blank" rel="noopener noreferrer" class="instagram-card touch-target" id="instagram-banner">
-          <div class="ig-profile-info">
+        <a href="https://www.instagram.com/gabrielemadeo" target="_blank" rel="noopener noreferrer" class="instagram-card touch-target" id="instagram-card">
+          <div class="ig-user-info">
             <div class="ig-avatar-wrap">
-              <img src="spatial-carousel/photo-3.webp" alt="Gabriele Madeo Avatar" class="ig-avatar-img">
+              <img src="spatial-carousel/photo-3.webp" alt="Gabriele Madeo" class="ig-avatar-img">
             </div>
             <div>
               <span class="ig-handle">@gabrielemadeo</span>
-              <span class="ig-bio-snippet">Fotografia cinematografica, storie visive e nuovi progetti in anteprima</span>
+              <span class="ig-bio">Fotografia cinematografica, geometrie e nuovi scatti</span>
             </div>
           </div>
-
           <div class="ig-cta-pill">
             <span>Segui su Instagram</span>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
               <line x1="7" y1="17" x2="17" y2="7"></line>
               <polyline points="7 7 17 7 17 17"></polyline>
             </svg>
@@ -1028,10 +1015,8 @@
 
         <!-- Footer Bottom Links -->
         <div class="epilogue-footer">
-          <div class="epilogue-copy">
-            © 2026 Gabriele Madeo — Progettato per essere vissuto in movimento.
-          </div>
-          <button class="back-to-top-btn touch-target" id="back-to-top" aria-label="Torna all'inizio">
+          <span class="epilogue-copy">© 2026 Gabriele Madeo</span>
+          <button class="back-to-top touch-target" id="back-to-top" aria-label="Torna all'inizio">
             <span>Torna all'inizio</span>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <line x1="12" y1="19" x2="12" y2="5"></line>
@@ -1039,21 +1024,17 @@
             </svg>
           </button>
         </div>
-
       </div>
     </section>
-  </main>
-
-  <!-- Lightbox Modal for High-Res Inspection -->
-  <div class="lightbox-modal" id="lightbox" aria-modal="true" role="dialog" aria-hidden="true">
-    <button class="lightbox-close touch-target" id="lightbox-close" aria-label="Chiudi finestra">✕</button>
-    <div class="lightbox-img-wrap">
-      <img src="" alt="Dettaglio ad alta risoluzione" id="lightbox-target-img">
-      <div class="lightbox-caption" id="lightbox-caption"></div>
-    </div>
   </div>
 
-  <!-- Smooth Motion & Interaction Controller -->
+  <!-- Lightbox Modal for Full View -->
+  <div class="lightbox-modal" id="lightbox" aria-modal="true" role="dialog" aria-hidden="true">
+    <button class="lightbox-close touch-target" id="lightbox-close" aria-label="Chiudi">✕</button>
+    <img src="" alt="Dettaglio scatto" id="lightbox-img">
+  </div>
+
+  <!-- Main Motion Controller Script -->
   <script src="zoom-parallax.js" defer></script>
 </body>
 </html>
