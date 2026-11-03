@@ -1,235 +1,356 @@
 /**
- * zoom-parallax.js — Motore Spaziale Zero-Lag (120 FPS)
- *
- * Ottimizzato per fluidità assoluta:
- * - Esclusivo uso di trasformazioni GPU (translate3d, scale, opacity)
- * - Nessun filtro blur durante lo scrub (elimina il frame-lag)
- * - Sincronizzazione perfetta tra Lenis e GSAP ScrollTrigger
- * - Espansione cinematografica dell'Hero Card a pieno schermo
+ * zoom-parallax.js — Cinematic Scroll & Interaction Engine
+ * Gabriele Madeo — Visual Archive
+ * 
+ * Features:
+ * - Ultra-responsive touch scrolling (zero rubber-band lag)
+ * - Hardware-accelerated GPU transforms only (translate3d, scale, opacity)
+ * - One-photo-at-a-time progressive vertical storytelling
+ * - Preserved focal points (volti e composizione protetti)
+ * - Desktop dynamic photo cursor with live chapter switching
+ * - High-res Lightbox modal inspection
+ * - Accessible with prefers-reduced-motion fallback
  */
 
 (function () {
   "use strict";
 
-  function init() {
-    const section  = document.getElementById("zp-section");
-    const sticky   = document.getElementById("zp-sticky");
-    const grid     = document.getElementById("zp-grid");
-    const heroCard = document.getElementById("zp-hero-card");
+  // Prevent multiple executions
+  if (window.__MADE_VISUAL_INIT__) return;
+  window.__MADE_VISUAL_INIT__ = true;
 
-    if (!section || !sticky || !grid || !heroCard) return;
+  const isTouch = () => ('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || window.innerWidth <= 768;
+  const prefersReducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    if (typeof gsap === "undefined" || typeof ScrollTrigger === "undefined") {
-      setTimeout(init, 50);
+  /* ═══════════════════════════════════════════════════════
+     1. LENIS SMOOTH SCROLL (CALIBRATO PER ZERO LATENZA)
+     ═══════════════════════════════════════════════════════ */
+  let lenis = null;
+
+  function initLenis() {
+    if (typeof Lenis === "undefined" || prefersReducedMotion()) return;
+
+    lenis = new Lenis({
+      duration: isTouch() ? 0.8 : 1.0,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      smooth: true,
+      smoothTouch: false, // Critical: preserve 1:1 native touch responsiveness on mobile
+      touchMultiplier: 1.2,
+      wheelMultiplier: 1.0,
+    });
+
+    if (typeof gsap !== "undefined" && typeof ScrollTrigger !== "undefined") {
+      lenis.on("scroll", ScrollTrigger.update);
+      gsap.ticker.add((time) => lenis.raf(time * 1000));
+      gsap.ticker.lagSmoothing(0);
+    } else {
+      function raf(time) {
+        lenis.raf(time);
+        requestAnimationFrame(raf);
+      }
+      requestAnimationFrame(raf);
+    }
+  }
+
+  /* ═══════════════════════════════════════════════════════
+     2. GSAP SCROLL STORYTELLING
+     ═══════════════════════════════════════════════════════ */
+  function initMotionStory() {
+    if (typeof gsap === "undefined" || typeof ScrollTrigger === "undefined" || prefersReducedMotion()) {
       return;
     }
 
     gsap.registerPlugin(ScrollTrigger);
 
-    // Lenis configurato per risposta istantanea senza attrito
-    let lenis = null;
-    if (typeof Lenis !== "undefined") {
-      lenis = new Lenis({
-        duration:        1.0,
-        easing:          (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-        smooth:          true,
-        smoothTouch:     false,
-        wheelMultiplier: 1.0,
+    // Hero Header & Statement Exit
+    const heroContent = document.querySelector(".hero-content");
+    const heroAmbient = document.querySelector(".hero-ambient-bg");
+    if (heroContent) {
+      gsap.to(heroContent, {
+        scrollTrigger: {
+          trigger: "#hero",
+          start: "top top",
+          end: "bottom top",
+          scrub: 0.4,
+        },
+        y: -50,
+        opacity: 0,
+        ease: "power1.out"
       });
-
-      lenis.on("scroll", ScrollTrigger.update);
-      gsap.ticker.add((time) => lenis.raf(time * 1000));
-      gsap.ticker.lagSmoothing(0);
     }
 
-    const vw = () => window.innerWidth;
-    const vh = () => window.innerHeight;
-    const isMobile = () => window.innerWidth <= 768;
+    // Chapters Configuration
+    const chapters = gsap.utils.toArray(".photo-chapter");
 
-    /*
-     * Coordinate proporzionali iniziali per la tessera centrale (Hero):
-     * Desktop:
-     *   Left: 34.67vw | Top: 44.0vh | Width: 30.67vw | Height: 28.0vh
-     * Mobile:
-     *   Left: 4.0vw   | Top: 34.0vh | Width: 92.0vw  | Height: 24.0vh
-     */
-    function getHeroDimensions() {
-      if (isMobile()) {
-        return {
-          left:   vw() * 0.04,
-          top:    vh() * 0.34,
-          width:  vw() * 0.92,
-          height: vh() * 0.24,
-          radius: 14
-        };
+    chapters.forEach((chapter, index) => {
+      const img = chapter.querySelector(".photo-stage-img");
+      const meta = chapter.querySelector(".photo-meta-container");
+      const panels = chapter.querySelectorAll(".dual-panel");
+
+      // Tight scrub (0.4s) avoids floating lag and ensures instant responsiveness
+      const scrubSpeed = isTouch() ? 0.3 : 0.45;
+
+      if (panels.length > 1) {
+        // Dual frame chapter (Chapter 5)
+        gsap.fromTo(panels[0], 
+          { yPercent: 12, scale: 0.96 },
+          {
+            yPercent: -6,
+            scale: 1,
+            ease: "none",
+            scrollTrigger: {
+              trigger: chapter,
+              start: "top bottom",
+              end: "bottom top",
+              scrub: scrubSpeed,
+            }
+          }
+        );
+        gsap.fromTo(panels[1], 
+          { yPercent: 20, scale: 0.94 },
+          {
+            yPercent: -10,
+            scale: 1,
+            ease: "none",
+            scrollTrigger: {
+              trigger: chapter,
+              start: "top bottom",
+              end: "bottom top",
+              scrub: scrubSpeed,
+            }
+          }
+        );
+      } else if (img) {
+        // Individual protagonist photo transitions based on composition
+        if (index === 0) {
+          // Chapter 1: Emerges from dark void into prominence
+          gsap.fromTo(img, 
+            { scale: 1.12, opacity: 0.8 },
+            {
+              scale: 1.0,
+              opacity: 1,
+              ease: "power2.out",
+              scrollTrigger: {
+                trigger: chapter,
+                start: "top center",
+                end: "center center",
+                scrub: scrubSpeed,
+              }
+            }
+          );
+        } else if (index === 2) {
+          // Chapter 3 (Masterpiece): Pinned breathing perspective
+          ScrollTrigger.create({
+            trigger: chapter,
+            start: "top top",
+            end: "+=60%",
+            pin: true,
+            pinSpacing: true,
+            scrub: scrubSpeed,
+            onUpdate: (self) => {
+              const p = self.progress;
+              // Subtle scale breathe: 0.96 -> 1.04
+              gsap.set(img, { scale: 0.96 + p * 0.08, force3D: true });
+            }
+          });
+        } else {
+          // Subtle vertical parallax on other protagonist images
+          gsap.fromTo(img,
+            { yPercent: -8, scale: 1.06 },
+            {
+              yPercent: 8,
+              scale: 1.0,
+              ease: "none",
+              scrollTrigger: {
+                trigger: chapter,
+                start: "top bottom",
+                end: "bottom top",
+                scrub: scrubSpeed,
+              }
+            }
+          );
+        }
       }
-      return {
-        left:   vw() * 0.3467,
-        top:    vh() * 0.4400,
-        width:  vw() * 0.3067,
-        height: vh() * 0.2800,
-        radius: 18
-      };
-    }
 
-    function setHeroInitial() {
-      const dim = getHeroDimensions();
-      gsap.set(heroCard, {
-        left:         dim.left,
-        top:          dim.top,
-        width:        dim.width,
-        height:       dim.height,
-        borderRadius: dim.radius + "px",
-        x:            0,
-        y:            0,
-        scale:        1,
-        force3D:      true
-      });
-    }
-    setHeroInitial();
-
-    // Selettori card per dispersione fluida
-    const card4 = document.querySelector(".zp-card--4");
-    const card1 = document.querySelector(".zp-card--1");
-    const card2 = document.querySelector(".zp-card--2");
-    const card5 = document.querySelector(".zp-card--5");
-    const card6 = document.querySelector(".zp-card--6");
-    const card7 = document.querySelector(".zp-card--7");
-    const heroBadge = heroCard.querySelector(".hero-expand-badge");
-
-    // Master Timeline GSAP con ScrollTrigger leggero e scattante
-    const tl = gsap.timeline({
-      scrollTrigger: {
-        trigger:       section,
-        start:         "top top",
-        end:           "bottom bottom",
-        pin:           sticky,
-        pinSpacing:    false,
-        scrub:         0.5, // Molto più reattivo ed esente da lag
-        anticipatePin: 1,
-        fastScrollEnd: true,
+      // Meta & Caption Reveal Animation
+      if (meta) {
+        gsap.fromTo(meta,
+          { y: 40, opacity: 0 },
+          {
+            y: 0,
+            opacity: 1,
+            ease: "power2.out",
+            scrollTrigger: {
+              trigger: chapter,
+              start: "top 70%",
+              end: "top 25%",
+              scrub: scrubSpeed,
+            }
+          }
+        );
       }
     });
 
-    /* FASE 1 (0.00 – 0.18): Breve sospensione per apprezzare la composizione */
-    tl.to({}, { duration: 0.18 });
+    // Epilogue entrance
+    const epilogueCard = document.querySelector(".instagram-card");
+    if (epilogueCard) {
+      gsap.fromTo(epilogueCard,
+        { y: 30, opacity: 0, scale: 0.97 },
+        {
+          y: 0,
+          opacity: 1,
+          scale: 1,
+          duration: 0.8,
+          ease: "power2.out",
+          scrollTrigger: {
+            trigger: epilogueCard,
+            start: "top 85%",
+          }
+        }
+      );
+    }
+  }
 
-    /* FASE 2 (0.18 – 0.65): Zoom fluido ed elegante senza filtri pesanti */
-    // Zoom leggero della camera
-    tl.to(grid, {
-      scale:    2.8,
-      ease:     "power1.inOut",
-      duration: 0.45,
-      force3D:  true,
-    }, "zoomMotion");
+  /* ═══════════════════════════════════════════════════════
+     3. CUSTOM DESKTOP PHOTO CURSOR
+     ═══════════════════════════════════════════════════════ */
+  function initCustomCursor() {
+    const cursor = document.getElementById("custom-cursor");
+    const ring = document.getElementById("cursor-ring");
+    const cursorThumb = document.getElementById("cursor-thumb");
 
-    // Dispersione delle card circostanti tramite sole coordinate GPU (x, y, opacity)
-    if (card4) {
-      tl.to(card4, {
-        x:        -vw() * 0.38,
-        y:        -vh() * 0.15,
-        opacity:  0.02,
-        scale:    1.2,
-        ease:     "power1.inOut",
-        duration: 0.45,
-        force3D:  true,
-      }, "zoomMotion");
+    if (!cursor || !ring || window.matchMedia('(hover: none) or (pointer: coarse)').matches) {
+      return;
     }
 
-    if (card1) {
-      tl.to(card1, {
-        y:        -vh() * 0.42,
-        opacity:  0.02,
-        scale:    1.15,
-        ease:     "power1.inOut",
-        duration: 0.45,
-        force3D:  true,
-      }, "zoomMotion");
-    }
+    let mouseX = window.innerWidth / 2;
+    let mouseY = window.innerHeight / 2;
+    let curX = mouseX;
+    let curY = mouseY;
+    let ringX = mouseX;
+    let ringY = mouseY;
 
-    if (card2) {
-      tl.to(card2, {
-        x:        -vw() * 0.38,
-        y:        vh() * 0.25,
-        opacity:  0.02,
-        scale:    1.15,
-        ease:     "power1.inOut",
-        duration: 0.45,
-        force3D:  true,
-      }, "zoomMotion");
-    }
-
-    if (card5) {
-      tl.to(card5, {
-        x:        vw() * 0.38,
-        y:        -vh() * 0.12,
-        opacity:  0.02,
-        scale:    1.2,
-        ease:     "power1.inOut",
-        duration: 0.45,
-        force3D:  true,
-      }, "zoomMotion");
-    }
-
-    if (card6) {
-      tl.to(card6, {
-        x:        -vw() * 0.25,
-        y:        vh() * 0.42,
-        opacity:  0.02,
-        scale:    1.15,
-        ease:     "power1.inOut",
-        duration: 0.45,
-        force3D:  true,
-      }, "zoomMotion");
-    }
-
-    if (card7) {
-      tl.to(card7, {
-        x:        vw() * 0.38,
-        y:        vh() * 0.35,
-        opacity:  0.02,
-        scale:    1.15,
-        ease:     "power1.inOut",
-        duration: 0.45,
-        force3D:  true,
-      }, "zoomMotion");
-    }
-
-    // Hero Card si espande verso tutto lo schermo (100vw x 100vh) in modo ultra-fluido
-    tl.to(heroCard, {
-      left:         0,
-      top:          0,
-      width:        () => vw(),
-      height:       () => vh(),
-      borderRadius: 0,
-      ease:         "power1.inOut",
-      duration:     0.45,
-      force3D:      true,
-    }, "zoomMotion");
-
-    if (heroBadge) {
-      tl.to(heroBadge, {
-        opacity:  0,
-        duration: 0.18,
-      }, "zoomMotion");
-    }
-
-    /* FASE 3 (0.65 – 0.88): Posa a schermo intero dell'opera */
-    tl.to({}, { duration: 0.24 });
-
-    /* FASE 4 (0.88 – 1.00): Transizione graduale alla sezione successiva */
-    tl.to({}, { duration: 0.13 });
-
-    // Refresh layout su resize
-    window.addEventListener("resize", () => {
-      setHeroInitial();
-      ScrollTrigger.refresh();
+    window.addEventListener("mousemove", (e) => {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
     }, { passive: true });
+
+    function renderCursor() {
+      // Lerp for fluid organic cursor movement
+      curX += (mouseX - curX) * 0.22;
+      curY += (mouseY - curY) * 0.22;
+      ringX += (mouseX - ringX) * 0.12;
+      ringY += (mouseY - ringY) * 0.12;
+
+      cursor.style.transform = `translate3d(${curX}px, ${curY}px, 0) translate3d(-50%, -50%, 0)`;
+      ring.style.transform = `translate3d(${ringX}px, ${ringY}px, 0) translate3d(-50%, -50%, 0)`;
+
+      requestAnimationFrame(renderCursor);
+    }
+    requestAnimationFrame(renderCursor);
+
+    // Dynamic hover reactions
+    const interactiveTargets = document.querySelectorAll(".touch-target, a, button");
+    interactiveTargets.forEach((el) => {
+      el.addEventListener("mouseenter", () => document.body.classList.add("cursor-active"));
+      el.addEventListener("mouseleave", () => document.body.classList.remove("cursor-active"));
+    });
+
+    // Update cursor image as user navigates through chapters
+    const chapters = document.querySelectorAll(".photo-chapter");
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          const newImg = entry.dataset.cursor;
+          if (newImg && cursorThumb && cursorThumb.src !== newImg) {
+            cursorThumb.src = newImg;
+          }
+        }
+      });
+    }, { threshold: 0.4 });
+
+    chapters.forEach((ch) => observer.observe(ch));
+  }
+
+  /* ═══════════════════════════════════════════════════════
+     4. LIGHTBOX / INSPECTOR MODAL
+     ═══════════════════════════════════════════════════════ */
+  function initLightbox() {
+    const modal = document.getElementById("lightbox");
+    const targetImg = document.getElementById("lightbox-target-img");
+    const caption = document.getElementById("lightbox-caption");
+    const closeBtn = document.getElementById("lightbox-close");
+
+    if (!modal || !targetImg || !closeBtn) return;
+
+    function openModal(src, title) {
+      targetImg.src = src;
+      if (caption) caption.textContent = title || "";
+      modal.classList.add("is-open");
+      modal.setAttribute("aria-hidden", "false");
+      document.body.style.overflow = "hidden";
+      if (lenis) lenis.stop();
+    }
+
+    function closeModal() {
+      modal.classList.remove("is-open");
+      modal.setAttribute("aria-hidden", "true");
+      targetImg.src = "";
+      document.body.style.overflow = "";
+      if (lenis) lenis.start();
+    }
+
+    document.querySelectorAll(".inspect-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const fullSrc = btn.dataset.full;
+        const title = btn.dataset.title;
+        if (fullSrc) openModal(fullSrc, title);
+      });
+    });
+
+    closeBtn.addEventListener("click", closeModal);
+    modal.addEventListener("click", (e) => {
+      if (e.target === modal) closeModal();
+    });
+
+    window.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && modal.classList.contains("is-open")) {
+        closeModal();
+      }
+    });
+  }
+
+  /* ═══════════════════════════════════════════════════════
+     5. BACK TO TOP CONTROLLER
+     ═══════════════════════════════════════════════════════ */
+  function initBackToTop() {
+    const btn = document.getElementById("back-to-top");
+    if (!btn) return;
+
+    btn.addEventListener("click", () => {
+      if (lenis) {
+        lenis.scrollTo(0, { duration: 1.2 });
+      } else {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+    });
+  }
+
+  /* ═══════════════════════════════════════════════════════
+     BOOTSTRAP ON DOM READY
+     ═══════════════════════════════════════════════════════ */
+  function bootstrap() {
+    initLenis();
+    initMotionStory();
+    initCustomCursor();
+    initLightbox();
+    initBackToTop();
   }
 
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", init);
+    document.addEventListener("DOMContentLoaded", bootstrap);
   } else {
-    init();
+    bootstrap();
   }
+
 })();

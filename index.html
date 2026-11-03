@@ -3,39 +3,51 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>Gabriele Madeo — Visual Creator & Spatial Portfolio</title>
-  <meta name="description" content="Portfolio ufficiale di Gabriele Madeo: fotografia cinematografica, creative direction ed esperienze visive spaziali." />
+  <title>Gabriele Madeo — Visual Archive & Spatial Flow</title>
+  <meta name="description" content="Esperienza visiva personale di Gabriele Madeo: fotografia, estetica cinematografica, geometrie e silenzi." />
+
+  <!-- Open Graph / Meta -->
+  <meta property="og:title" content="Gabriele Madeo — Visual Archive" />
+  <meta property="og:description" content="Un'esperienza fotografica e cinetica personale." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="spatial-carousel/photo-3.webp" />
 
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,900;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,900;1,400;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
 
-  <!-- Core Libraries: GSAP, ScrollTrigger, Lenis -->
+  <!-- Core Motion Libraries: GSAP, ScrollTrigger, Lenis -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js" defer></script>
 
+  <!-- Preload First Strategic Visuals for Instant Render -->
+  <link rel="preload" as="image" href="spatial-carousel/photo-4.webp" type="image/webp" />
+  <link rel="preload" as="image" href="spatial-carousel/photo-1.webp" type="image/webp" />
+
   <style>
     /* ═══════════════════════════════════════════════════════
-       DESIGN SYSTEM & RESET
+       DESIGN SYSTEM & RESET (MOBILE-FIRST)
        ═══════════════════════════════════════════════════════ */
     :root {
-      --bg: #050508;
-      --bg-card: rgba(18, 18, 26, 0.75);
-      --bg-card-hover: rgba(28, 28, 40, 0.85);
-      --border-subtle: rgba(255, 255, 255, 0.12);
-      --border-hover: rgba(255, 255, 255, 0.32);
-      --accent: #e6dfd5;
-      --accent-glow: rgba(230, 223, 213, 0.25);
-      --gold: #d4af37;
-      --text: #ffffff;
-      --text-muted: rgba(255, 255, 255, 0.62);
-      --text-dim: rgba(255, 255, 255, 0.38);
+      --bg: #070709;
+      --bg-darker: #020204;
+      --surface: rgba(18, 18, 22, 0.7);
+      --surface-border: rgba(255, 255, 255, 0.1);
+      --text: #f5f4f0;
+      --text-muted: rgba(245, 244, 240, 0.65);
+      --text-dim: rgba(245, 244, 240, 0.38);
+      --accent-warm: #e3d5c5;
+      --accent-glow: rgba(227, 213, 197, 0.15);
+      
       --font-display: 'Syne', sans-serif;
-      --font-serif: 'Playfair Display', Georgia, serif;
+      --font-editorial: 'Playfair Display', Georgia, serif;
       --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-      --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+      --ease-fluid: cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     *, *::before, *::after {
@@ -43,13 +55,21 @@
       -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
     }
 
-    html, body {
+    html {
       background: var(--bg);
       color: var(--text);
       font-family: var(--font-sans);
       overflow-x: hidden;
-      overscroll-behavior: none;
+      overscroll-behavior-y: none;
       scroll-behavior: auto;
+    }
+
+    body {
+      background: var(--bg);
+      min-height: 100vh;
+      min-height: 100dvh;
+      position: relative;
+      overflow-x: hidden;
     }
 
     ::selection {
@@ -62,31 +82,42 @@
       text-decoration: none;
     }
 
-    /* ─── CUSTOM PHOTO CURSOR (DESKTOP) ─── */
+    /* ─── ANALOG FILM GRAIN (ULTRA LOW GPU OVERHEAD) ─── */
+    .film-grain {
+      position: fixed;
+      inset: -50%;
+      width: 200%;
+      height: 200%;
+      pointer-events: none;
+      z-index: 900;
+      opacity: 0.035;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    }
+
+    /* ─── CUSTOM PHOTO CURSOR (DESKTOP ONLY) ─── */
     @media (hover: hover) and (pointer: fine) {
-      body, a, button, input, textarea, .zp-card, #zp-hero-card, .gallery-item, .channel-item {
+      body, a, button, .photo-card, .touch-target {
         cursor: none !important;
       }
     }
 
-    .photo-cursor {
+    .custom-cursor {
       position: fixed;
       top: 0; left: 0;
-      width: 44px; height: 44px;
+      width: 48px; height: 48px;
       border-radius: 50%;
       pointer-events: none;
       z-index: 99999;
       transform: translate3d(-50%, -50%, 0);
       overflow: hidden;
-      border: 2px solid rgba(255, 255, 255, 0.9);
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.65), 0 0 12px rgba(255, 255, 255, 0.3);
-      transition: width 0.25s var(--ease-out), height 0.25s var(--ease-out), border-color 0.25s, box-shadow 0.25s;
-      will-change: transform, width, height;
-      background: #111;
+      border: 2px solid rgba(255, 255, 255, 0.85);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.7), 0 0 16px rgba(255, 255, 255, 0.25);
+      transition: width 0.28s var(--ease-fluid), height 0.28s var(--ease-fluid), border-color 0.25s, box-shadow 0.25s;
+      will-change: transform;
+      background: #111116;
     }
-    .photo-cursor img {
-      width: 100%;
-      height: 100%;
+    .custom-cursor img {
+      width: 100%; height: 100%;
       object-fit: cover;
       object-position: center;
       display: block;
@@ -94,1251 +125,606 @@
       user-select: none;
     }
 
-    .photo-cursor-ring {
+    .cursor-ring {
       position: fixed;
       top: 0; left: 0;
-      width: 60px; height: 60px;
-      border: 1.5px dashed rgba(255, 255, 255, 0.4);
+      width: 68px; height: 68px;
+      border: 1.5px dashed rgba(255, 255, 255, 0.35);
       border-radius: 50%;
       pointer-events: none;
       z-index: 99998;
       transform: translate3d(-50%, -50%, 0);
-      transition: width 0.3s var(--ease-out), height 0.3s var(--ease-out), border-color 0.3s;
+      transition: width 0.3s var(--ease-fluid), height 0.3s var(--ease-fluid), border-color 0.3s;
       will-change: transform;
     }
 
-    body.hovering .photo-cursor {
-      width: 66px; height: 66px;
+    body.cursor-active .custom-cursor {
+      width: 72px; height: 72px;
       border-color: #ffffff;
-      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.85), 0 0 22px rgba(255, 255, 255, 0.55);
+      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.9), 0 0 24px rgba(255, 255, 255, 0.6);
     }
-    body.hovering .photo-cursor-ring {
-      width: 86px; height: 86px;
+    body.cursor-active .cursor-ring {
+      width: 96px; height: 96px;
       border-color: rgba(255, 255, 255, 0.85);
       border-style: solid;
     }
 
     @media (hover: none) or (pointer: coarse) {
-      .photo-cursor, .photo-cursor-ring { display: none !important; }
+      .custom-cursor, .cursor-ring { display: none !important; }
     }
 
     /* ═══════════════════════════════════════════════════════
-       PRELOADER CINEMATOGRAFICO
+       NAVIGATION BAR / TOP HUD
        ═══════════════════════════════════════════════════════ */
-    #preloader {
+    .top-nav {
       position: fixed;
-      inset: 0;
-      z-index: 10000;
-      background: #020205;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      pointer-events: auto;
-      transition: opacity 0.8s var(--ease-out), visibility 0.8s;
-    }
-    #preloader.is-hidden {
-      opacity: 0;
-      visibility: hidden;
-      pointer-events: none;
-    }
-
-    .preloader-bg-curtain {
-      position: absolute;
-      inset: 0;
-      background: radial-gradient(circle at center, #15141f 0%, #07070d 60%, #020205 100%);
-      will-change: transform;
-    }
-    .cp-bg-top {
-      clip-path: inset(0 0 50% 0);
-      transform-origin: center top;
-    }
-    .cp-bg-bottom {
-      clip-path: inset(50% 0 0 0);
-      transform-origin: center bottom;
-    }
-    #preloader.is-splitting .cp-bg-top {
-      animation: splitTop 1.1s cubic-bezier(0.77, 0, 0.175, 1) forwards;
-    }
-    #preloader.is-splitting .cp-bg-bottom {
-      animation: splitBottom 1.1s cubic-bezier(0.77, 0, 0.175, 1) forwards;
-    }
-    @keyframes splitTop {
-      to { transform: translateY(-100%); }
-    }
-    @keyframes splitBottom {
-      to { transform: translateY(100%); }
-    }
-
-    .preloader-inner {
-      position: relative;
-      z-index: 2;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-      padding: 2rem;
-      max-width: 600px;
-    }
-    .preloader-brand {
-      font-family: var(--font-display);
-      font-size: 0.85rem;
-      letter-spacing: 0.35em;
-      text-transform: uppercase;
-      color: var(--text-muted);
-      margin-bottom: 2rem;
-      opacity: 0.8;
-    }
-    .preloader-title-box {
-      height: 4rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 2.5rem;
-    }
-    #cp-text {
-      font-family: var(--font-serif);
-      font-size: clamp(2rem, 5vw, 3.4rem);
-      font-weight: 900;
-      letter-spacing: -0.01em;
-      color: #ffffff;
-      opacity: 0;
-      transform: translateY(15px);
-      transition: opacity 0.4s var(--ease-out), transform 0.4s var(--ease-out);
-    }
-    #cp-text.is-visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    .preloader-progress-wrap {
-      width: min(320px, 75vw);
-      display: flex;
-      flex-direction: column;
-      gap: 0.75rem;
-      align-items: center;
-    }
-    .preloader-bar-bg {
-      width: 100%;
-      height: 2px;
-      background: rgba(255, 255, 255, 0.12);
-      border-radius: 4px;
-      overflow: hidden;
-      position: relative;
-    }
-    .preloader-bar-fill {
-      position: absolute;
-      left: 0; top: 0; bottom: 0;
-      width: 0%;
-      background: linear-gradient(90deg, #d4af37, #ffffff);
-      transition: width 0.15s ease-out;
-      box-shadow: 0 0 12px rgba(255, 255, 255, 0.6);
-    }
-    .preloader-stats {
+      top: 0; left: 0; right: 0;
+      z-index: 800;
       display: flex;
       justify-content: space-between;
-      width: 100%;
-      font-size: 0.78rem;
-      letter-spacing: 0.15em;
-      color: var(--text-dim);
-      font-family: var(--font-sans);
-      text-transform: uppercase;
-    }
-    .preloader-skip-btn {
-      margin-top: 1.5rem;
-      font-size: 0.75rem;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      padding: 0.5rem 1.2rem;
-      border-radius: 999px;
-      background: rgba(255, 255, 255, 0.06);
-      border: 1px solid var(--border-subtle);
-      color: var(--text-muted);
-      cursor: pointer;
-      transition: all 0.3s var(--ease-out);
-    }
-    .preloader-skip-btn:hover {
-      background: rgba(255, 255, 255, 0.15);
-      color: #fff;
-      border-color: rgba(255, 255, 255, 0.4);
-    }
-
-    /* ═══════════════════════════════════════════════════════
-       FLOATING NAVIGATION BAR (SENZA AUDIO)
-       ═══════════════════════════════════════════════════════ */
-    #navbar {
-      position: fixed;
-      top: 1.5rem;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 1000;
-      width: min(1140px, 92vw);
-      display: flex;
       align-items: center;
-      justify-content: space-between;
-      padding: 0.75rem 1.4rem;
-      background: rgba(10, 10, 15, 0.65);
-      backdrop-filter: blur(24px) saturate(180%);
-      -webkit-backdrop-filter: blur(24px) saturate(180%);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 999px;
-      transition: all 0.4s var(--ease-out);
-    }
-    #navbar.scrolled {
-      top: 1rem;
-      background: rgba(8, 8, 12, 0.88);
-      border-color: rgba(255, 255, 255, 0.18);
-      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6);
+      padding: calc(var(--safe-top) + 16px) 24px 16px;
+      background: linear-gradient(to bottom, rgba(7, 7, 9, 0.85) 0%, rgba(7, 7, 9, 0) 100%);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      transition: transform 0.4s var(--ease-fluid), opacity 0.4s;
     }
 
     .nav-brand {
       display: flex;
       align-items: center;
-      gap: 0.75rem;
-      font-family: var(--font-display);
-      font-size: 0.95rem;
-      font-weight: 800;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: #fff;
+      gap: 10px;
     }
-    .nav-brand-badge {
-      width: 7px;
-      height: 7px;
-      background: #10b981;
+    .brand-dot {
+      width: 8px; height: 8px;
       border-radius: 50%;
-      box-shadow: 0 0 10px #10b981;
-      animation: pulseGlow 2s infinite ease-in-out;
-    }
-    @keyframes pulseGlow {
-      0%, 100% { transform: scale(1); opacity: 1; }
-      50% { transform: scale(1.4); opacity: 0.6; }
-    }
-
-    .nav-links {
-      display: flex;
-      align-items: center;
-      gap: 1.8rem;
-      list-style: none;
-    }
-    .nav-link {
-      font-size: 0.82rem;
-      font-weight: 500;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--text-muted);
-      transition: color 0.25s var(--ease-out);
-      position: relative;
-    }
-    .nav-link:hover {
-      color: #ffffff;
-    }
-    .nav-link::after {
-      content: '';
-      position: absolute;
-      bottom: -4px; left: 0;
-      width: 0; height: 1.5px;
       background: #ffffff;
-      transition: width 0.3s var(--ease-out);
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+      animation: pulse 3s infinite ease-in-out;
     }
-    .nav-link:hover::after {
-      width: 100%;
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.85); }
     }
-
-    .nav-actions {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-    }
-    .nav-btn-icon {
-      width: 38px;
-      height: 38px;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.06);
-      border: 1px solid var(--border-subtle);
-      display: grid;
-      place-items: center;
-      color: var(--text-muted);
-      cursor: pointer;
-      transition: all 0.3s var(--ease-out);
-    }
-    .nav-btn-icon:hover {
-      background: rgba(255, 255, 255, 0.18);
-      color: #fff;
-      border-color: rgba(255, 255, 255, 0.4);
-      transform: scale(1.05);
-    }
-    .nav-cta-btn {
-      padding: 0.5rem 1.25rem;
-      background: #ffffff;
-      color: #000000;
-      font-size: 0.8rem;
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      border-radius: 999px;
-      transition: all 0.3s var(--ease-out);
-    }
-    .nav-cta-btn:hover {
-      background: #e6dfd5;
-      transform: translateY(-1px);
-      box-shadow: 0 8px 24px rgba(255, 255, 255, 0.2);
-    }
-
-    @media (max-width: 860px) {
-      .nav-links { display: none; }
-      #navbar { width: calc(100% - 2rem); padding: 0.65rem 1.1rem; }
-    }
-
-    /* ═══════════════════════════════════════════════════════
-       STAGE / ULTRA-SMOOTH CANVAS SEQUENCE
-       ═══════════════════════════════════════════════════════ */
-    #scroll-space {
-      position: relative;
-      width: 100%;
-      pointer-events: none;
-    }
-
-    #stage {
-      position: fixed;
-      inset: 0;
-      width: 100vw;
-      height: 100vh;
-      background: #000000;
-      overflow: hidden;
-      z-index: 2;
-    }
-
-    #hero-canvas {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      display: block;
-      will-change: transform;
-      transform: translateZ(0);
-      z-index: 2;
-    }
-
-    #hero-video {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: none;
-      z-index: 2;
-    }
-    #hero-video.is-active {
-      display: block;
-    }
-
-    #fade-overlay {
-      position: absolute;
-      inset: 0;
-      background: #000000;
-      opacity: 0;
-      pointer-events: none;
-      will-change: opacity;
-      z-index: 5;
-    }
-
-    /* HUD overlay on hero */
-    .hero-hud {
-      position: absolute;
-      inset: 0;
-      z-index: 4;
-      pointer-events: none;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      padding: clamp(1.5rem, 4vw, 3.5rem);
-      padding-top: 6rem;
-      transition: opacity 0.5s var(--ease-out);
-    }
-    .hero-hud.hidden {
-      opacity: 0;
-    }
-    .hud-top-left {
-      font-family: var(--font-display);
-      font-size: 0.78rem;
-      letter-spacing: 0.3em;
-      text-transform: uppercase;
-      color: rgba(255, 255, 255, 0.7);
-    }
-    .hud-bottom {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-end;
-    }
-    .hud-title h1 {
-      font-family: var(--font-display);
-      font-size: clamp(2.4rem, 6.5vw, 6rem);
-      font-weight: 800;
-      letter-spacing: -0.02em;
-      line-height: 0.95;
-      text-transform: uppercase;
-      text-shadow: 0 10px 30px rgba(0,0,0,0.8);
-    }
-    .hud-title p {
-      margin-top: 0.6rem;
-      font-size: clamp(0.9rem, 1.4vw, 1.25rem);
-      color: rgba(255, 255, 255, 0.75);
-      font-family: var(--font-serif);
-      font-style: italic;
-    }
-    .hud-scroll-cue {
-      display: flex;
-      align-items: center;
-      gap: 0.8rem;
-      font-size: 0.78rem;
-      letter-spacing: 0.25em;
-      text-transform: uppercase;
-      color: var(--text-muted);
-    }
-    .scroll-mouse-icon {
-      width: 22px;
-      height: 34px;
-      border: 1.5px solid rgba(255, 255, 255, 0.4);
-      border-radius: 12px;
-      position: relative;
-    }
-    .scroll-mouse-wheel {
-      position: absolute;
-      top: 6px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 3px;
-      height: 7px;
-      background: #ffffff;
-      border-radius: 999px;
-      animation: mouseWheelMove 1.6s infinite ease-in-out;
-    }
-    @keyframes mouseWheelMove {
-      0% { transform: translate(-50%, 0); opacity: 1; }
-      100% { transform: translate(-50%, 12px); opacity: 0; }
-    }
-
-    /* ═══════════════════════════════════════════════════════
-       TYPOGRAPHIC STORYTELLING / TEXT REVEAL
-       ═══════════════════════════════════════════════════════ */
-    #text-scroll-overlay {
-      position: absolute;
-      inset: 0;
-      z-index: 6;
-      pointer-events: none;
-      opacity: 0;
-      transition: opacity 300ms linear;
-    }
-    #text-scroll-overlay.is-visible {
-      opacity: 1;
-    }
-    .text-scroll-inner {
-      position: absolute;
-      inset: 0;
-      display: grid;
-      place-items: center;
-      padding: 6vw;
-    }
-    .text-scroll-block {
-      width: min(940px, 88vw);
-      display: flex;
-      flex-direction: column;
-      gap: 0.4em;
-      align-items: center;
-      text-align: center;
-    }
-    .story-tagline {
+    .brand-name {
       font-family: var(--font-display);
       font-size: 0.82rem;
-      letter-spacing: 0.35em;
-      text-transform: uppercase;
-      color: var(--gold);
-      margin-bottom: 0.6rem;
-      opacity: 0.9;
-    }
-    .reveal-line {
-      position: relative;
-      display: block;
-      width: 100%;
-      font-family: var(--font-serif);
-      font-weight: 900;
-      font-size: clamp(1.4rem, 3.4vw, 3.3rem);
-      line-height: 1.08;
-      letter-spacing: -0.02em;
-      transition: transform 180ms linear, opacity 180ms linear;
-    }
-    .ghost-line, .fill-line {
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-      gap: 0.22em;
-    }
-    .ghost-line {
-      color: rgba(255, 255, 255, 0.12);
-    }
-    .fill-line {
-      position: absolute;
-      inset: 0;
-      color: #ffffff;
-    }
-    .word {
-      display: inline-block;
-      white-space: pre;
-    }
-    .fill-line .word {
-      color: #ffffff;
-      opacity: 1;
-      filter: blur(0);
-      will-change: color, opacity, filter, transform;
-      transition: color 100ms linear, opacity 100ms linear, filter 100ms linear, transform 100ms linear;
-    }
-
-    /* ═══════════════════════════════════════════════════════
-       SPATIAL BENTO GRID (ZERO FRAME-LAG)
-       ═══════════════════════════════════════════════════════ */
-    #zp-section {
-      position: relative;
-      width: 100%;
-      height: 300vh;
-      z-index: 10;
-      background: #000000;
-    }
-    #zp-sticky {
-      position: sticky;
-      top: 0;
-      height: 100vh;
-      width: 100%;
-      overflow: hidden;
-      background: #030306;
-    }
-
-    #zp-grid {
-      position: absolute;
-      inset: 0;
-      transform-origin: center center;
-      will-change: transform;
-      z-index: 2;
-    }
-
-    .zp-card {
-      position: absolute;
-      overflow: hidden;
-      background: #0e0e14;
-      border-radius: 18px;
-      border: 1px solid var(--border-subtle);
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
-      will-change: transform, opacity;
-      transform: translate3d(0, 0, 0);
-      backface-visibility: hidden;
-      contain: layout paint;
-      transition: border-color 0.3s var(--ease-out), box-shadow 0.3s var(--ease-out);
-    }
-    .zp-card:hover {
-      border-color: var(--border-hover);
-      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85);
-    }
-    .zp-card img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      object-position: center;
-      display: block;
-      user-select: none;
-      -webkit-user-drag: none;
-      backface-visibility: hidden;
-      transform: translate3d(0, 0, 0);
-      transition: transform 0.6s var(--ease-out);
-    }
-    .zp-card:hover img {
-      transform: scale(1.04);
-    }
-
-    /* Card Badge / Metadata */
-    .card-meta {
-      position: absolute;
-      bottom: 0; left: 0; right: 0;
-      padding: 1.1rem 1.3rem;
-      background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.88) 85%);
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-end;
-      opacity: 0;
-      transform: translateY(8px);
-      transition: opacity 0.3s var(--ease-out), transform 0.3s var(--ease-out);
-      pointer-events: none;
-    }
-    .zp-card:hover .card-meta {
-      opacity: 1;
-      transform: translateY(0);
-    }
-    .card-tag {
-      font-family: var(--font-display);
-      font-size: 0.72rem;
-      letter-spacing: 0.22em;
-      text-transform: uppercase;
-      color: #ffffff;
-      font-weight: 700;
-    }
-    .card-sub {
-      font-size: 0.72rem;
-      color: var(--text-muted);
-      margin-top: 0.2rem;
-    }
-    .card-icon-zoom {
-      width: 28px;
-      height: 28px;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.2);
-      backdrop-filter: blur(8px);
-      display: grid;
-      place-items: center;
-      color: #fff;
-    }
-
-    /* 
-       BENTO MOSAIC DIMENSIONS (6 FOTO DISPOSTE SENZA SOVRAPPOSIZIONI)
-       Row 0: Card 4 (tall left 70vh)  +  Card 1 (wide top 40vh)
-       Row 1: Card 4 (prosegue)        +  HERO Card 3 (center 28vh) + Card 5 (right 28vh)
-       Row 2: Card 6 (wide bottom 24vh) + Card 2 (bottom right 24vh)
-    */
-    .zp-card--4 { width: 30.67vw; height: 70vh; left: 2vw;     top: 2vh;  }
-    .zp-card--1 { width: 63.33vw; height: 40vh; left: 34.67vw; top: 2vh;  }
-    .zp-card--5 { width: 30.67vw; height: 28vh; left: 67.33vw; top: 44vh; }
-    .zp-card--6 { width: 63.33vw; height: 24vh; left: 2vw;     top: 74vh; }
-    .zp-card--2 { width: 30.67vw; height: 24vh; left: 67.33vw; top: 74vh; }
-
-    /* Central Hero Card (Photo 3) */
-    #zp-hero-card {
-      position: absolute;
-      overflow: hidden;
-      background: #0e0e14;
-      border-radius: 18px;
-      border: 1px solid var(--border-subtle);
-      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.75);
-      will-change: width, height, left, top, border-radius, transform;
-      z-index: 8;
-      image-rendering: high-quality;
-      backface-visibility: hidden;
-      contain: layout paint;
-      transition: border-color 0.3s var(--ease-out);
-    }
-    #zp-hero-card img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      object-position: center;
-      display: block;
-      user-select: none;
-      -webkit-user-drag: none;
-      transform: translate3d(0, 0, 0);
-      transition: transform 0.6s var(--ease-out);
-    }
-    #zp-hero-card:hover img {
-      transform: scale(1.02);
-    }
-
-    .hero-expand-badge {
-      position: absolute;
-      top: 1.2rem; right: 1.2rem;
-      padding: 0.4rem 0.85rem;
-      border-radius: 999px;
-      background: rgba(0, 0, 0, 0.6);
-      backdrop-filter: blur(12px);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      font-size: 0.68rem;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      color: #fff;
-      display: flex;
-      align-items: center;
-      gap: 0.4rem;
-      pointer-events: none;
-      transition: opacity 0.3s;
-    }
-
-    .zp-vignette {
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-      z-index: 9;
-      background: radial-gradient(circle at center, rgba(0,0,0,0) 45%, rgba(0,0,0,0.15) 80%, rgba(0,0,0,0.4) 100%);
-    }
-
-    /* Mobile Parallax Mosaic */
-    @media (max-width: 768px) {
-      .zp-card--4 { width: 47vw; height: 50vh; left: 2vw;  top: 2vh;  }
-      .zp-card--1 { width: 47vw; height: 28vh; left: 51vw; top: 2vh;  }
-      .zp-card--5 { width: 47vw; height: 38vh; left: 2vw;  top: 54vh; }
-      .zp-card--6 { width: 47vw; height: 38vh; left: 51vw; top: 54vh; }
-      .zp-card--2 { display: none; }
-    }
-
-    /* ═══════════════════════════════════════════════════════
-       ABOUT & CREATIVE PHILOSOPHY SECTION
-       ═══════════════════════════════════════════════════════ */
-    #about-section {
-      position: relative;
-      background: #07070b;
-      padding: clamp(6rem, 14vh, 12rem) clamp(1.5rem, 6vw, 6rem);
-      z-index: 10;
-      border-top: 1px solid var(--border-subtle);
-    }
-    .about-container {
-      max-width: 1200px;
-      margin: 0 auto;
-      display: grid;
-      grid-template-columns: 1.1fr 1fr;
-      gap: clamp(3rem, 6vw, 6rem);
-      align-items: center;
-    }
-    @media (max-width: 900px) {
-      .about-container { grid-template-columns: 1fr; gap: 3rem; }
-    }
-
-    .about-label {
-      font-family: var(--font-display);
-      font-size: 0.8rem;
-      letter-spacing: 0.3em;
-      text-transform: uppercase;
-      color: var(--gold);
-      display: flex;
-      align-items: center;
-      gap: 0.6rem;
-      margin-bottom: 1.2rem;
-    }
-    .about-heading {
-      font-family: var(--font-display);
-      font-size: clamp(2rem, 4.2vw, 3.8rem);
       font-weight: 800;
-      line-height: 1.05;
-      letter-spacing: -0.02em;
+      letter-spacing: 0.16em;
       text-transform: uppercase;
-      margin-bottom: 1.8rem;
+      color: var(--text);
     }
-    .about-lead {
-      font-family: var(--font-serif);
-      font-size: clamp(1.15rem, 1.8vw, 1.45rem);
-      line-height: 1.45;
-      color: var(--accent);
-      margin-bottom: 1.6rem;
-      font-style: italic;
-    }
-    .about-text {
-      font-size: 1rem;
-      line-height: 1.7;
-      color: var(--text-muted);
-      margin-bottom: 2.2rem;
-    }
-
-    .about-stats {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 1.5rem;
-      margin-top: 2rem;
-      padding-top: 2rem;
-      border-top: 1px solid var(--border-subtle);
-    }
-    .stat-item {
-      display: flex;
-      flex-direction: column;
-    }
-    .stat-number {
-      font-family: var(--font-display);
-      font-size: clamp(1.8rem, 3vw, 2.6rem);
-      font-weight: 800;
-      color: #ffffff;
-      line-height: 1;
-    }
-    .stat-label {
-      margin-top: 0.5rem;
-      font-size: 0.75rem;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
+    .brand-sub {
+      font-size: 0.7rem;
       color: var(--text-dim);
-    }
-
-    .about-card-visual {
-      position: relative;
-    }
-    .about-image-wrapper {
-      position: relative;
-      border-radius: 24px;
-      overflow: hidden;
-      border: 1px solid var(--border-subtle);
-      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7);
-      aspect-ratio: 4/5;
-    }
-    .about-image-wrapper img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-      transition: transform 0.8s var(--ease-out);
-    }
-    .about-image-wrapper:hover img {
-      transform: scale(1.05);
-    }
-    .about-floating-badge {
-      position: absolute;
-      bottom: -1.5rem;
-      left: -1.5rem;
-      padding: 1.2rem 1.8rem;
-      background: rgba(14, 14, 22, 0.9);
-      backdrop-filter: blur(20px);
-      border: 1px solid var(--border-subtle);
-      border-radius: 18px;
-      box-shadow: 0 16px 40px rgba(0,0,0,0.6);
-      display: flex;
-      flex-direction: column;
-      gap: 0.3rem;
-    }
-    .floating-badge-title {
-      font-family: var(--font-display);
-      font-size: 0.85rem;
-      font-weight: 700;
       letter-spacing: 0.1em;
       text-transform: uppercase;
+      display: none;
     }
-    .floating-badge-sub {
+    @media (min-width: 600px) {
+      .brand-sub { display: inline-block; }
+    }
+
+    .nav-link-ig {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
       font-size: 0.75rem;
-      color: var(--text-muted);
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      padding: 8px 16px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      color: var(--text);
+      transition: all 0.25s var(--ease-fluid);
+      backdrop-filter: blur(8px);
+    }
+    .nav-link-ig:hover {
+      background: #ffffff;
+      color: #000000;
+      border-color: #ffffff;
+      transform: translateY(-1px);
+    }
+    .nav-link-ig svg {
+      transition: transform 0.25s var(--ease-fluid);
+    }
+    .nav-link-ig:hover svg {
+      transform: scale(1.15);
     }
 
     /* ═══════════════════════════════════════════════════════
-       INTERACTIVE GALLERY SHOWCASE
+       HERO / INTRO SECTION
        ═══════════════════════════════════════════════════════ */
-    #gallery-section {
-      position: relative;
-      background: #040407;
-      padding: clamp(6rem, 12vh, 10rem) clamp(1.5rem, 6vw, 6rem);
-      z-index: 10;
-      border-top: 1px solid var(--border-subtle);
-    }
-    .section-header {
-      max-width: 1200px;
-      margin: 0 auto 3.5rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-end;
-      flex-wrap: wrap;
-      gap: 1.5rem;
-    }
-    .section-title {
-      font-family: var(--font-display);
-      font-size: clamp(2.2rem, 5vw, 4.2rem);
-      font-weight: 800;
-      letter-spacing: -0.02em;
-      text-transform: uppercase;
-      line-height: 0.95;
-    }
-    .section-sub {
-      color: var(--text-muted);
-      font-size: 0.95rem;
-      max-width: 420px;
-      line-height: 1.5;
-    }
-
-    .gallery-grid {
-      max-width: 1200px;
-      margin: 0 auto;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-      gap: 2rem;
-    }
-    .gallery-item {
-      position: relative;
-      border-radius: 20px;
-      overflow: hidden;
-      border: 1px solid var(--border-subtle);
-      background: var(--bg-card);
-      aspect-ratio: 3/4;
-      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.4);
-      transition: all 0.4s var(--ease-out);
-    }
-    .gallery-item:hover {
-      transform: translateY(-8px);
-      border-color: var(--border-hover);
-      box-shadow: 0 24px 50px rgba(0, 0, 0, 0.7), 0 0 25px rgba(255, 255, 255, 0.08);
-    }
-    .gallery-item img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-      transition: transform 0.7s var(--ease-out);
-    }
-    .gallery-item:hover img {
-      transform: scale(1.06);
-    }
-    .gallery-item-info {
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.85) 90%);
-      padding: 1.6rem;
+    .hero-section {
+      min-height: 100vh;
+      min-height: 100dvh;
       display: flex;
       flex-direction: column;
       justify-content: flex-end;
-      opacity: 0;
-      transition: opacity 0.35s var(--ease-out);
+      padding: 0 24px calc(var(--safe-bottom) + 40px);
+      position: relative;
+      z-index: 2;
     }
-    .gallery-item:hover .gallery-item-info {
-      opacity: 1;
+
+    .hero-ambient-bg {
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      overflow: hidden;
+      background: radial-gradient(circle at 50% 30%, rgba(25, 25, 35, 0.6) 0%, rgba(7, 7, 9, 1) 75%);
     }
-    .gallery-item-index {
+
+    .hero-content {
+      max-width: 900px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .hero-tagline {
       font-family: var(--font-display);
       font-size: 0.75rem;
-      letter-spacing: 0.25em;
-      color: var(--gold);
-      margin-bottom: 0.4rem;
-    }
-    .gallery-item-title {
-      font-family: var(--font-serif);
-      font-size: 1.35rem;
       font-weight: 700;
-      color: #fff;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--accent-warm);
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
     }
-    .gallery-item-meta {
-      font-size: 0.8rem;
+    .hero-tagline::before {
+      content: '';
+      display: block;
+      width: 24px;
+      height: 1px;
+      background: var(--accent-warm);
+    }
+
+    .hero-title {
+      font-family: var(--font-editorial);
+      font-size: clamp(2.4rem, 7.5vw, 5.8rem);
+      font-weight: 400;
+      line-height: 1.05;
+      letter-spacing: -0.02em;
+      color: var(--text);
+      margin-bottom: 24px;
+    }
+    .hero-title em {
+      font-style: italic;
+      font-weight: 600;
+      color: var(--accent-warm);
+    }
+
+    .hero-statement {
+      font-size: clamp(0.95rem, 2.5vw, 1.25rem);
+      line-height: 1.6;
       color: var(--text-muted);
-      margin-top: 0.2rem;
+      max-width: 620px;
+      margin-bottom: 40px;
+      font-weight: 400;
+    }
+
+    .hero-scroll-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 14px;
+      font-size: 0.72rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+    }
+    .scroll-line-track {
+      width: 48px;
+      height: 1px;
+      background: rgba(255, 255, 255, 0.2);
+      position: relative;
+      overflow: hidden;
+    }
+    .scroll-line-runner {
+      position: absolute;
+      top: 0; left: 0;
+      width: 50%; height: 100%;
+      background: #ffffff;
+      animation: runner 2.2s infinite ease-in-out;
+    }
+    @keyframes runner {
+      0% { transform: translateX(-100%); }
+      50% { transform: translateX(200%); }
+      100% { transform: translateX(200%); }
     }
 
     /* ═══════════════════════════════════════════════════════
-       PREMIUM "CONTATTAMI" SECTION CON INSTAGRAM
+       THE PHOTOGRAPHIC STAGE (ONE HERO PHOTO AT A TIME)
        ═══════════════════════════════════════════════════════ */
-    #contact-section {
+    .photo-journey {
       position: relative;
-      background: radial-gradient(circle at 80% 20%, #151124 0%, #06060a 60%, #020204 100%);
-      padding: clamp(6rem, 14vh, 12rem) clamp(1.5rem, 6vw, 6rem);
+      width: 100%;
+      background: var(--bg);
       z-index: 10;
-      border-top: 1px solid var(--border-subtle);
+    }
+
+    /* Individual Full-Screen Chapter */
+    .photo-chapter {
+      position: relative;
+      width: 100%;
+      height: 100vh;
+      height: 100dvh;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg);
+      will-change: transform;
+    }
+
+    .photo-frame-wrapper {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       overflow: hidden;
     }
 
-    .contact-container {
-      max-width: 1200px;
+    .photo-stage-img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transform: translateZ(0);
+      will-change: transform, opacity;
+      transition: filter 0.3s ease;
+    }
+
+    /* Focal point tunings derived from artistic analysis */
+    .focal-photo-4 { object-position: 50% 32%; } /* Head & shadow portrait protected */
+    .focal-photo-1 { object-position: 50% 40%; } /* Architecture & warm lines */
+    .focal-photo-3 { object-position: 50% 38%; } /* Masterpiece center human figure protected */
+    .focal-photo-5 { object-position: 50% 45%; } /* Nature & deep blue textures */
+    .focal-photo-6 { object-position: 50% 50%; } /* Geometric diagonals */
+    .focal-photo-2 { object-position: 50% 50%; } /* Street shutter & contrast */
+
+    /* Subtle Cinematic Vignette per chapter */
+    .photo-vignette {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: radial-gradient(circle at center, transparent 40%, rgba(7, 7, 9, 0.72) 100%);
+      z-index: 2;
+    }
+    .photo-bottom-fade {
+      position: absolute;
+      left: 0; right: 0; bottom: 0;
+      height: 35vh;
+      pointer-events: none;
+      background: linear-gradient(to top, rgba(7, 7, 9, 0.95) 0%, rgba(7, 7, 9, 0) 100%);
+      z-index: 2;
+    }
+    .photo-top-fade {
+      position: absolute;
+      left: 0; right: 0; top: 0;
+      height: 20vh;
+      pointer-events: none;
+      background: linear-gradient(to bottom, rgba(7, 7, 9, 0.8) 0%, rgba(7, 7, 9, 0) 100%);
+      z-index: 2;
+    }
+
+    /* Chapter Meta & Narrative Text */
+    .photo-meta-container {
+      position: absolute;
+      left: 0; right: 0; bottom: 0;
+      padding: 0 24px calc(var(--safe-bottom) + 32px);
+      z-index: 3;
+      max-width: 900px;
       margin: 0 auto;
-      display: grid;
-      grid-template-columns: 1fr 1.15fr;
-      gap: clamp(3rem, 6vw, 6rem);
-      align-items: flex-start;
-    }
-    @media (max-width: 900px) {
-      .contact-container { grid-template-columns: 1fr; gap: 3rem; }
+      pointer-events: auto;
     }
 
-    .contact-info {
+    .chapter-tag {
+      font-family: var(--font-display);
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--accent-warm);
+      margin-bottom: 8px;
       display: flex;
-      flex-direction: column;
+      align-items: center;
+      gap: 10px;
     }
-    .contact-tag {
-      font-family: var(--font-display);
-      font-size: 0.8rem;
-      letter-spacing: 0.35em;
-      text-transform: uppercase;
-      color: var(--gold);
-      margin-bottom: 1.2rem;
+    .chapter-tag span {
+      background: rgba(227, 213, 197, 0.15);
+      border: 1px solid rgba(227, 213, 197, 0.3);
+      padding: 3px 8px;
+      border-radius: 4px;
     }
-    .contact-title {
-      font-family: var(--font-display);
-      font-size: clamp(2.4rem, 4.8vw, 4.2rem);
-      font-weight: 800;
-      line-height: 1;
-      letter-spacing: -0.02em;
-      text-transform: uppercase;
-      margin-bottom: 1.5rem;
+
+    .chapter-heading {
+      font-family: var(--font-editorial);
+      font-size: clamp(1.8rem, 5vw, 3.4rem);
+      font-weight: 400;
+      line-height: 1.15;
+      letter-spacing: -0.01em;
+      color: var(--text);
+      margin-bottom: 12px;
     }
-    .contact-desc {
-      font-size: 1.05rem;
+
+    .chapter-caption {
+      font-size: clamp(0.85rem, 2vw, 1.05rem);
+      line-height: 1.5;
       color: var(--text-muted);
-      line-height: 1.6;
-      margin-bottom: 2.5rem;
+      max-width: 580px;
+      margin-bottom: 16px;
     }
 
-    .contact-channels {
-      display: flex;
-      flex-direction: column;
-      gap: 1.2rem;
-      margin-bottom: 2.5rem;
-    }
-    .channel-item {
+    .chapter-actions {
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      padding: 1.1rem 1.4rem;
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid var(--border-subtle);
-      border-radius: 16px;
-      transition: all 0.3s var(--ease-out);
+      gap: 12px;
     }
-    .channel-item:hover {
-      background: rgba(255, 255, 255, 0.08);
-      border-color: rgba(255, 255, 255, 0.3);
-      transform: translateX(6px);
-    }
-    .channel-left {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-    }
-    .channel-icon {
-      width: 42px;
-      height: 42px;
-      border-radius: 12px;
-      background: rgba(255, 255, 255, 0.08);
-      display: grid;
-      place-items: center;
-      color: #fff;
-    }
-    .channel-name {
-      font-size: 0.75rem;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--text-dim);
-    }
-    .channel-val {
-      font-size: 0.98rem;
-      font-weight: 600;
-      color: #ffffff;
-    }
-    .copy-pill-btn {
-      font-size: 0.75rem;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      padding: 0.45rem 0.9rem;
-      background: rgba(255, 255, 255, 0.1);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      border-radius: 999px;
-      color: #fff;
-      cursor: pointer;
-      transition: all 0.25s var(--ease-out);
-    }
-    .copy-pill-btn:hover {
-      background: #ffffff;
-      color: #000000;
-    }
-
-    .availability-pill {
+    .inspect-btn {
       display: inline-flex;
       align-items: center;
-      gap: 0.6rem;
-      padding: 0.6rem 1.2rem;
-      background: rgba(16, 185, 129, 0.12);
-      border: 1px solid rgba(16, 185, 129, 0.35);
-      border-radius: 999px;
-      font-size: 0.78rem;
+      gap: 8px;
+      font-size: 0.72rem;
+      font-weight: 600;
       letter-spacing: 0.1em;
       text-transform: uppercase;
-      color: #34d399;
-      width: fit-content;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: var(--text);
+      backdrop-filter: blur(8px);
+      transition: all 0.25s var(--ease-fluid);
+      cursor: pointer;
     }
-    .avail-dot {
-      width: 8px;
-      height: 8px;
-      background: #10b981;
-      border-radius: 50%;
-      box-shadow: 0 0 10px #10b981;
-    }
-
-    /* Contact Form Card */
-    .contact-form-card {
-      background: rgba(15, 15, 24, 0.75);
-      backdrop-filter: blur(30px);
-      border: 1px solid var(--border-subtle);
-      border-radius: 28px;
-      padding: clamp(2rem, 4vw, 3.2rem);
-      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.75);
-    }
-    .form-group {
-      margin-bottom: 1.6rem;
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-    }
-    .form-label {
-      font-size: 0.75rem;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      color: var(--text-dim);
-    }
-    .form-input, .form-textarea {
-      width: 100%;
-      padding: 1rem 1.2rem;
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid var(--border-subtle);
-      border-radius: 14px;
-      color: #ffffff;
-      font-family: var(--font-sans);
-      font-size: 0.95rem;
-      transition: all 0.3s var(--ease-out);
-      outline: none;
-    }
-    .form-input:focus, .form-textarea:focus {
-      border-color: rgba(255, 255, 255, 0.5);
-      background: rgba(255, 255, 255, 0.08);
-      box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
-    }
-    .form-textarea {
-      resize: vertical;
-      min-height: 130px;
-    }
-    .form-submit-btn {
-      width: 100%;
-      padding: 1.15rem;
+    .inspect-btn:hover {
       background: #ffffff;
       color: #000000;
-      border: none;
-      border-radius: 14px;
-      font-family: var(--font-display);
-      font-size: 0.9rem;
-      font-weight: 800;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      cursor: pointer;
-      transition: all 0.35s var(--ease-out);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 0.6rem;
+      border-color: #ffffff;
     }
-    .form-submit-btn:hover {
-      background: #e6dfd5;
-      transform: translateY(-2px);
-      box-shadow: 0 12px 30px rgba(255, 255, 255, 0.25);
+
+    /* Specific Multi-frame Chapter (Chapter 5) */
+    .dual-frame-stage {
+      display: grid;
+      grid-template-columns: 1fr;
+      width: 100%;
+      height: 100%;
+      gap: 12px;
+      padding: 16px;
     }
-    .form-success-note {
-      display: none;
-      margin-top: 1rem;
-      padding: 0.8rem;
-      border-radius: 10px;
-      background: rgba(16, 185, 129, 0.15);
-      border: 1px solid rgba(16, 185, 129, 0.4);
-      color: #34d399;
-      font-size: 0.85rem;
-      text-align: center;
+    @media (min-width: 768px) {
+      .dual-frame-stage {
+        grid-template-columns: 1.1fr 0.9fr;
+        padding: 40px;
+        gap: 32px;
+      }
+    }
+    .dual-panel {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      border-radius: 12px;
+      overflow: hidden;
     }
 
     /* ═══════════════════════════════════════════════════════
-       FOOTER CON LINK INSTAGRAM DIRETTO
+       EPILOGUE & PERSONAL CONNECTION (INSTAGRAM PROMINENT)
        ═══════════════════════════════════════════════════════ */
-    footer {
-      background: #020205;
-      padding: 3.5rem clamp(1.5rem, 6vw, 6rem) 2.5rem;
-      border-top: 1px solid var(--border-subtle);
-      z-index: 10;
+    .epilogue-section {
+      min-height: 100vh;
+      min-height: 100dvh;
+      background: var(--bg-darker);
       position: relative;
-    }
-    .footer-inner {
-      max-width: 1200px;
-      margin: 0 auto;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 1.8rem;
-    }
-    .footer-left {
+      z-index: 20;
       display: flex;
       flex-direction: column;
-      gap: 0.4rem;
+      justify-content: center;
+      padding: 80px 24px calc(var(--safe-bottom) + 60px);
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
     }
-    .footer-brand {
+
+    .epilogue-container {
+      max-width: 840px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .epilogue-label {
       font-family: var(--font-display);
-      font-size: 1.1rem;
-      font-weight: 800;
-      letter-spacing: 0.15em;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.24em;
       text-transform: uppercase;
-    }
-    .footer-copy {
-      font-size: 0.8rem;
-      color: var(--text-dim);
-    }
-    .footer-center {
+      color: var(--accent-warm);
+      margin-bottom: 20px;
       display: flex;
       align-items: center;
-      gap: 1.2rem;
+      gap: 12px;
     }
-    .footer-social-link {
-      display: inline-flex;
+
+    .epilogue-title {
+      font-family: var(--font-editorial);
+      font-size: clamp(2.2rem, 6.5vw, 4.6rem);
+      font-weight: 400;
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      color: var(--text);
+      margin-bottom: 24px;
+    }
+    .epilogue-title em {
+      font-style: italic;
+      color: var(--accent-warm);
+    }
+
+    .epilogue-text {
+      font-size: clamp(0.95rem, 2.5vw, 1.2rem);
+      line-height: 1.7;
+      color: var(--text-muted);
+      margin-bottom: 48px;
+      max-width: 660px;
+    }
+
+    /* Instagram Master Card */
+    .instagram-card {
+      position: relative;
+      background: linear-gradient(135deg, rgba(28, 28, 38, 0.6) 0%, rgba(14, 14, 20, 0.8) 100%);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 20px;
+      padding: 32px 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      margin-bottom: 40px;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      transition: all 0.35s var(--ease-fluid);
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6);
+      text-decoration: none;
+      color: var(--text);
+    }
+    .instagram-card:hover {
+      border-color: rgba(255, 255, 255, 0.4);
+      transform: translateY(-3px);
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.8), 0 0 30px rgba(227, 213, 197, 0.12);
+    }
+
+    @media (min-width: 640px) {
+      .instagram-card {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        padding: 36px 40px;
+      }
+    }
+
+    .ig-profile-info {
+      display: flex;
       align-items: center;
-      gap: 0.5rem;
-      padding: 0.45rem 1rem;
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid var(--border-subtle);
-      border-radius: 999px;
+      gap: 20px;
+    }
+
+    .ig-avatar-wrap {
+      position: relative;
+      width: 72px; height: 72px;
+      border-radius: 50%;
+      padding: 3px;
+      background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+      flex-shrink: 0;
+    }
+    .ig-avatar-img {
+      width: 100%; height: 100%;
+      border-radius: 50%;
+      object-fit: cover;
+      object-position: center;
+      border: 2px solid #070709;
+      display: block;
+    }
+
+    .ig-handle {
+      font-family: var(--font-display);
+      font-size: 1.35rem;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+      color: var(--text);
+      display: block;
+      margin-bottom: 4px;
+    }
+    .ig-bio-snippet {
       font-size: 0.82rem;
       color: var(--text-muted);
-      transition: all 0.25s var(--ease-out);
+      line-height: 1.4;
+      display: block;
     }
-    .footer-social-link:hover {
-      background: rgba(255, 255, 255, 0.15);
-      color: #fff;
-      border-color: rgba(255, 255, 255, 0.4);
-      transform: translateY(-2px);
-    }
-    .footer-time {
-      font-size: 0.8rem;
-      color: var(--text-muted);
-      letter-spacing: 0.05em;
-    }
-    .footer-back-to-top {
-      display: flex;
+
+    .ig-cta-pill {
+      display: inline-flex;
       align-items: center;
-      gap: 0.6rem;
-      font-size: 0.8rem;
-      letter-spacing: 0.15em;
+      justify-content: center;
+      gap: 10px;
+      padding: 14px 28px;
+      border-radius: 999px;
+      background: #ffffff;
+      color: #000000;
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      transition: all 0.25s var(--ease-fluid);
+      flex-shrink: 0;
+    }
+    .instagram-card:hover .ig-cta-pill {
+      background: var(--accent-warm);
+      transform: scale(1.04);
+    }
+
+    /* Direct Contact & Footer Bottom */
+    .epilogue-footer {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      padding-top: 32px;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+    }
+    @media (min-width: 600px) {
+      .epilogue-footer {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+      }
+    }
+
+    .epilogue-copy {
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      letter-spacing: 0.06em;
+    }
+
+    .back-to-top-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
       text-transform: uppercase;
       color: var(--text-muted);
+      background: none;
+      border: none;
       cursor: pointer;
-      transition: color 0.25s var(--ease-out);
+      transition: color 0.2s;
     }
-    .footer-back-to-top:hover {
+    .back-to-top-btn:hover {
       color: #ffffff;
     }
 
     /* ═══════════════════════════════════════════════════════
-       FULL-SCREEN LIGHTBOX MODAL
+       LIGHTBOX / INSPECTOR MODAL
        ═══════════════════════════════════════════════════════ */
-    #lightbox {
+    .lightbox-modal {
       position: fixed;
       inset: 0;
-      z-index: 99999;
-      background: rgba(3, 3, 6, 0.95);
-      backdrop-filter: blur(25px);
-      -webkit-backdrop-filter: blur(25px);
+      z-index: 99990;
+      background: rgba(3, 3, 5, 0.94);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
       display: flex;
       align-items: center;
       justify-content: center;
+      padding: 24px;
       opacity: 0;
-      visibility: hidden;
-      transition: opacity 0.4s var(--ease-out), visibility 0.4s;
+      pointer-events: none;
+      transition: opacity 0.35s var(--ease-fluid);
     }
-    #lightbox.active {
+    .lightbox-modal.is-open {
       opacity: 1;
-      visibility: visible;
+      pointer-events: auto;
     }
-    .lightbox-close-btn {
-      position: absolute;
-      top: 2rem; right: 2rem;
-      width: 44px; height: 44px;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.1);
-      border: 1px solid var(--border-subtle);
-      color: #fff;
-      display: grid;
-      place-items: center;
-      cursor: pointer;
-      transition: all 0.3s var(--ease-out);
-      z-index: 10;
-    }
-    .lightbox-close-btn:hover {
-      background: #fff;
-      color: #000;
-      transform: rotate(90deg);
-    }
-    .lightbox-content {
+    .lightbox-img-wrap {
       position: relative;
       max-width: 90vw;
       max-height: 85vh;
@@ -1346,24 +732,44 @@
       flex-direction: column;
       align-items: center;
     }
-    .lightbox-img {
+    .lightbox-img-wrap img {
       max-width: 100%;
-      max-height: 80vh;
+      max-height: 75vh;
       object-fit: contain;
-      border-radius: 12px;
-      box-shadow: 0 30px 90px rgba(0,0,0,0.9);
-      user-select: none;
+      border-radius: 8px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.85);
     }
     .lightbox-caption {
-      margin-top: 1.2rem;
-      font-family: var(--font-display);
-      font-size: 0.9rem;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
+      margin-top: 16px;
+      font-size: 0.82rem;
       color: var(--text-muted);
+      text-align: center;
+      letter-spacing: 0.08em;
+    }
+    .lightbox-close {
+      position: absolute;
+      top: calc(var(--safe-top) + 20px);
+      right: 24px;
+      width: 44px; height: 44px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #ffffff;
+      font-size: 1.1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .lightbox-close:hover {
+      background: #ffffff;
+      color: #000000;
     }
 
-    /* ─── REDUCED MOTION ─── */
+    /* ═══════════════════════════════════════════════════════
+       ACCESSIBILITY & REDUCED MOTION
+       ═══════════════════════════════════════════════════════ */
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after {
         animation-duration: 0.01ms !important;
@@ -1371,938 +777,283 @@
         transition-duration: 0.01ms !important;
         scroll-behavior: auto !important;
       }
+      .photo-chapter {
+        height: auto !important;
+        min-height: 80vh !important;
+        position: relative !important;
+        margin-bottom: 40px;
+      }
+      .photo-stage-img {
+        position: relative !important;
+        height: 60vh !important;
+      }
     }
   </style>
 </head>
 <body>
 
-  <!-- Custom Photo Cursor (Con la foto di Gabriele al posto del puntatore) -->
-  <div class="photo-cursor" id="photo-cursor" aria-hidden="true">
-    <img src="spatial-carousel/photo-3.jpg" alt="Puntatore Gabriele Madeo">
-  </div>
-  <div class="photo-cursor-ring" id="photo-cursor-ring" aria-hidden="true"></div>
+  <!-- Film Grain Texture Overlay -->
+  <div class="film-grain" aria-hidden="true"></div>
 
-  <!-- ════════ PRELOADER ════════ -->
-  <div id="preloader" aria-hidden="true">
-    <div class="preloader-bg-curtain cp-bg-top"></div>
-    <div class="preloader-bg-curtain cp-bg-bottom"></div>
-    <div class="preloader-inner">
-      <div class="preloader-brand">Gabriele Madeo // Portfolio 2026</div>
-      <div class="preloader-title-box">
-        <span id="cp-text">Welcome</span>
-      </div>
-      <div class="preloader-progress-wrap">
-        <div class="preloader-bar-bg">
-          <div class="preloader-bar-fill" id="preloader-bar"></div>
-        </div>
-        <div class="preloader-stats">
-          <span id="preloader-status">Caricamento frame...</span>
-          <span id="preloader-pct">0%</span>
-        </div>
-      </div>
-      <button class="preloader-skip-btn" id="preloader-skip">Entra subito →</button>
+  <!-- Custom Photo Cursor (Desktop) -->
+  <div class="custom-cursor" id="custom-cursor" aria-hidden="true">
+    <img src="spatial-carousel/photo-3.webp" alt="Cursor Photo" id="cursor-thumb">
+  </div>
+  <div class="cursor-ring" id="cursor-ring" aria-hidden="true"></div>
+
+  <!-- Top Minimalist HUD Navigation -->
+  <header class="top-nav">
+    <div class="nav-brand">
+      <div class="brand-dot"></div>
+      <span class="brand-name">Gabriele Madeo</span>
+      <span class="brand-sub">// Visual Archive</span>
     </div>
-  </div>
 
-  <!-- ════════ FLOATING NAVBAR (SENZA AUDIO) ════════ -->
-  <nav id="navbar">
-    <a href="#" class="nav-brand">
-      <div class="nav-brand-badge"></div>
-      <span>Gabriele Madeo</span>
+    <a href="https://www.instagram.com/gabrielemadeo" target="_blank" rel="noopener noreferrer" class="nav-link-ig touch-target" aria-label="Profilo Instagram di Gabriele Madeo">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+        <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+        <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+      </svg>
+      <span>@gabrielemadeo</span>
     </a>
+  </header>
 
-    <ul class="nav-links">
-      <li><a href="#stage" class="nav-link">Visione</a></li>
-      <li><a href="#zp-section" class="nav-link">Spaziale</a></li>
-      <li><a href="#about-section" class="nav-link">Profilo</a></li>
-      <li><a href="#gallery-section" class="nav-link">Galleria</a></li>
-      <li><a href="#contact-section" class="nav-link">Contatti</a></li>
-    </ul>
+  <!-- Hero Chapter / Entrance -->
+  <main>
+    <section class="hero-section" id="hero">
+      <div class="hero-ambient-bg"></div>
+      
+      <div class="hero-content">
+        <div class="hero-tagline">ARCHIVIO VISIVO // EST. 2026</div>
+        
+        <h1 class="hero-title">
+          Catturare ciò che sfugge<br>allo <em>sguardo ordinario</em>.
+        </h1>
+        
+        <p class="hero-statement">
+          Non un portfolio aziendale né una lista di competenze. Questo è un viaggio fotografico e cinetico tra luce, ombre, geometrie e silenzi. Scorri per entrare.
+        </p>
 
-    <div class="nav-actions">
-      <!-- Media Mode Switcher (Canvas / Video) -->
-      <button class="nav-btn-icon" id="mode-toggle-btn" title="Alterna Sequenza Canvas / Video MP4" aria-label="Cambia modalità video">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <polygon points="5 3 19 12 5 21 5 3"></polygon>
-        </svg>
-      </button>
-
-      <a href="#contact-section" class="nav-cta-btn">Collaboriamo</a>
-    </div>
-  </nav>
-
-  <!-- ════════ HERO & SEQUENCE ════════ -->
-  <div id="scroll-space"></div>
-
-  <div id="stage">
-    <!-- Hardware Accelerated Canvas for Instant 120 FPS Scrub -->
-    <canvas id="hero-canvas"></canvas>
-
-    <!-- Alternative Lightweight MP4 Video Element -->
-    <video id="hero-video" src="sequence.mp4" playsinline muted loop preload="auto"></video>
-
-    <!-- Hero HUD overlay -->
-    <div class="hero-hud" id="hero-hud">
-      <div class="hud-top-left">
-        <span>EST. 2026 // VISUAL ARTIST & PHOTOGRAPHER</span>
-      </div>
-      <div class="hud-bottom">
-        <div class="hud-title">
-          <h1>Gabriele Madeo</h1>
-          <p>Cinematic Frames & Spatial Photography</p>
-        </div>
-        <div class="hud-scroll-cue">
-          <div class="scroll-mouse-icon">
-            <div class="scroll-mouse-wheel"></div>
+        <div class="hero-scroll-indicator">
+          <div class="scroll-line-track">
+            <div class="scroll-line-runner"></div>
           </div>
           <span>Scorri per esplorare</span>
         </div>
       </div>
+    </section>
+
+    <!-- ════════ SINGLE IMMERSIVE PHOTOGRAPHIC JOURNEY ════════ -->
+    <div class="photo-journey" id="photo-journey">
+
+      <!-- CHAPTER 01: L'Ombra e il Ritratto (photo-4) -->
+      <section class="photo-chapter" id="chapter-1" data-cursor="spatial-carousel/photo-4.webp">
+        <div class="photo-frame-wrapper">
+          <picture>
+            <source srcset="spatial-carousel/photo-4.webp" type="image/webp">
+            <img src="spatial-carousel/photo-4.jpg" alt="Ritratto nell'ombra — Gabriele Madeo" class="photo-stage-img focal-photo-4" loading="eager" decoding="async">
+          </picture>
+          <div class="photo-vignette"></div>
+          <div class="photo-bottom-fade"></div>
+          <div class="photo-top-fade"></div>
+
+          <div class="photo-meta-container">
+            <div class="chapter-tag"><span>01</span> RITRATTO // STUDIO MONOCROMO</div>
+            <h2 class="chapter-heading">L'Identità nell'Ombra</h2>
+            <p class="chapter-caption">
+              Cercare la luce dove gli altri vedono solo buio. Un dialogo intimo tra tagli netti, profilo e silenzio.
+            </p>
+            <div class="chapter-actions">
+              <button class="inspect-btn touch-target" data-full="spatial-carousel/photo-4.jpg" data-title="01 // L'Identità nell'Ombra">
+                <span>⊕ Espandi scatto originale</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- CHAPTER 02: Geometria Notturna & Toni d'Ambra (photo-1) -->
+      <section class="photo-chapter" id="chapter-2" data-cursor="spatial-carousel/photo-1.webp">
+        <div class="photo-frame-wrapper">
+          <picture>
+            <source srcset="spatial-carousel/photo-1.webp" type="image/webp">
+            <img src="spatial-carousel/photo-1.jpg" alt="Architettura notturna — Gabriele Madeo" class="photo-stage-img focal-photo-1" loading="lazy" decoding="async">
+          </picture>
+          <div class="photo-vignette"></div>
+          <div class="photo-bottom-fade"></div>
+          <div class="photo-top-fade"></div>
+
+          <div class="photo-meta-container">
+            <div class="chapter-tag"><span>02</span> ARCHITETTURA // TONI D'AMBRA</div>
+            <h2 class="chapter-heading">Geometria e Notte</h2>
+            <p class="chapter-caption">
+              La città quando tacciono le parole. Linee pulite, riflessi caldi e proporzioni che ridisegnano lo spazio urbano.
+            </p>
+            <div class="chapter-actions">
+              <button class="inspect-btn touch-target" data-full="spatial-carousel/photo-1.jpg" data-title="02 // Geometria e Notte">
+                <span>⊕ Espandi scatto originale</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- CHAPTER 03: Il Respiro Centrale / Masterpiece (photo-3) -->
+      <section class="photo-chapter" id="chapter-3" data-cursor="spatial-carousel/photo-3.webp">
+        <div class="photo-frame-wrapper">
+          <picture>
+            <source srcset="spatial-carousel/photo-3.webp" type="image/webp">
+            <img src="spatial-carousel/photo-3.jpg" alt="Scatto d'autore all'aperto — Gabriele Madeo" class="photo-stage-img focal-photo-3" loading="lazy" decoding="async">
+          </picture>
+          <div class="photo-vignette"></div>
+          <div class="photo-bottom-fade"></div>
+          <div class="photo-top-fade"></div>
+
+          <div class="photo-meta-container">
+            <div class="chapter-tag"><span>03</span> SCATTO CENTRALE // RESPIRO</div>
+            <h2 class="chapter-heading">L'Origine del Segno</h2>
+            <p class="chapter-caption">
+              Il momento esatto in cui la figura si allinea con l'orizzonte. Luce naturale aperta, autenticità senza filtri.
+            </p>
+            <div class="chapter-actions">
+              <button class="inspect-btn touch-target" data-full="spatial-carousel/photo-3.jpg" data-title="03 // L'Origine del Segno">
+                <span>⊕ Espandi scatto originale</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- CHAPTER 04: Materia & Silenzio Blu (photo-5) -->
+      <section class="photo-chapter" id="chapter-4" data-cursor="spatial-carousel/photo-5.webp">
+        <div class="photo-frame-wrapper">
+          <picture>
+            <source srcset="spatial-carousel/photo-5.webp" type="image/webp">
+            <img src="spatial-carousel/photo-5.jpg" alt="Texture e natura — Gabriele Madeo" class="photo-stage-img focal-photo-5" loading="lazy" decoding="async">
+          </picture>
+          <div class="photo-vignette"></div>
+          <div class="photo-bottom-fade"></div>
+          <div class="photo-top-fade"></div>
+
+          <div class="photo-meta-container">
+            <div class="chapter-tag"><span>04</span> NATURA // ATMOSFERA BLU</div>
+            <h2 class="chapter-heading">La Materia Invisibile</h2>
+            <p class="chapter-caption">
+              Dettagli microscopici e sfumature profonde. Quando l'ambiente circostante diventa una tela meditativa.
+            </p>
+            <div class="chapter-actions">
+              <button class="inspect-btn touch-target" data-full="spatial-carousel/photo-5.jpg" data-title="04 // La Materia Invisibile">
+                <span>⊕ Espandi scatto originale</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- CHAPTER 05: Linee e Dinamismo (photo-6 e photo-2) -->
+      <section class="photo-chapter" id="chapter-5" data-cursor="spatial-carousel/photo-6.webp">
+        <div class="dual-frame-stage">
+          <div class="dual-panel">
+            <picture>
+              <source srcset="spatial-carousel/photo-6.webp" type="image/webp">
+              <img src="spatial-carousel/photo-6.jpg" alt="Prospettive urbane — Gabriele Madeo" class="photo-stage-img focal-photo-6" loading="lazy" decoding="async">
+            </picture>
+            <div class="photo-vignette"></div>
+            <div class="photo-bottom-fade"></div>
+          </div>
+          <div class="dual-panel">
+            <picture>
+              <source srcset="spatial-carousel/photo-2.webp" type="image/webp">
+              <img src="spatial-carousel/photo-2.jpg" alt="Movimento e riflessi — Gabriele Madeo" class="photo-stage-img focal-photo-2" loading="lazy" decoding="async">
+            </picture>
+            <div class="photo-vignette"></div>
+            <div class="photo-bottom-fade"></div>
+          </div>
+        </div>
+
+        <div class="photo-meta-container">
+          <div class="chapter-tag"><span>05</span> MOVIMENTO // RIFLESSI & PROSPETTIVE</div>
+          <h2 class="chapter-heading">Velocità e Geometrie</h2>
+          <p class="chapter-caption">
+            Cogliere l'istante prima che svanisca nel ricordo. Due prospettive in risonanza visiva continua.
+          </p>
+          <div class="chapter-actions">
+            <button class="inspect-btn touch-target" data-full="spatial-carousel/photo-6.jpg" data-title="05 // Prospettive e Dinamica">
+              <span>⊕ Espandi scatto</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
     </div>
 
-    <!-- Kinetic Text Storyline Reveal -->
-    <div id="text-scroll-overlay" aria-hidden="true">
-      <div class="text-scroll-inner">
-        <div class="text-scroll-block">
-          <div class="story-tagline">LA MIA VISIONE</div>
-          <div class="reveal-line" data-line="0"><div class="ghost-line"></div><div class="fill-line"></div></div>
-          <div class="reveal-line" data-line="1"><div class="ghost-line"></div><div class="fill-line"></div></div>
-          <div class="reveal-line" data-line="2"><div class="ghost-line"></div><div class="fill-line"></div></div>
-          <div class="reveal-line" data-line="3"><div class="ghost-line"></div><div class="fill-line"></div></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Smooth Transition Fade Overlay -->
-    <div id="fade-overlay"></div>
-  </div>
-
-  <!-- ════════ SPATIAL BENTO GRID & ZOOM PARALLAX (ZERO FRAME-LAG) ════════ -->
-  <section id="zp-section">
-    <div id="zp-sticky">
-      <div id="zp-grid">
-
-        <!-- Card 4 (Tall Left: photo-4.jpg) -->
-        <div class="zp-card zp-card--4" data-img="spatial-carousel/photo-4.jpg" data-title="Ritratto Studio // 01">
-          <img src="spatial-carousel/photo-4.jpg" alt="Ritratto Studio" loading="lazy" decoding="async">
-          <div class="card-meta">
-            <div>
-              <div class="card-tag">01 // RITRATTO</div>
-              <div class="card-sub">Studio Session — 35mm</div>
-            </div>
-            <div class="card-icon-zoom">⊕</div>
-          </div>
-        </div>
-
-        <!-- Card 1 (Wide Top: photo-1.jpg) -->
-        <div class="zp-card zp-card--1" data-img="spatial-carousel/photo-1.jpg" data-title="Paesaggio Urbano // 02">
-          <img src="spatial-carousel/photo-1.jpg" alt="Paesaggio Urbano" loading="lazy" decoding="async">
-          <div class="card-meta">
-            <div>
-              <div class="card-tag">02 // ARCHITETTURA</div>
-              <div class="card-sub">Luci della notte e prospettive</div>
-            </div>
-            <div class="card-icon-zoom">⊕</div>
-          </div>
-        </div>
-
-        <!-- Card 5 (Center Right: photo-5.jpg) -->
-        <div class="zp-card zp-card--5" data-img="spatial-carousel/photo-5.jpg" data-title="Luce Naturale // 03">
-          <img src="spatial-carousel/photo-5.jpg" alt="Luce Naturale" loading="lazy" decoding="async">
-          <div class="card-meta">
-            <div>
-              <div class="card-tag">03 // ATMOSFERA</div>
-              <div class="card-sub">Composizione e silenzio</div>
-            </div>
-            <div class="card-icon-zoom">⊕</div>
-          </div>
-        </div>
-
-        <!-- Card 6 (Wide Bottom: photo-6.jpg) -->
-        <div class="zp-card zp-card--6" data-img="spatial-carousel/photo-6.jpg" data-title="Dettaglio Visivo // 04">
-          <img src="spatial-carousel/photo-6.jpg" alt="Dettaglio Visivo" loading="lazy" decoding="async">
-          <div class="card-meta">
-            <div>
-              <div class="card-tag">04 // GEOMETRIA</div>
-              <div class="card-sub">Forme essenziali e spazio</div>
-            </div>
-            <div class="card-icon-zoom">⊕</div>
-          </div>
-        </div>
-
-        <!-- Card 2 (Bottom Right: photo-2.jpg) -->
-        <div class="zp-card zp-card--2" data-img="spatial-carousel/photo-2.jpg" data-title="Momenti Dinamici // 05">
-          <img src="spatial-carousel/photo-2.jpg" alt="Momenti Dinamici" loading="lazy" decoding="async">
-          <div class="card-meta">
-            <div>
-              <div class="card-tag">05 // DINAMISMO</div>
-              <div class="card-sub">Velocità ed emozione</div>
-            </div>
-            <div class="card-icon-zoom">⊕</div>
-          </div>
-        </div>
-
-      </div>
-
-      <!-- Hero Centered Card (Expands to 100vw x 100vh: photo-3.jpg) -->
-      <div id="zp-hero-card" data-img="spatial-carousel/photo-3.jpg" data-title="Opera Principale // Masterpiece">
-        <div class="hero-expand-badge">
-          <span>Visione Spaziale</span>
-        </div>
-        <img
-          src="spatial-carousel/photo-3.jpg"
-          alt="Foto Principale Gabriele Madeo"
-          decoding="async"
-          fetchpriority="high"
-        >
-      </div>
-
-      <div class="zp-vignette" aria-hidden="true"></div>
-    </div>
-  </section>
-
-  <!-- ════════ ABOUT / FILOSOFIA ════════ -->
-  <section id="about-section">
-    <div class="about-container">
-      <div class="about-content">
-        <div class="about-label">
+    <!-- ════════ EPILOGUE & INSTAGRAM CONNECTION ════════ -->
+    <section class="epilogue-section" id="connessione">
+      <div class="epilogue-container">
+        
+        <div class="epilogue-label">
           <span>●</span>
-          <span>Chi Sono // Visione</span>
+          <span>AUTENTICITÀ // DIALOGO APERTO</span>
         </div>
-        <h2 class="about-heading">L'arte di catturare ciò che sfugge allo sguardo ordinario.</h2>
-        <p class="about-lead">
-          "Ogni immagine è il risultato di un dialogo tra geometria, luce e silenzio emotivo."
-        </p>
-        <p class="about-text">
-          Mi chiamo <strong>Gabriele Madeo</strong>. Sono un visual creator e fotografo appassionato di estetica cinematografica, architettura e ritrattistica moderna. Questo spazio digitale unisce la fluidità dello sviluppo web all'impatto narrativo delle immagini, creando un viaggio visivo coinvolgente a 360 gradi.
-        </p>
 
-        <div class="about-stats">
-          <div class="stat-item">
-            <span class="stat-number">120+</span>
-            <span class="stat-label">Scatti Curati</span>
-          </div>
-          <div class="stat-item">
-            <span class="stat-number">100%</span>
-            <span class="stat-label">Precisione 4K</span>
-          </div>
-          <div class="stat-item">
-            <span class="stat-number">60 FPS</span>
-            <span class="stat-label">Fluidità Totale</span>
-          </div>
-        </div>
-      </div>
+        <h2 class="epilogue-title">
+          Le immagini non hanno bisogno<br>di <em>spiegazioni complesse</em>.
+        </h2>
 
-      <div class="about-card-visual">
-        <div class="about-image-wrapper">
-          <img src="spatial-carousel/photo-5.jpg" alt="Gabriele Madeo Studio" loading="lazy">
-        </div>
-        <div class="about-floating-badge">
-          <span class="floating-badge-title">Gabriele Madeo</span>
-          <span class="floating-badge-sub">Creatore Visivo • Italia</span>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ════════ INTERACTIVE GALLERY ════════ -->
-  <section id="gallery-section">
-    <div class="section-header">
-      <div>
-        <h2 class="section-title">Archivio Visivo</h2>
-        <p class="section-sub">Tocca o fai clic su qualsiasi fotografia per aprirla in alta risoluzione con dettagli compositivi.</p>
-      </div>
-    </div>
-
-    <div class="gallery-grid">
-      <div class="gallery-item" data-img="spatial-carousel/photo-1.jpg" data-title="Paesaggio Urbano — Architettura Notturna">
-        <img src="spatial-carousel/photo-1.jpg" alt="Foto 1" loading="lazy">
-        <div class="gallery-item-info">
-          <span class="gallery-item-index">01 / ARCHITETTURA</span>
-          <h3 class="gallery-item-title">Paesaggio Urbano</h3>
-          <span class="gallery-item-meta">Milano • Esposizione Lunare</span>
-        </div>
-      </div>
-
-      <div class="gallery-item" data-img="spatial-carousel/photo-2.jpg" data-title="Movimento e Riflessi">
-        <img src="spatial-carousel/photo-2.jpg" alt="Foto 2" loading="lazy">
-        <div class="gallery-item-info">
-          <span class="gallery-item-index">02 / DINAMICA</span>
-          <h3 class="gallery-item-title">Movimento e Riflessi</h3>
-          <span class="gallery-item-meta">High Speed Shutter</span>
-        </div>
-      </div>
-
-      <div class="gallery-item" data-img="spatial-carousel/photo-3.jpg" data-title="L'Origine del Segno — Masterpiece">
-        <img src="spatial-carousel/photo-3.jpg" alt="Foto 3" loading="lazy">
-        <div class="gallery-item-info">
-          <span class="gallery-item-index">03 / MASTERPIECE</span>
-          <h3 class="gallery-item-title">L'Origine del Segno</h3>
-          <span class="gallery-item-meta">Scatto Centrale • 50mm Prime</span>
-        </div>
-      </div>
-
-      <div class="gallery-item" data-img="spatial-carousel/photo-4.jpg" data-title="Studio Monocromatico">
-        <img src="spatial-carousel/photo-4.jpg" alt="Foto 4" loading="lazy">
-        <div class="gallery-item-info">
-          <span class="gallery-item-index">04 / RITRATTO</span>
-          <h3 class="gallery-item-title">Studio Monocromatico</h3>
-          <span class="gallery-item-meta">Ombre Netta e Tagli di Luce</span>
-        </div>
-      </div>
-
-      <div class="gallery-item" data-img="spatial-carousel/photo-5.jpg" data-title="Composizione Spaziale">
-        <img src="spatial-carousel/photo-5.jpg" alt="Foto 5" loading="lazy">
-        <div class="gallery-item-info">
-          <span class="gallery-item-index">05 / ATMOSFERA</span>
-          <h3 class="gallery-item-title">Composizione Spaziale</h3>
-          <span class="gallery-item-meta">Golden Hour • Natural Light</span>
-        </div>
-      </div>
-
-      <div class="gallery-item" data-img="spatial-carousel/photo-6.jpg" data-title="Forme e Prospettive">
-        <img src="spatial-carousel/photo-6.jpg" alt="Foto 6" loading="lazy">
-        <div class="gallery-item-info">
-          <span class="gallery-item-index">06 / GEOMETRIE</span>
-          <h3 class="gallery-item-title">Forme e Prospettive</h3>
-          <span class="gallery-item-meta">Linee di Fuga e Simmetria</span>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ════════ CONTATTAMI (CON INSTAGRAM GABRIELEMADEO) ════════ -->
-  <section id="contact-section">
-    <div class="contact-container">
-      <div class="contact-info">
-        <span class="contact-tag">Iniziamo un Progetto</span>
-        <h2 class="contact-title">Parliamo del tuo prossimo lavoro.</h2>
-        <p class="contact-desc">
-          Hai un'idea visiva, una campagna da curare o desideri collaborare per una sessione fotografica o creativa? Sono sempre aperto a nuove stimolanti sfide.
+        <p class="epilogue-text">
+          Credo in un web che non sia una fredda sequenza di servizi o curriculum, ma uno spazio vivo che trasmette ritmo visivo, atmosfera e presenza. Per collaborazioni fotografiche, idee o semplicemente per scambiare due parole su uno scatto:
         </p>
 
-        <div class="contact-channels">
-          <!-- Instagram Ufficiale gabrielemadeo -->
-          <a href="https://www.instagram.com/gabrielemadeo" target="_blank" rel="noopener noreferrer" class="channel-item">
-            <div class="channel-left">
-              <div class="channel-icon">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
-                  <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
-                  <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
-                </svg>
-              </div>
-              <div>
-                <div class="channel-name">Instagram Ufficiale</div>
-                <div class="channel-val">@gabrielemadeo</div>
-              </div>
+        <!-- Master Instagram Card -->
+        <a href="https://www.instagram.com/gabrielemadeo" target="_blank" rel="noopener noreferrer" class="instagram-card touch-target" id="instagram-banner">
+          <div class="ig-profile-info">
+            <div class="ig-avatar-wrap">
+              <img src="spatial-carousel/photo-3.webp" alt="Gabriele Madeo Avatar" class="ig-avatar-img">
             </div>
-            <span class="copy-pill-btn">Segui ↗</span>
-          </a>
-
-          <!-- Email Diretta -->
-          <div class="channel-item">
-            <div class="channel-left">
-              <div class="channel-icon">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
-                  <polyline points="22,6 12,13 2,6"></polyline>
-                </svg>
-              </div>
-              <div>
-                <div class="channel-name">Email Diretta</div>
-                <div class="channel-val">gabimad@outlook.it</div>
-              </div>
+            <div>
+              <span class="ig-handle">@gabrielemadeo</span>
+              <span class="ig-bio-snippet">Fotografia cinematografica, storie visive e nuovi progetti in anteprima</span>
             </div>
-            <button class="copy-pill-btn" id="copy-email-btn" data-email="gabimad@outlook.it">Copia</button>
           </div>
 
-          <!-- GitHub Profilo -->
-          <a href="https://github.com/gabrjmad" target="_blank" rel="noopener noreferrer" class="channel-item">
-            <div class="channel-left">
-              <div class="channel-icon">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
-                </svg>
-              </div>
-              <div>
-                <div class="channel-name">GitHub Profilo</div>
-                <div class="channel-val">github.com/gabrjmad</div>
-              </div>
-            </div>
-            <span class="copy-pill-btn">Visita ↗</span>
-          </a>
-        </div>
+          <div class="ig-cta-pill">
+            <span>Segui su Instagram</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="7" y1="17" x2="17" y2="7"></line>
+              <polyline points="7 7 17 7 17 17"></polyline>
+            </svg>
+          </div>
+        </a>
 
-        <div class="availability-pill">
-          <div class="avail-dot"></div>
-          <span>Disponibile per progetti 2026/2027</span>
-        </div>
-      </div>
-
-      <!-- Contact Form -->
-      <div class="contact-form-card">
-        <form id="contact-form" onsubmit="event.preventDefault(); submitContactForm();">
-          <div class="form-group">
-            <label class="form-label" for="user-name">Il tuo Nome</label>
-            <input type="text" id="user-name" class="form-input" placeholder="Es. Marco Rossi" required>
+        <!-- Footer Bottom Links -->
+        <div class="epilogue-footer">
+          <div class="epilogue-copy">
+            © 2026 Gabriele Madeo — Progettato per essere vissuto in movimento.
           </div>
-          <div class="form-group">
-            <label class="form-label" for="user-email">La tua Email</label>
-            <input type="email" id="user-email" class="form-input" placeholder="marco@esempio.com" required>
-          </div>
-          <div class="form-group">
-            <label class="form-label" for="user-msg">Messaggio o Descrizione Progetto</label>
-            <textarea id="user-msg" class="form-textarea" placeholder="Descrivi la tua idea o richiedi informazioni..." required></textarea>
-          </div>
-          <button type="submit" class="form-submit-btn">
-            <span>Invia Messaggio</span>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-              <line x1="22" y1="2" x2="11" y2="13"></line>
-              <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+          <button class="back-to-top-btn touch-target" id="back-to-top" aria-label="Torna all'inizio">
+            <span>Torna all'inizio</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="19" x2="12" y2="5"></line>
+              <polyline points="5 12 12 5 19 12"></polyline>
             </svg>
           </button>
-          <div class="form-success-note" id="form-success-msg">
-            ✓ Messaggio pronto! Ti ricontatterò al più presto all'indirizzo indicato.
-          </div>
-        </form>
-      </div>
-    </div>
-  </section>
+        </div>
 
-  <!-- ════════ FOOTER CON COLLEGAMENTO INSTAGRAM ════════ -->
-  <footer>
-    <div class="footer-inner">
-      <div class="footer-left">
-        <span class="footer-brand">Gabriele Madeo</span>
-        <span class="footer-copy">© 2026 Gabriele Madeo. Tutti i diritti riservati.</span>
       </div>
+    </section>
+  </main>
 
-      <div class="footer-center">
-        <a href="https://www.instagram.com/gabrielemadeo" target="_blank" rel="noopener noreferrer" class="footer-social-link">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
-            <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
-            <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
-          </svg>
-          <span>Instagram: @gabrielemadeo</span>
-        </a>
-      </div>
-
-      <div class="footer-time" id="local-time-display">
-        Roma, IT — Ora Locale: --:--:--
-      </div>
-
-      <div class="footer-back-to-top" id="back-to-top-btn">
-        <span>Torna in Cima</span>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <polyline points="18 15 12 9 6 15"></polyline>
-        </svg>
-      </div>
-    </div>
-  </footer>
-
-  <!-- ════════ LIGHTBOX MODAL ════════ -->
-  <div id="lightbox" aria-modal="true" role="dialog">
-    <button class="lightbox-close-btn" id="lightbox-close" aria-label="Chiudi finestra">✕</button>
-    <div class="lightbox-content">
-      <img class="lightbox-img" id="lightbox-img" src="" alt="Anteprima">
+  <!-- Lightbox Modal for High-Res Inspection -->
+  <div class="lightbox-modal" id="lightbox" aria-modal="true" role="dialog" aria-hidden="true">
+    <button class="lightbox-close touch-target" id="lightbox-close" aria-label="Chiudi finestra">✕</button>
+    <div class="lightbox-img-wrap">
+      <img src="" alt="Dettaglio ad alta risoluzione" id="lightbox-target-img">
       <div class="lightbox-caption" id="lightbox-caption"></div>
     </div>
   </div>
 
-  <!-- Main Controller Script -->
-  <script>
-    /* ═══════════════════════════════════════════════════════
-       CONFIGURAZIONE GLOBALE & SELETTORI
-       ═══════════════════════════════════════════════════════ */
-    const FRAME_COUNT      = 117; // 117 frame reali presenti in img-sequence (compressed_002 a 118)
-    const PX_PER_FRAME     = window.innerWidth <= 768 ? 26 : 22;
-    const FADE_PX          = 380;
-    const TEXT_SECTION_PX  = 2400;
-
-    const S_SEQ_END        = (FRAME_COUNT - 1) * PX_PER_FRAME;
-    const S_FADE_END       = S_SEQ_END + FADE_PX;
-    const TEXT_VISIBLE_END = S_FADE_END + TEXT_SECTION_PX;
-    const SCROLL_SPACE_PX  = TEXT_VISIBLE_END + 400;
-
-    const TEXT_LINES = [
-      "catturare la luce",
-      "scolpire il tempo",
-      "raccontare emozioni",
-      "lascia un segno nella visione."
-    ];
-
-    const frameSrc = i =>
-      `img-sequence/compressed_${String(i + 2).padStart(3, '0')}.webp`;
-
-    const scrollSpace   = document.getElementById('scroll-space');
-    const heroCanvas    = document.getElementById('hero-canvas');
-    const heroVideo     = document.getElementById('hero-video');
-    const ctx           = heroCanvas ? heroCanvas.getContext('2d') : null;
-    const overlay       = document.getElementById('fade-overlay');
-    const heroHud       = document.getElementById('hero-hud');
-    const preloader     = document.getElementById('preloader');
-    const preloaderBar  = document.getElementById('preloader-bar');
-    const preloaderPct  = document.getElementById('preloader-pct');
-    const preloaderStat = document.getElementById('preloader-status');
-    const textOverlay   = document.getElementById('text-scroll-overlay');
-    const revealLineEls = [...document.querySelectorAll('.reveal-line')];
-    const cpTextEl      = document.getElementById('cp-text');
-    const navbar        = document.getElementById('navbar');
-
-    let isVideoMode = false;
-
-    function setScrollHeight() {
-      scrollSpace.style.height = (SCROLL_SPACE_PX + window.innerHeight) + 'px';
-    }
-    setScrollHeight();
-
-    const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
-    const norm  = (v, a, b) => clamp((v - a) / (b - a), 0, 1);
-
-    /* ═══════════════════════════════════════════════════════
-       CANVAS RESIZE & ASPECT-RATIO COVER LOGIC
-       ═══════════════════════════════════════════════════════ */
-    let dpr = Math.min(window.devicePixelRatio || 1, 2);
-    function resizeCanvas() {
-      if (!heroCanvas) return;
-      heroCanvas.width  = window.innerWidth * dpr;
-      heroCanvas.height = window.innerHeight * dpr;
-    }
-    resizeCanvas();
-
-    function drawCover(image) {
-      if (!ctx || !image || !image.width) return;
-      const cw = heroCanvas.width;
-      const ch = heroCanvas.height;
-      const imgRatio = image.width / image.height;
-      const canRatio = cw / ch;
-      let rw, rh, ox, oy;
-
-      if (canRatio > imgRatio) {
-        rw = cw;
-        rh = cw / imgRatio;
-        ox = 0;
-        oy = (ch - rh) / 2;
-      } else {
-        rw = ch * imgRatio;
-        rh = ch;
-        ox = (cw - rw) / 2;
-        oy = 0;
-      }
-      ctx.drawImage(image, ox, oy, rw, rh);
-    }
-
-    /* ═══════════════════════════════════════════════════════
-       FRAME PRELOADING CACHE CON SUPPORTO IMAGEBITMAP
-       ═══════════════════════════════════════════════════════ */
-    const frameCache = new Array(FRAME_COUNT);
-    let loadedCount = 0;
-
-    function updatePreloaderProgress() {
-      const pct = Math.min(100, Math.round((loadedCount / FRAME_COUNT) * 100));
-      if (preloaderBar) preloaderBar.style.width = pct + '%';
-      if (preloaderPct) preloaderPct.textContent = pct + '%';
-      if (loadedCount >= 20 && preloaderStat) {
-        preloaderStat.textContent = 'Pronto all\'esplorazione';
-      }
-    }
-
-    function loadFrame(index, priority = 'auto') {
-      if (index < 0 || index >= FRAME_COUNT) return Promise.resolve(null);
-      if (frameCache[index]) return Promise.resolve(frameCache[index]);
-
-      return new Promise((resolve) => {
-        const img = new Image();
-        img.decoding = 'async';
-        img.fetchPriority = priority;
-        img.src = frameSrc(index);
-
-        img.onload = async () => {
-          try {
-            if (window.createImageBitmap) {
-              const bmp = await createImageBitmap(img);
-              frameCache[index] = bmp;
-              loadedCount++;
-              updatePreloaderProgress();
-              resolve(bmp);
-              return;
-            }
-          } catch(e) {}
-          frameCache[index] = img;
-          loadedCount++;
-          updatePreloaderProgress();
-          resolve(img);
-        };
-        img.onerror = () => resolve(null);
-      });
-    }
-
-    async function preloadInitialSequence() {
-      for (let i = 0; i < Math.min(25, FRAME_COUNT); i++) {
-        await loadFrame(i, 'high');
-      }
-      render(0);
-
-      let cur = 25;
-      function pump() {
-        let batch = 0;
-        while (cur < FRAME_COUNT && batch < 6) {
-          loadFrame(cur, 'low');
-          cur++;
-          batch++;
-        }
-        if (cur < FRAME_COUNT) {
-          if ('requestIdleCallback' in window) {
-            requestIdleCallback(pump, { timeout: 100 });
-          } else {
-            setTimeout(pump, 30);
-          }
-        }
-      }
-      setTimeout(pump, 50);
-    }
-    preloadInitialSequence();
-
-    /* ═══════════════════════════════════════════════════════
-       PRELOADER CINEMATOGRAFICO
-       ═══════════════════════════════════════════════════════ */
-    const cpPhrases = ['Benvenuto', 'Io sono', 'GABRIELE MADEO', 'Visual Creator'];
-    let cpStep = 0;
-    function showPhrase(index) {
-      if (!cpTextEl) return;
-      cpTextEl.classList.remove('is-visible');
-      setTimeout(() => {
-        cpTextEl.textContent = cpPhrases[index];
-        cpTextEl.classList.add('is-visible');
-      }, 70);
-    }
-
-    function triggerPreloaderSplit() {
-      if (!preloader || preloader.classList.contains('is-splitting')) return;
-      preloader.classList.add('is-splitting');
-      setTimeout(() => {
-        preloader.classList.add('is-hidden');
-      }, 1100);
-    }
-
-    function startCinematicLoader() {
-      if (!cpTextEl) return;
-      cpTextEl.textContent = cpPhrases[0];
-      cpTextEl.classList.add('is-visible');
-      const DELAY = 800;
-      function advance() {
-        cpStep += 1;
-        if (cpStep < cpPhrases.length) {
-          showPhrase(cpStep);
-          setTimeout(advance, DELAY);
-        } else {
-          setTimeout(triggerPreloaderSplit, 900);
-        }
-      }
-      setTimeout(advance, DELAY);
-    }
-    startCinematicLoader();
-
-    const skipBtn = document.getElementById('preloader-skip');
-    if (skipBtn) {
-      skipBtn.addEventListener('click', triggerPreloaderSplit);
-    }
-
-    /* ═══════════════════════════════════════════════════════
-       TEXT REVEAL BUILDER
-       ═══════════════════════════════════════════════════════ */
-    function buildTextReveal() {
-      revealLineEls.forEach((lineEl, lineIndex) => {
-        const text  = TEXT_LINES[lineIndex] || '';
-        const words = text.split(' ').map(w => w.trim()).filter(Boolean);
-        const ghost = lineEl.querySelector('.ghost-line');
-        const fill  = lineEl.querySelector('.fill-line');
-        if (!ghost || !fill) return;
-        ghost.innerHTML = ''; fill.innerHTML = '';
-        words.forEach((word, wordIndex) => {
-          const gw = document.createElement('span');
-          gw.className = 'word'; gw.textContent = word; ghost.appendChild(gw);
-          const fw = document.createElement('span');
-          fw.className = 'word'; fw.textContent = word;
-          fw.dataset.index = String(wordIndex); fw.dataset.line = String(lineIndex);
-          fill.appendChild(fw);
-        });
-      });
-    }
-    buildTextReveal();
-
-    function updateTextReveal(scrollY) {
-      const overlayIn  = S_FADE_END + 50;
-      const overlayOut = TEXT_VISIBLE_END;
-      textOverlay.classList.toggle('is-visible', scrollY >= overlayIn && scrollY <= overlayOut);
-      const globalProgress = norm(scrollY, S_FADE_END + 100, TEXT_VISIBLE_END);
-
-      revealLineEls.forEach((lineEl, lineIndex) => {
-        const fillWords  = [...lineEl.querySelectorAll('.fill-line .word')];
-        const total      = fillWords.length;
-        const linesCount = revealLineEls.length;
-        const lineStart  = lineIndex / linesCount;
-        const lineEnd    = (lineIndex + 1) / linesCount;
-        const lineProgress = clamp((globalProgress - lineStart) / (lineEnd - lineStart), 0, 1);
-
-        fillWords.forEach((wordEl, wordIndex) => {
-          const wordSpan = 1 / total;
-          const wordStart = wordIndex * wordSpan;
-          const wordEnd   = wordStart + wordSpan * 0.75;
-          const t = clamp((lineProgress - wordStart) / (wordEnd - wordStart), 0, 1);
-          const ch = Math.round(75 + (255 - 75) * t);
-          wordEl.style.color     = `rgb(${ch},${ch},${ch})`;
-          wordEl.style.opacity   = String(0.15 + t * 0.85);
-          wordEl.style.filter    = `blur(${(1 - t) * 1.8}px)`;
-          wordEl.style.transform = `translateY(${(1 - t) * 6}px)`;
-        });
-        lineEl.style.opacity   = String(lineProgress > 0.01 ? (0.25 + lineProgress * 0.75) : 0.2);
-        lineEl.style.transform = `translateY(${Math.max(0, 10 - lineProgress * 10)}px)`;
-      });
-    }
-
-    /* ═══════════════════════════════════════════════════════
-       RENDER TICK PER SEQUENZA E OVERLAY
-       ═══════════════════════════════════════════════════════ */
-    let lastDrawnFrame = -1;
-
-    function frameIndexFor(scrollY) {
-      if (scrollY >= S_SEQ_END) return FRAME_COUNT - 1;
-      return Math.round(clamp(scrollY / S_SEQ_END, 0, 1) * (FRAME_COUNT - 1));
-    }
-
-    function render(scrollY) {
-      const frameIdx = frameIndexFor(scrollY);
-
-      if (!isVideoMode && heroCanvas) {
-        if (frameCache[frameIdx]) {
-          drawCover(frameCache[frameIdx]);
-          lastDrawnFrame = frameIdx;
-        } else if (lastDrawnFrame === -1) {
-          for (let f = 0; f < FRAME_COUNT; f++) {
-            if (frameCache[f]) { drawCover(frameCache[f]); lastDrawnFrame = f; break; }
-          }
-        }
-      }
-
-      if (heroHud) {
-        heroHud.classList.toggle('hidden', scrollY > 120);
-      }
-
-      if (scrollY < S_SEQ_END) {
-        overlay.style.opacity = '0';
-        heroCanvas.style.opacity = '1';
-        textOverlay.classList.remove('is-visible');
-      } else if (scrollY < S_FADE_END) {
-        overlay.style.opacity = norm(scrollY, S_SEQ_END, S_FADE_END).toFixed(3);
-        heroCanvas.style.opacity = '1';
-        textOverlay.classList.remove('is-visible');
-      } else {
-        overlay.style.opacity = '0';
-        heroCanvas.style.opacity = '0';
-      }
-
-      updateTextReveal(scrollY);
-
-      if (navbar) {
-        navbar.classList.toggle('scrolled', scrollY > 80);
-      }
-    }
-
-    /* ═══════════════════════════════════════════════════════
-       SMOOTH LERP SCROLL LOOP (60/120 FPS)
-       ═══════════════════════════════════════════════════════ */
-    let targetScrollY = window.scrollY || 0;
-    let currentScrollY = targetScrollY;
-    let isRunning = false;
-
-    function loop() {
-      const delta = targetScrollY - currentScrollY;
-      const ease  = Math.abs(delta) > 120 ? 0.12 : 0.15;
-      if (Math.abs(delta) > 0.08) {
-        currentScrollY += delta * ease;
-      } else {
-        currentScrollY = targetScrollY;
-      }
-      render(currentScrollY);
-
-      if (Math.abs(targetScrollY - currentScrollY) > 0.08) {
-        requestAnimationFrame(loop);
-      } else {
-        isRunning = false;
-        render(targetScrollY);
-      }
-    }
-
-    function startLoop() {
-      if (isRunning) return;
-      isRunning = true;
-      requestAnimationFrame(loop);
-    }
-
-    window.addEventListener('scroll', () => {
-      targetScrollY = window.scrollY || 0;
-      if (targetScrollY <= SCROLL_SPACE_PX + 200) {
-        startLoop();
-      }
-    }, { passive: true });
-
-    window.addEventListener('resize', () => {
-      dpr = Math.min(window.devicePixelRatio || 1, 2);
-      resizeCanvas();
-      setScrollHeight();
-      buildTextReveal();
-      targetScrollY = currentScrollY = window.scrollY || 0;
-      render(currentScrollY);
-      startLoop();
-    }, { passive: true });
-
-    /* ═══════════════════════════════════════════════════════
-       CUSTOM PHOTO CURSOR
-       ═══════════════════════════════════════════════════════ */
-    const photoCursor = document.getElementById('photo-cursor');
-    const photoCursorRing = document.getElementById('photo-cursor-ring');
-
-    if (photoCursor && photoCursorRing && window.matchMedia('(hover: hover)').matches) {
-      let mx = window.innerWidth / 2, my = window.innerHeight / 2;
-      let rx = mx, ry = my;
-
-      window.addEventListener('mousemove', e => {
-        mx = e.clientX;
-        my = e.clientY;
-        photoCursor.style.transform = `translate3d(${mx}px, ${my}px, 0) translate(-50%, -50%)`;
-      }, { passive: true });
-
-      function animateRing() {
-        rx += (mx - rx) * 0.16;
-        ry += (my - ry) * 0.16;
-        photoCursorRing.style.transform = `translate3d(${rx}px, ${ry}px, 0) translate(-50%, -50%)`;
-        requestAnimationFrame(animateRing);
-      }
-      animateRing();
-
-      const hoverTargets = 'a, button, .zp-card, #zp-hero-card, .gallery-item, .channel-item, input, textarea';
-      document.querySelectorAll(hoverTargets).forEach(el => {
-        el.addEventListener('mouseenter', () => document.body.classList.add('hovering'));
-        el.addEventListener('mouseleave', () => document.body.classList.remove('hovering'));
-      });
-    }
-
-    /* ═══════════════════════════════════════════════════════
-       MODE SWITCHER: CANVAS / VIDEO
-       ═══════════════════════════════════════════════════════ */
-    const modeBtn = document.getElementById('mode-toggle-btn');
-    if (modeBtn && heroVideo) {
-      modeBtn.addEventListener('click', () => {
-        isVideoMode = !isVideoMode;
-        if (isVideoMode) {
-          heroVideo.classList.add('is-active');
-          heroCanvas.style.display = 'none';
-          heroVideo.play().catch(() => {});
-          modeBtn.style.background = '#ffffff';
-          modeBtn.style.color = '#000000';
-        } else {
-          heroVideo.classList.remove('is-active');
-          heroCanvas.style.display = 'block';
-          heroVideo.pause();
-          modeBtn.style.background = '';
-          modeBtn.style.color = '';
-          render(currentScrollY);
-        }
-      });
-    }
-
-    /* ═══════════════════════════════════════════════════════
-       INTERACTIVE LIGHTBOX
-       ═══════════════════════════════════════════════════════ */
-    const lightbox        = document.getElementById('lightbox');
-    const lightboxImg     = document.getElementById('lightbox-img');
-    const lightboxCaption = document.getElementById('lightbox-caption');
-    const lightboxClose   = document.getElementById('lightbox-close');
-
-    function openLightbox(src, caption) {
-      if (!lightbox || !lightboxImg) return;
-      lightboxImg.src = src;
-      lightboxCaption.textContent = caption || 'Gabriele Madeo Photography';
-      lightbox.classList.add('active');
-      document.body.style.overflow = 'hidden';
-    }
-
-    function closeLightbox() {
-      if (!lightbox) return;
-      lightbox.classList.remove('active');
-      document.body.style.overflow = '';
-      setTimeout(() => { if (lightboxImg) lightboxImg.src = ''; }, 350);
-    }
-
-    if (lightboxClose) lightboxClose.addEventListener('click', closeLightbox);
-    if (lightbox) {
-      lightbox.addEventListener('click', e => {
-        if (e.target === lightbox) closeLightbox();
-      });
-    }
-    window.addEventListener('keydown', e => {
-      if (e.key === 'Escape') closeLightbox();
-    });
-
-    document.querySelectorAll('.zp-card, #zp-hero-card, .gallery-item').forEach(card => {
-      card.addEventListener('click', () => {
-        const src = card.dataset.img || card.querySelector('img')?.src;
-        const cap = card.dataset.title || card.querySelector('.gallery-item-title')?.textContent;
-        if (src) openLightbox(src, cap);
-      });
-    });
-
-    /* ═══════════════════════════════════════════════════════
-       COPY EMAIL & CONTACT FORM
-       ═══════════════════════════════════════════════════════ */
-    const copyEmailBtn = document.getElementById('copy-email-btn');
-    if (copyEmailBtn) {
-      copyEmailBtn.addEventListener('click', () => {
-        const email = copyEmailBtn.dataset.email;
-        navigator.clipboard.writeText(email).then(() => {
-          copyEmailBtn.textContent = 'Copiato! ✓';
-          setTimeout(() => { copyEmailBtn.textContent = 'Copia'; }, 2200);
-        });
-      });
-    }
-
-    window.submitContactForm = function() {
-      const name = document.getElementById('user-name')?.value;
-      const msg = document.getElementById('form-success-msg');
-      if (msg) {
-        msg.style.display = 'block';
-        msg.textContent = `Grazie ${name || ''}! Il messaggio è stato registrato. Ti ricontatterò al più presto.`;
-      }
-      const form = document.getElementById('contact-form');
-      if (form) form.reset();
-    };
-
-    /* ═══════════════════════════════════════════════════════
-       FOOTER TIME & BACK TO TOP
-       ═══════════════════════════════════════════════════════ */
-    function updateClock() {
-      const timeEl = document.getElementById('local-time-display');
-      if (!timeEl) return;
-      const now = new Date();
-      const options = { timeZone: 'Europe/Rome', hour: '2-digit', minute: '2-digit', second: '2-digit' };
-      timeEl.textContent = `Roma, IT — Ora Locale: ${now.toLocaleTimeString('it-IT', options)} CET`;
-    }
-    setInterval(updateClock, 1000);
-    updateClock();
-
-    const btt = document.getElementById('back-to-top-btn');
-    if (btt) {
-      btt.addEventListener('click', () => {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      });
-    }
-  </script>
-
-  <!-- Zoom Parallax GSAP Module -->
+  <!-- Smooth Motion & Interaction Controller -->
   <script src="zoom-parallax.js" defer></script>
-
 </body>
 </html>
