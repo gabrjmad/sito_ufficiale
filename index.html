@@ -4,13 +4,13 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>GABRIELE MADEO — Visual Narrative & Experiential Journey</title>
-  <meta name="description" content="Esperienza visiva a scorrimento continuo di Gabriele Madeo: fotografia, sequenze cinematografiche e profondità spaziale." />
+  <meta name="description" content="Esperienza visiva a scorrimento continuo di Gabriele Madeo: fotografia cinematografica, sequenze dinamiche ad alte prestazioni e profondità spaziale." />
 
   <!-- Open Graph -->
   <meta property="og:title" content="GABRIELE MADEO" />
   <meta property="og:description" content="Esperienza a scorrimento continuo, fotografia e cinematica." />
   <meta property="og:type" content="website" />
-  <meta property="og:image" content="foto_sito_personale/foto_3.png" />
+  <meta property="og:image" content="foto_sito_personale/foto_3.webp" />
 
   <!-- Google Fonts: Syne & Plus Jakarta Sans -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -25,12 +25,18 @@
   <!-- Preload Essential Starting Assets -->
   <link rel="preload" as="image" href="clouds_panorama.webp" type="image/webp" />
   <link rel="preload" as="image" href="img-sequence/compressed_002.webp" type="image/webp" />
-  <link rel="preload" as="image" href="foto_sito_personale/foto_1.png" type="image/png" />
+  <link rel="preload" as="image" href="foto_sito_personale/foto_1.webp" type="image/webp" />
 
-  <!-- Stylesheet -->
+  <!-- Modular Stylesheet -->
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+
+  <!-- ══════════════════════════════════════════════════════════
+       0. PUNTATORE SLEEK CON DISSOLVENZA / AURA CHE SEGUE
+       ══════════════════════════════════════════════════════════ -->
+  <div class="pointer-dot" id="pointer-dot" aria-hidden="true"></div>
+  <div class="pointer-trail" id="pointer-trail" aria-hidden="true"></div>
 
   <!-- ══════════════════════════════════════════════════════════
        1. LOADER CON LINEA ORIZZONTALE E SCHERMO CHE SI DIVIDE IN DUE
@@ -52,7 +58,7 @@
     <div id="smooth-content">
 
       <!-- ══════════════════════════════════════════════════════════
-           2. CIELO CON NUVOLE IN MOVIMENTO & INTRO
+           2. CIELO CON NUVOLE IN MOVIMENTO & INTRO NOME CENTRALE
            ══════════════════════════════════════════════════════════ -->
       <section class="sky-intro-section" id="sky-intro">
         <div class="sky-background-layer" id="sky-bg"></div>
@@ -62,11 +68,11 @@
 
         <div class="sky-content" id="sky-content">
           <h1 class="sky-title">GABRIELE MADEO</h1>
-          <p class="sky-subtitle">Visual Creator & Spatial Photography</p>
+          <p class="sky-subtitle">Visual Creator & Cinematography</p>
           
           <div class="scroll-indicator">
             <div class="line"></div>
-            <span>Scorri per immergerti</span>
+            <span>Scorri per iniziare</span>
           </div>
         </div>
       </section>
@@ -80,74 +86,79 @@
           <canvas id="canvas-seq-1" class="sequence-canvas"></canvas>
           <div class="sequence-dark-fade-overlay" id="seq-1-fade"></div>
         </div>
-        <!-- Traccia di scroll virtuale che pilota la sequenza -->
-        <div id="seq-1-track"></div>
       </section>
 
       <!-- ══════════════════════════════════════════════════════════
-           4. SEZIONE BIO: FOTO_1 FISSA SULLA DESTRA + TESTI A SINISTRA
+           4. SEZIONE BIO CON FOTO_1.PNG PINNATA A DESTRA E TESTI A SINISTRA
            ══════════════════════════════════════════════════════════ -->
-      <section class="bio-experience-section" id="bio-section">
-        <div class="bio-sticky-wrapper">
-          
-          <!-- Colonna Sinistra: Blocchi di testo a comparsa sequenziale -->
-          <div class="bio-text-column">
-            
-            <div class="bio-block" id="bio-block-1">
-              <span class="bio-label">01 // VISIONE</span>
-              <h2 class="bio-heading">Lo sguardo che cerca l'invisibile.</h2>
-              <p class="bio-paragraph">
-                Mi chiamo Gabriele Madeo. Questo spazio non è una vetrina di servizi né una lista di competenze: è un racconto intimo tra luce, materia e silenzi.
+      <section class="bio-story-section" id="bio-section">
+        <div class="bio-sticky-grid" id="bio-sticky">
+          <!-- Colonna Sinistra: Testi narrativi in dissolvenza sequenziale -->
+          <div class="bio-narrative-col">
+            <!-- Blocco 1 -->
+            <div class="bio-text-block" id="bio-text-1">
+              <span class="bio-index">01 // IDENTITÀ</span>
+              <h2 class="bio-quote">Catturare ciò che sfugge allo sguardo ordinario.</h2>
+              <p class="bio-desc-text">
+                Mi chiamo Gabriele Madeo. Questo spazio non è una vetrina aziendale o un curriculum, ma un percorso visivo puro, fatto di geometrie, ritmo e contrasti.
               </p>
             </div>
 
-            <div class="bio-block" id="bio-block-2">
-              <span class="bio-label">02 // APPROCCIO</span>
-              <h2 class="bio-heading">Catturare l'istante autentico.</h2>
-              <p class="bio-paragraph">
-                Ogni immagine nasce da un dialogo con lo spazio. La fotografia per me non è decorazione, ma architettura delle emozioni e composizione senza filtri.
+            <!-- Blocco 2 -->
+            <div class="bio-text-block" id="bio-text-2">
+              <span class="bio-index">02 // VISIONE</span>
+              <h2 class="bio-quote">La composizione come linguaggio emotivo.</h2>
+              <p class="bio-desc-text">
+                Non cerco la perfezione formale fine a sé stessa, ma l'impatto autentico di un singolo istante che si dilata e respira nel tempo.
               </p>
             </div>
 
-            <div class="bio-block" id="bio-block-3">
-              <span class="bio-label">03 // PERCORSO</span>
-              <h2 class="bio-heading">Un unico flusso continuo.</h2>
-              <p class="bio-paragraph">
-                Dall'altezza del cielo alla profondità della terra. Ogni scorrimento è un passo dentro una narrazione visiva che non conosce interruzioni.
+            <!-- Blocco 3 -->
+            <div class="bio-text-block" id="bio-text-3">
+              <span class="bio-index">03 // MATERIA</span>
+              <h2 class="bio-quote">Dall'obiettivo al codice.</h2>
+              <p class="bio-desc-text">
+                Un'esperienza ininterrotta a 60 frame al secondo dove la fotografia cinematografica si fonde con interazioni web ad altissima fluidità.
               </p>
             </div>
-
           </div>
 
-          <!-- Colonna Destra: foto_1.png (sfondo trasparente) pinnata con floating -->
-          <div class="bio-photo-column">
-            <img src="foto_sito_personale/foto_1.png" alt="Gabriele Madeo" class="bio-cutout-img" id="bio-photo-1" loading="eager" />
+          <!-- Colonna Destra: foto_1.png (trasparente con floating parallax) -->
+          <div class="bio-figure-col" id="bio-figure-col">
+            <picture>
+              <source srcset="foto_sito_personale/foto_1.webp" type="image/webp">
+              <img src="foto_sito_personale/foto_1.png" alt="Gabriele Madeo" class="bio-floating-figure" id="bio-photo-1" />
+            </picture>
           </div>
-
         </div>
       </section>
 
       <!-- ══════════════════════════════════════════════════════════
-           5. TRANSIZIONE VERSO FOTO_2 (PANORAMICA) E FOTO_3 (VOLTO TRASPARENTE)
+           5. TRANSIZIONE VERSO FOTO_2 (PANORAMICA) E FOTO_3 (VOLTO)
            ══════════════════════════════════════════════════════════ -->
-      <section class="photos-transition-stage" id="photos-transition-section">
-        <div class="photos-sticky-frame">
-          
-          <!-- foto_2.png (Panoramica con zoom slow-motion e soft clip mask) -->
-          <div class="photo-fullscreen-layer" id="layer-photo-2">
-            <img src="foto_sito_personale/foto_2.png" alt="Scatto Panoramico" loading="lazy" />
+      <section class="trans-panoramic-section" id="trans-2-3-section">
+        <div class="trans-sticky-frame">
+          <!-- Foto 2: Panoramica con zoom slow-motion e soft reveal -->
+          <div class="pane-panoramic-2" id="pane-photo-2">
+            <picture>
+              <source srcset="foto_sito_personale/foto_2.webp" type="image/webp">
+              <img src="foto_sito_personale/foto_2.png" alt="Panoramica — Foto 2" />
+            </picture>
+            <div class="vignette-cinematic"></div>
           </div>
 
-          <!-- foto_3.png (Primo piano del volto, trasparente, integrato morbidamente) -->
-          <div class="photo-fullscreen-layer" id="layer-photo-3">
-            <img src="foto_sito_personale/foto_3.png" alt="Primo Piano Volto" class="photo-face-cutout" id="img-face-3" loading="lazy" />
+          <!-- Foto 3: Primo piano volto con trasparenza -->
+          <div class="pane-face-3" id="pane-face-3">
+            <picture>
+              <source srcset="foto_sito_personale/foto_3.webp" type="image/webp">
+              <img src="foto_sito_personale/foto_3.png" alt="Primo piano — Foto 3" id="img-face-3" />
+            </picture>
           </div>
-
         </div>
       </section>
 
       <!-- ══════════════════════════════════════════════════════════
-           6. SEQUENZA DI IMMAGINI 2: ZOOM NELL'OCCHIO -> FOTO_4 (URBANO NOTTURNO)
+           6. SEQUENZA 2: CANVAS ZOOM NELL'OCCHIO -> FOTO_4
            ══════════════════════════════════════════════════════════ -->
       <section class="eye-sequence-section" id="eye-sequence-section">
         <div class="eye-sticky-stage" id="eye-sticky">
@@ -156,7 +167,11 @@
           
           <!-- Riemersione e svelamento progressivo di foto_4.png (paesaggio notturno) -->
           <div class="night-city-reveal" id="night-city-reveal">
-            <img src="foto_sito_personale/foto_4.png" alt="Paesaggio Urbano Notturno" loading="lazy" />
+            <picture>
+              <source srcset="foto_sito_personale/foto_4.webp" type="image/webp">
+              <img src="foto_sito_personale/foto_4.png" alt="Paesaggio Urbano Notturno — Foto 4" loading="lazy" />
+            </picture>
+            <div class="vignette-cinematic"></div>
           </div>
         </div>
       </section>
@@ -169,23 +184,38 @@
         <!-- FOTO_5: Spiaggia (Parallax intensivo + de-blur progressivo che si nitidizza) -->
         <div class="gallery-immersive-frame" id="frame-photo-5">
           <div class="gallery-inner-wrap">
-            <img src="foto_sito_personale/foto_5.jpg" alt="Spiaggia" id="img-photo-5" loading="lazy" />
+            <picture>
+              <source srcset="foto_sito_personale/foto_5.webp" type="image/webp">
+              <img src="foto_sito_personale/foto_5.jpg" alt="Spiaggia — Foto 5" id="img-photo-5" loading="lazy" />
+            </picture>
             <div class="vignette-cinematic"></div>
           </div>
         </div>
 
-        <!-- FOTO_6: Scogliera (Espansione a tutto schermo e potenza geometrica) -->
+        <!-- FOTO_6: Scogliera (Espansione a tutto schermo) -->
         <div class="gallery-immersive-frame" id="frame-photo-6">
           <div class="gallery-inner-wrap">
-            <img src="foto_sito_personale/foto_6.jpg" alt="Scogliera" id="img-photo-6" loading="lazy" />
+            <picture>
+              <source srcset="foto_sito_personale/foto_6.webp" type="image/webp">
+              <img src="foto_sito_personale/foto_6.jpg" alt="Scogliera — Foto 6" id="img-photo-6" loading="lazy" />
+            </picture>
             <div class="vignette-cinematic"></div>
           </div>
         </div>
 
-        <!-- FOTO_7: Ragazzo al tramonto (Sfondo trasparente, silhouette dorata) -->
+        <!-- FOTO_7: Ragazzo al tramonto (Sfondo trasparente, silhouette dorata con 3D parallax) -->
         <div class="gallery-immersive-frame" id="frame-photo-7">
           <div class="gallery-inner-wrap">
-            <img src="foto_sito_personale/foto_7.png" alt="Tramonto" class="sunset-cutout-img" id="img-photo-7" loading="lazy" />
+            <!-- Sfondo paesaggio complementare -->
+            <picture>
+              <source srcset="foto_sito_personale/foto_6.webp" type="image/webp">
+              <img src="foto_sito_personale/foto_6.jpg" alt="Sfondo tramonto" style="filter: brightness(0.65) saturate(1.2);" loading="lazy" />
+            </picture>
+            <!-- Cutout in primo piano -->
+            <picture>
+              <source srcset="foto_sito_personale/foto_7.webp" type="image/webp">
+              <img src="foto_sito_personale/foto_7.png" alt="Ragazzo al tramonto — Foto 7" class="sunset-cutout-img" id="img-photo-7" loading="lazy" />
+            </picture>
             <div class="vignette-cinematic"></div>
           </div>
         </div>
@@ -204,7 +234,7 @@
           <a href="https://www.instagram.com/gabrielemadeo" target="_blank" rel="noopener noreferrer" class="instagram-master-card" id="ig-card">
             <div class="ig-profile-wrap">
               <div class="ig-avatar-ring">
-                <img src="foto_sito_personale/foto_3.png" alt="Gabriele Madeo" class="ig-avatar-img" />
+                <img src="foto_sito_personale/foto_3.webp" alt="Gabriele Madeo" class="ig-avatar-img" />
               </div>
               <div>
                 <span class="ig-handle-name">@gabrielemadeo</span>
@@ -224,7 +254,7 @@
           <!-- Bottom bar -->
           <div class="footer-bottom-bar">
             <span class="footer-copy">© 2026 Gabriele Madeo — Esperienza a scorrimento continuo.</span>
-            <button class="back-to-top-button" id="btn-back-to-top" aria-label="Torna all'inizio">
+            <button class="back-to-top-button touch-interactive" id="btn-back-to-top" aria-label="Torna all'inizio">
               <span>Torna all'inizio</span>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <line x1="12" y1="19" x2="12" y2="5"></line>

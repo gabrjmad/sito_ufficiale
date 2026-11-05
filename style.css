@@ -3,13 +3,13 @@
    ═══════════════════════════════════════════════════════════════ */
 
 :root {
-  --bg-deep: #08080a;
+  --bg-deep: #07070a;
   --bg-black: #000000;
   --text-main: #f5f4f0;
-  --text-muted: rgba(245, 244, 240, 0.65);
-  --text-dim: rgba(245, 244, 240, 0.35);
+  --text-muted: rgba(245, 244, 240, 0.68);
+  --text-dim: rgba(245, 244, 240, 0.38);
   --accent-gold: #e4d5c3;
-  --accent-glow: rgba(228, 213, 195, 0.2);
+  --accent-glow: rgba(228, 213, 195, 0.22);
   
   --font-display: 'Syne', sans-serif;
   --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -25,7 +25,7 @@
 }
 
 html, body {
-  background: var(--bg-deep);
+  background: var(--bg-black);
   color: var(--text-main);
   font-family: var(--font-sans);
   overflow-x: hidden;
@@ -44,7 +44,59 @@ a {
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   1. LOADER CON LINEA ORIZZONTALE E TENDE CHE SI APRONO IN DUE
+   PUNTATORE SLEEK CON DISSOLVENZA / AURA CHE SEGUE (NO IMMAGINE)
+   ═══════════════════════════════════════════════════════════════ */
+@media (hover: hover) and (pointer: fine) {
+  body, a, button, .touch-interactive, .instagram-master-card {
+    cursor: none !important;
+  }
+}
+
+.pointer-dot {
+  position: fixed;
+  top: 0; left: 0;
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.9);
+  pointer-events: none;
+  z-index: 100000;
+  transform: translate3d(-50%, -50%, 0);
+  will-change: transform;
+  transition: width 0.25s var(--ease-smooth), height 0.25s var(--ease-smooth), background-color 0.2s;
+}
+
+/* Scia / dissolvenza fluida che segue il cursore con morbida inerzia */
+.pointer-trail {
+  position: fixed;
+  top: 0; left: 0;
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 99999;
+  transform: translate3d(-50%, -50%, 0);
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.24) 0%, rgba(255, 255, 255, 0.08) 45%, rgba(255, 255, 255, 0) 70%);
+  filter: blur(2px);
+  will-change: transform, width, height, opacity;
+  transition: width 0.3s var(--ease-smooth), height 0.3s var(--ease-smooth), opacity 0.3s;
+}
+
+body.pointer-hover .pointer-dot {
+  width: 13px; height: 13px;
+  background: var(--accent-gold);
+  box-shadow: 0 0 16px rgba(228, 213, 195, 0.95);
+}
+body.pointer-hover .pointer-trail {
+  width: 66px; height: 66px;
+  background: radial-gradient(circle, rgba(228, 213, 195, 0.35) 0%, rgba(228, 213, 195, 0.12) 50%, rgba(228, 213, 195, 0) 75%);
+}
+
+@media (hover: none) or (pointer: coarse) {
+  .pointer-dot, .pointer-trail { display: none !important; }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   1. LOADER CON LINEA ORIZZONTALE E SCHERMO CHE SI DIVIDE IN DUE
    ═══════════════════════════════════════════════════════════════ */
 #preloader {
   position: fixed;
@@ -52,7 +104,7 @@ a {
   width: 100vw;
   height: 100vh;
   height: 100dvh;
-  z-index: 10000;
+  z-index: 90000;
   pointer-events: auto;
   overflow: hidden;
 }
@@ -61,27 +113,20 @@ a {
   position: absolute;
   left: 0; right: 0;
   width: 100%;
-  height: 50.5%; /* small overlap prevents 1px gap */
-  background: #09090c;
+  height: 50.5%;
+  background: #08080b;
   will-change: transform;
-  transition: transform 0.9s cubic-bezier(0.77, 0, 0.175, 1);
+  z-index: 1;
 }
 .curtain-top {
   top: 0;
   transform-origin: top center;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 .curtain-bottom {
   bottom: 0;
   transform-origin: bottom center;
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-#preloader.is-opened .curtain-top {
-  transform: translateY(-100%);
-}
-#preloader.is-opened .curtain-bottom {
-  transform: translateY(100%);
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .loader-center-content {
@@ -93,7 +138,7 @@ a {
   align-items: center;
   gap: 16px;
   z-index: 2;
-  transition: opacity 0.4s ease;
+  transition: opacity 0.4s var(--ease-smooth);
 }
 #preloader.is-opened .loader-center-content {
   opacity: 0;
@@ -110,9 +155,9 @@ a {
 }
 
 .loader-line-track {
-  width: min(280px, 70vw);
+  width: min(260px, 70vw);
   height: 2px;
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.12);
   border-radius: 999px;
   overflow: hidden;
   position: relative;
@@ -125,7 +170,7 @@ a {
   width: 0%;
   background: linear-gradient(90deg, #ffffff, var(--accent-gold));
   box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
-  transition: width 0.15s linear;
+  transition: width 0.12s linear;
 }
 
 .loader-percent {
@@ -133,11 +178,12 @@ a {
   font-size: 0.72rem;
   letter-spacing: 0.14em;
   color: var(--text-dim);
+  font-variant-numeric: tabular-nums;
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   2. CIELO CON NUVOLE IN MOVIMENTO & INTRO
-   ═══════════════════════════════════════════════════════════════ */
+   2. CIELO CON NUVOLE IN MOVIMENTO & NOME AL CENTRO
+   ═══════════════════════════════════════════════════════ */
 .sky-intro-section {
   position: relative;
   width: 100%;
@@ -148,302 +194,281 @@ a {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  z-index: 5;
+  z-index: 10;
+  background: radial-gradient(circle at 50% 35%, #182740 0%, #0c1626 50%, #060b13 85%, #030508 100%);
 }
 
 .sky-background-layer {
   position: absolute;
-  inset: -10%;
-  width: 120%;
-  height: 120%;
-  background: radial-gradient(circle at 50% 35%, #2a4b7c 0%, #172740 45%, #0d1726 80%, #08080a 100%);
+  inset: -15%;
+  width: 130%;
+  height: 130%;
+  background-image: url('clouds_panorama.webp'), url('clouds_panorama.png');
   background-size: cover;
-  background-position: center;
-  z-index: 1;
+  background-position: center 30%;
+  opacity: 0.72;
+  filter: blur(1px);
   will-change: transform;
+  animation: cloudPanoramaDrift 40s infinite alternate ease-in-out;
+}
+@keyframes cloudPanoramaDrift {
+  0% { transform: scale(1.05) translate3d(-20px, 0, 0); }
+  100% { transform: scale(1.15) translate3d(20px, -15px, 0); }
 }
 
-/* Texture nuvole panoramiche con deriva continua */
 .sky-clouds-drift {
   position: absolute;
   inset: 0;
-  background-image: url('clouds_panorama.webp');
-  background-repeat: repeat-x;
-  background-position: 0% 20%;
-  background-size: auto 60%;
-  opacity: 0.55;
-  mix-blend-mode: screen;
-  filter: blur(1px);
-  animation: cloudDrift 90s linear infinite;
-  z-index: 2;
-  will-change: transform;
-}
-@keyframes cloudDrift {
-  from { background-position: 0% 20%; }
-  to   { background-position: 2000px 20%; }
+  pointer-events: none;
+  overflow: hidden;
 }
 
 .sky-cloud-fluff {
   position: absolute;
-  border-radius: 50%;
+  background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0) 70%);
   filter: blur(35px);
+  border-radius: 50%;
   pointer-events: none;
-  z-index: 3;
   will-change: transform;
 }
 .fluff-1 {
-  width: 70vw; height: 50vh;
-  top: 10%; left: -15%;
-  background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.45) 0%, rgba(200, 225, 255, 0.15) 50%, transparent 70%);
+  width: 70vw; height: 35vh;
+  top: 15%; left: -20%;
+  animation: fluffDrift1 30s infinite linear;
 }
 .fluff-2 {
-  width: 80vw; height: 60vh;
-  bottom: 0%; right: -20%;
-  background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.4) 0%, rgba(200, 220, 250, 0.12) 50%, transparent 70%);
+  width: 80vw; height: 40vh;
+  bottom: 20%; right: -25%;
+  animation: fluffDrift2 36s infinite linear;
 }
+@keyframes fluffDrift1 { 0% { transform: translateX(0); } 100% { transform: translateX(35vw); } }
+@keyframes fluffDrift2 { 0% { transform: translateX(0); } 100% { transform: translateX(-35vw); } }
 
 .sky-content {
   position: relative;
-  z-index: 10;
+  z-index: 5;
   text-align: center;
-  padding: 0 20px;
+  padding: 0 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  will-change: transform, opacity;
 }
 
 .sky-title {
   font-family: var(--font-display);
-  font-size: clamp(2.8rem, 9.5vw, 7.5rem);
+  font-size: clamp(3.2rem, 11vw, 8.5rem);
   font-weight: 900;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
+  line-height: 0.95;
   color: #ffffff;
-  line-height: 1;
-  margin-right: -0.18em;
-  text-shadow: 0 10px 40px rgba(0, 0, 0, 0.8), 0 0 30px rgba(255, 255, 255, 0.25);
-  margin-bottom: 16px;
-  will-change: transform, opacity;
+  margin-right: -0.14em;
+  text-shadow: 0 10px 40px rgba(0, 0, 0, 0.8), 0 0 50px rgba(255, 255, 255, 0.12);
 }
 
 .sky-subtitle {
-  font-family: var(--font-sans);
-  font-size: clamp(0.75rem, 2vw, 1rem);
-  font-weight: 500;
-  letter-spacing: 0.32em;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.28em;
   text-transform: uppercase;
   color: var(--accent-gold);
-  margin-bottom: 40px;
-  opacity: 0.9;
 }
 
 .scroll-indicator {
-  display: inline-flex;
+  margin-top: 28px;
+  display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   font-size: 0.72rem;
-  letter-spacing: 0.24em;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--text-dim);
 }
 .scroll-indicator .line {
   width: 1px;
-  height: 40px;
-  background: rgba(255, 255, 255, 0.2);
-  position: relative;
-  overflow: hidden;
+  height: 38px;
+  background: linear-gradient(to bottom, #ffffff 0%, rgba(255, 255, 255, 0) 100%);
+  animation: scrollCuePulse 2s infinite ease-in-out;
 }
-.scroll-indicator .line::after {
-  content: '';
-  position: absolute;
-  top: 0; left: 0;
-  width: 100%; height: 50%;
-  background: #ffffff;
-  animation: scrollDown 2s infinite ease-in-out;
-}
-@keyframes scrollDown {
-  0%   { transform: translateY(-100%); }
-  100% { transform: translateY(200%); }
+@keyframes scrollCuePulse {
+  0%, 100% { opacity: 0.3; transform: scaleY(0.7); }
+  50% { opacity: 1; transform: scaleY(1); }
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   3. STAGE CANVAS: SEQUENZA 1 (IL TUFFO/CADUTA)
+   3. SEQUENZA 1 (IL TUFFO / CADUTA) & CANVAS GPU PERFORMANCE
    ═══════════════════════════════════════════════════════════════ */
 .sequence-viewport-container {
   position: relative;
   width: 100%;
+  height: 380vh; /* Traccia virtuale di scroll per scrub fluido */
+  background: var(--bg-black);
+  z-index: 20;
 }
 
 .sequence-sticky-stage {
   position: sticky;
   top: 0;
+  left: 0;
   width: 100vw;
   height: 100vh;
   height: 100dvh;
   overflow: hidden;
-  background: #000000;
-  z-index: 20;
+  background: var(--bg-black);
 }
 
 /* REQUISITO: Scaling demandato alla GPU via CSS object-fit: cover */
 .sequence-canvas {
-  width: 100vw;
-  height: 100vh;
-  height: 100dvh;
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
   display: block;
-  transform: translateZ(0);
-  will-change: opacity, transform;
+  pointer-events: none;
+  will-change: transform;
 }
 
 .sequence-dark-fade-overlay {
   position: absolute;
   inset: 0;
-  background: #000000;
-  pointer-events: none;
+  background: var(--bg-black);
   opacity: 0;
+  pointer-events: none;
   z-index: 5;
   will-change: opacity;
 }
 
-/* Traccia di scroll virtuale */
-#seq-1-track {
-  height: 450vh;
-}
-
 /* ═══════════════════════════════════════════════════════════════
-   4. SEZIONE BIO: FOTO_1 FISSA SULLA DESTRA + TESTI SULLA SINISTRA
+   4. SEZIONE BIO CON FOTO_1.PNG PINNATA A DESTRA E TESTI A SINISTRA
    ═══════════════════════════════════════════════════════════════ */
-.bio-experience-section {
+.bio-story-section {
   position: relative;
   width: 100%;
-  min-height: 380vh;
-  background: #060608;
+  height: 350vh;
+  background: #050508;
   z-index: 30;
 }
 
-.bio-sticky-wrapper {
+.bio-sticky-grid {
   position: sticky;
   top: 0;
   width: 100vw;
   height: 100vh;
   height: 100dvh;
-  overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 6vw;
+  padding: 0 max(24px, 6vw);
+  overflow: hidden;
 }
 
-/* Colonna Sinistra: Blocchi di Testo che appaiono in sequenza */
-.bio-text-column {
+/* Colonna Sinistra: Testi in sequenza (fade-in/fade-out verso l'alto) */
+.bio-narrative-col {
   position: relative;
-  width: 50%;
-  max-width: 580px;
+  width: 100%;
+  max-width: 520px;
   height: 100%;
   display: flex;
   align-items: center;
+  z-index: 5;
 }
 
-.bio-block {
+.bio-text-block {
   position: absolute;
   left: 0; right: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
   opacity: 0;
-  transform: translateY(40px);
+  transform: translate3d(0, 45px, 0);
   will-change: transform, opacity;
   pointer-events: none;
 }
-.bio-block.is-active {
+.bio-text-block.active {
   pointer-events: auto;
 }
 
-.bio-label {
+.bio-index {
   font-family: var(--font-display);
   font-size: 0.72rem;
   font-weight: 800;
   letter-spacing: 0.24em;
   text-transform: uppercase;
   color: var(--accent-gold);
-  margin-bottom: 14px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.bio-label::before {
-  content: '';
-  display: block;
-  width: 18px; height: 1px;
-  background: var(--accent-gold);
 }
 
-.bio-heading {
+.bio-quote {
   font-family: var(--font-display);
-  font-size: clamp(2rem, 4.5vw, 3.4rem);
+  font-size: clamp(2rem, 5vw, 3.2rem);
   font-weight: 800;
-  line-height: 1.15;
+  line-height: 1.1;
   letter-spacing: -0.01em;
   color: #ffffff;
-  margin-bottom: 20px;
 }
 
-.bio-paragraph {
-  font-family: var(--font-sans);
-  font-size: clamp(0.95rem, 1.8vw, 1.18rem);
-  line-height: 1.7;
+.bio-desc-text {
+  font-size: clamp(0.95rem, 2vw, 1.18rem);
+  line-height: 1.65;
   color: var(--text-muted);
 }
 
-/* Colonna Destra: foto_1.png trasparente fissa con effetto floating */
-.bio-photo-column {
+/* Colonna Destra: foto_1.png (sfondo trasparente con floating parallax) */
+.bio-figure-col {
   position: relative;
-  width: 46%;
-  height: 100%;
+  width: 45vw;
+  max-width: 540px;
+  height: 85vh;
   display: flex;
   align-items: flex-end;
   justify-content: center;
+  z-index: 2;
   pointer-events: none;
 }
 
-.bio-cutout-img {
+.bio-floating-figure {
   max-width: 100%;
-  max-height: 88vh;
+  max-height: 100%;
   object-fit: contain;
-  object-position: bottom center;
-  filter: drop-shadow(0 20px 50px rgba(0, 0, 0, 0.9));
-  transform: translateZ(0);
+  filter: drop-shadow(0 20px 45px rgba(0, 0, 0, 0.95));
   will-change: transform, opacity;
 }
 
-@media (max-width: 768px) {
-  .bio-sticky-wrapper {
-    flex-direction: column-reverse;
-    justify-content: flex-end;
-    padding: calc(var(--safe-top) + 20px) 20px 20px;
+@media (max-width: 820px) {
+  .bio-sticky-grid {
+    flex-direction: column;
+    justify-content: center;
   }
-  .bio-text-column {
-    width: 100%;
+  .bio-figure-col {
+    position: absolute;
+    right: -12vw;
+    bottom: 0;
+    width: 78vw;
+    height: 60vh;
+    opacity: 0.5;
+    z-index: 1;
+  }
+  .bio-narrative-col {
+    z-index: 5;
     max-width: 100%;
-    height: 52%;
-  }
-  .bio-photo-column {
-    width: 100%;
-    height: 48%;
-  }
-  .bio-cutout-img {
-    max-height: 45vh;
   }
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   5. TRANSIZIONE VERSO FOTO_2 (PANORAMICA) E FOTO_3 (VOLTO TRASPARENTE)
+   5. TRANSIZIONE VERSO FOTO_2 E FOTO_3
    ═══════════════════════════════════════════════════════════════ */
-.photos-transition-stage {
+.trans-panoramic-section {
   position: relative;
   width: 100%;
   height: 300vh;
-  background: #040406;
-  z-index: 35;
+  background: var(--bg-black);
+  z-index: 40;
 }
 
-.photos-sticky-frame {
+.trans-sticky-frame {
   position: sticky;
   top: 0;
   width: 100vw;
@@ -453,10 +478,28 @@ a {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #040406;
 }
 
-.photo-fullscreen-layer {
+/* Foto 2: Panoramica con zoom slow-motion e soft reveal */
+.pane-panoramic-2 {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  opacity: 0;
+  transform: scale(1.15);
+  will-change: transform, opacity;
+}
+.pane-panoramic-2 img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+/* Foto 3: Primo piano volto (sfondo trasparente) che si fonde morbidamente */
+.pane-face-3 {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -464,35 +507,26 @@ a {
   display: flex;
   align-items: center;
   justify-content: center;
-  will-change: transform, opacity, clip-path;
-}
-
-.photo-fullscreen-layer img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
-/* foto_3 è un volto trasparente che si fonde morbidamente */
-.photo-face-cutout {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  object-position: center;
-  filter: drop-shadow(0 0 60px rgba(0, 0, 0, 0.95));
+  opacity: 0;
   will-change: transform, opacity;
+  transform-origin: 55% 38%; /* Punto focale pupilla */
+}
+.pane-face-3 img {
+  max-width: 90vw;
+  max-height: 90vh;
+  object-fit: contain;
+  filter: drop-shadow(0 15px 35px rgba(0, 0, 0, 0.85));
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   6. SEQUENZA 2: ZOOM NELL'OCCHIO -> FOTO_4 (URBANO NOTTURNO)
+   6. SEQUENZA 2: ZOOM NELL'OCCHIO -> FOTO_4 (NOTTURNO)
    ═══════════════════════════════════════════════════════════════ */
 .eye-sequence-section {
   position: relative;
   width: 100%;
-  height: 320vh;
-  background: #020204;
-  z-index: 40;
+  height: 300vh;
+  background: var(--bg-black);
+  z-index: 50;
 }
 
 .eye-sticky-stage {
@@ -502,20 +536,9 @@ a {
   height: 100vh;
   height: 100dvh;
   overflow: hidden;
-  background: #000000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
-#canvas-seq-2 {
-  width: 100vw;
-  height: 100vh;
-  height: 100dvh;
-  object-fit: cover;
-  display: block;
-}
-
+/* Foto 4: Paesaggio urbano notturno che riemerge gradualmente */
 .night-city-reveal {
   position: absolute;
   inset: 0;
@@ -523,12 +546,12 @@ a {
   height: 100%;
   opacity: 0;
   will-change: opacity, transform;
+  z-index: 2;
 }
 .night-city-reveal img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  display: block;
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -537,8 +560,8 @@ a {
 .gallery-journey-stream {
   position: relative;
   width: 100%;
-  background: #040406;
-  z-index: 50;
+  background: var(--bg-black);
+  z-index: 60;
 }
 
 .gallery-immersive-frame {
@@ -556,47 +579,48 @@ a {
   position: relative;
   width: 100%;
   height: 100%;
+  overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow: hidden;
 }
-
 .gallery-inner-wrap img {
   position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
+  inset: -5%;
+  width: 110%;
+  height: 110%;
   object-fit: cover;
-  transform: translateZ(0);
-  will-change: transform, filter, opacity;
+  will-change: transform, filter;
 }
 
-/* Silhouette di foto_7 al tramonto */
+/* Foto 7: Silhouette al tramonto (cutout trasparente) flottante */
 .sunset-cutout-img {
-  width: 100% !important;
-  height: 100% !important;
+  position: absolute;
+  bottom: 0;
+  width: min(85vw, 680px) !important;
+  height: 90vh !important;
   object-fit: contain !important;
   object-position: bottom center !important;
-  filter: drop-shadow(0 0 50px rgba(240, 148, 51, 0.25));
+  filter: drop-shadow(0 25px 50px rgba(0, 0, 0, 0.95));
+  z-index: 5;
 }
 
 .vignette-cinematic {
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle at center, transparent 40%, rgba(4, 4, 6, 0.7) 100%);
+  background: radial-gradient(circle at center, transparent 40%, rgba(4, 4, 6, 0.72) 100%);
   pointer-events: none;
-  z-index: 2;
+  z-index: 3;
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   8. FOOTER & INSTAGRAM CONNECTION
-   ═══════════════════════════════════════════════════════ */
+   8. FOOTER & INSTAGRAM MASTER CARD
+   ═══════════════════════════════════════════════════════════════ */
 .epilogue-footer-section {
   position: relative;
   min-height: 80vh;
   background: #020204;
-  z-index: 60;
+  z-index: 70;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -648,6 +672,8 @@ a {
   -webkit-backdrop-filter: blur(16px);
   transition: all 0.35s var(--ease-smooth);
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7);
+  text-decoration: none;
+  color: var(--text-main);
 }
 .instagram-master-card:hover {
   border-color: rgba(255, 255, 255, 0.45);
@@ -768,4 +794,5 @@ a {
     scroll-behavior: auto !important;
   }
   .curtain-top, .curtain-bottom { display: none !important; }
+  #preloader { display: none !important; }
 }
